@@ -51,7 +51,17 @@ abstract class AppRouter {
       // Authentication Routes
       GoRoute(
         path: kLoginView,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) {
+          try {
+            return const LoginScreen();
+          } catch (e) {
+            // Fallback in case of import issues
+            return Scaffold(
+              appBar: AppBar(title: const Text('Login')),
+              body: const Center(child: Text('Login Screen')),
+            );
+          }
+        },
       ),
       GoRoute(
         path: kRegisterView,

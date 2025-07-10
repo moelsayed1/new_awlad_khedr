@@ -28,7 +28,7 @@ class LoginRequest {
 class LoginResponse {
   final bool success;
   final String? message;
-  final String? token;
+  final String? twoken;
   final UserData? user;
 
   LoginResponse({
@@ -40,7 +40,7 @@ class LoginResponse {
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
-      success: json['success'] ?? false,
+      success: json['success'] ?? (json['token'] != null), // Set success to true if token exists
       message: json['message'],
       token: json['token'],
       user: json['user'] != null ? UserData.fromJson(json['user']) : null,

@@ -7,6 +7,8 @@ import '../../new_core/custom_text_field.dart';
 import '../../new_core/app_router.dart';
 import 'auth_provider.dart';
 import 'dart:developer';
+import 'package:flutter/services.dart';
+import '../../new_core/utils/english_digits_input_formatter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -70,28 +72,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 36),
 
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: passwordVisible,
-                    ),
-                    // CustomTextField(
-                    //   hintText: 'كلمة المرور',
+                    // TextFormField(
                     //   controller: _passwordController,
                     //   obscureText: passwordVisible,
-                    //   inputType: TextInputType.number,
-                    //   prefixIcon: IconButton(
-                    //     icon: Icon(
-                    //       passwordVisible
-                    //           ? Icons.visibility_off
-                    //           : Icons.visibility,
-                    //     ),
-                    //     onPressed: () {
-                    //       setState(() {
-                    //         passwordVisible = !passwordVisible;
-                    //       });
-                    //     },
-                    //   ),
                     // ),
+                    CustomTextField(
+                      hintText: 'كلمة المرور',
+                      controller: _passwordController,
+                      obscureText: passwordVisible,
+                      inputType: TextInputType.text, 
+                      textDirection: TextDirection.ltr,
+                      prefixIcon: IconButton(
+                        icon: Icon(
+                          passwordVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            passwordVisible = !passwordVisible;
+                          });
+                        },
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -123,20 +126,20 @@ class _LoginScreenState extends State<LoginScreen> {
                               log("Username: ${_userNameController.text}");
                               log("Password: ${_passwordController.text}");
 
-                              // if (_userNameController.text.isEmpty ||
-                              //     _passwordController.text.isEmpty) {
-                              //   ScaffoldMessenger.of(context).showSnackBar(
-                              //     const SnackBar(
-                              //       content: Text(
-                              //           'Username and password are required.'),
-                              //     ),
-                              //   );
-                              //   return;
-                              // }
+                              if (_userNameController.text.isEmpty ||
+                                  _passwordController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Username and password are required.'),
+                                  ),
+                                );
+                                return;
+                              }
 
                               final success = await authProvider.login(
-                                "Abdelaziz",
-                                "12345",
+                                _userNameController.text.trim(),
+                                _passwordController.text.trim(),
                               );
 
                               if (success) {
