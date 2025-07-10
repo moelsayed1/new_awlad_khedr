@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../constant.dart';
-import '../ui/auth/auth_provider.dart';
 import '../ui/cart/cart_provider.dart';
-import '../ui/order/order_provider.dart';
-import '../ui/product/product_provider.dart';
-import '../ui/ui_manager.dart';
 import 'app_router.dart';
 
 class MainLayout extends StatelessWidget {

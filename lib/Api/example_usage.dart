@@ -1,8 +1,4 @@
 import 'api_manager.dart';
-import 'models/auth_models.dart';
-import 'models/product_models.dart';
-import 'models/cart_models.dart';
-import 'models/order_models.dart';
 
 class ApiExampleUsage {
   final ApiManager _apiManager = ApiManager();

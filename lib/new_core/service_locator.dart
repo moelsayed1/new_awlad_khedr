@@ -3,12 +3,12 @@ import '../Api/services/auth_service.dart';
 import '../Api/services/product_service.dart';
 import '../Api/services/cart_service.dart';
 import '../Api/services/order_service.dart';
-import '../ui/auth/auth_provider.dart';
-import '../ui/home/home_provider.dart';
-import '../ui/cart/cart_provider.dart';
-import '../ui/order/order_provider.dart';
-import '../ui/product/product_provider.dart';
-import '../ui/ui_manager.dart';
+import '../Ui/auth/auth_provider.dart';
+import '../Ui/home/home_provider.dart';
+import '../Ui/cart/cart_provider.dart';
+import '../Ui/order/order_provider.dart';
+import '../Ui/product/product_provider.dart';
+import '../Ui/ui_manager.dart';
 
 import 'package:get_it/get_it.dart';
 

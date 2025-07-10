@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'new_core/app_router.dart';
 import 'new_core/service_locator.dart';
-import 'Ui/ui_manager.dart';
 import 'dart:developer';
 
 String authToken = "";

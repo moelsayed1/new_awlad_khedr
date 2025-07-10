@@ -8,8 +8,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../constant.dart';
 import '../../new_core/main_layout.dart';
 import '../../new_core/assets.dart';
-import '../../Api/api_manager.dart';
-import '../../Api/models/cart_models.dart';
 import 'cart_provider.dart';
 
 

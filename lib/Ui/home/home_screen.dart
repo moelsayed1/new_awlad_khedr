@@ -11,8 +11,6 @@ import '../../constant.dart';
 import '../../new_core/assets.dart';
 import '../../new_core/main_layout.dart';
 import '../../new_core/app_router.dart';
-import '../../Api/api_manager.dart';
-import '../../Api/models/product_models.dart';
 import 'home_provider.dart';
 
 

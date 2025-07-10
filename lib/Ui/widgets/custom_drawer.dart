@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../constant.dart';
-import '../../new_core/assets.dart';
 import '../../new_core/app_router.dart';
 import '../../Api/models/auth_models.dart';
 

@@ -255,7 +255,7 @@ class AppHelpers {
   static Map<K, V> sortMap<K, V>(Map<K, V> map, int Function(K, K) compare) {
     final sortedKeys = map.keys.toList()..sort(compare);
     return Map.fromEntries(
-      sortedKeys.map((key) => MapEntry(key, map[key]!)),
+      sortedKeys.map((key) => MapEntry(key, map[key] as V)),
     );
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../constant.dart';
 import '../../Api/models/product_models.dart' as api_models;
 import 'product_card.dart';
 

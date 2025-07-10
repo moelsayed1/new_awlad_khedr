@@ -33,7 +33,7 @@ class CustomTextField extends StatelessWidget {
     this.focusedBorderColor,
     this.errorBorderColor,
     this.textAlign = TextAlign.right,
-    this.textDirection = TextDirection.rtl,
+    //  this.textDirection = TextDirection.rtl,
   });
 
   final Function(String)? onChanged;
@@ -64,7 +64,7 @@ class CustomTextField extends StatelessWidget {
   final Color? focusedBorderColor;
   final Color? errorBorderColor;
   final TextAlign textAlign;
-  final TextDirection textDirection;
+  //final TextDirection textDirection;
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ class CustomTextField extends StatelessWidget {
       maxLength: maxLength,
       cursorColor: darkOrange,
       textAlign: textAlign,
-      textDirection: textDirection,
+      //  textDirection: _getTextDirection(),
       keyboardType: inputType,
       obscureText: obscureText,
       onChanged: onChanged,
@@ -90,8 +90,8 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       validator: validator,
       focusNode: focusNode,
-      textInputAction: textInputAction,
-      inputFormatters: _getInputFormatters(),
+      //   textInputAction: textInputAction,
+      //     inputFormatters: _getInputFormatters(),
       decoration: InputDecoration(
         filled: true,
         fillColor: fillColor,
@@ -148,6 +148,16 @@ class CustomTextField extends StatelessWidget {
         return null;
     }
   }
+
+  // TextDirection _getTextDirection() {
+  //   // Use LTR for numbers and email, RTL for Arabic text
+  //   if (inputType == TextInputType.number ||
+  //       inputType == TextInputType.phone ||
+  //       inputType == TextInputType.emailAddress) {
+  //     return TextDirection.ltr;
+  //   }
+  //   return textDirection;
+  // }
 }
 
 class SearchTextField extends StatelessWidget {

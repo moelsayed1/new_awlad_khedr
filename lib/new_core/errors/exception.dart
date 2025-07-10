@@ -10,48 +10,42 @@ class AppException implements Exception {
 }
 
 class NetworkException extends AppException {
-  NetworkException(String message, {String? code, dynamic data})
-      : super(message, code: code, data: data);
+  NetworkException(super.message, {super.code, super.data});
 
   @override
   String toString() => 'NetworkException: $message';
 }
 
 class AuthException extends AppException {
-  AuthException(String message, {String? code, dynamic data})
-      : super(message, code: code, data: data);
+  AuthException(super.message, {super.code, super.data});
 
   @override
   String toString() => 'AuthException: $message';
 }
 
 class ValidationException extends AppException {
-  ValidationException(String message, {String? code, dynamic data})
-      : super(message, code: code, data: data);
+  ValidationException(super.message, {super.code, super.data});
 
   @override
   String toString() => 'ValidationException: $message';
 }
 
 class ServerException extends AppException {
-  ServerException(String message, {String? code, dynamic data})
-      : super(message, code: code, data: data);
+  ServerException(super.message, {super.code, super.data});
 
   @override
   String toString() => 'ServerException: $message';
 }
 
 class CacheException extends AppException {
-  CacheException(String message, {String? code, dynamic data})
-      : super(message, code: code, data: data);
+  CacheException(super.message, {super.code, super.data});
 
   @override
   String toString() => 'CacheException: $message';
 }
 
 class UnknownException extends AppException {
-  UnknownException(String message, {String? code, dynamic data})
-      : super(message, code: code, data: data);
+  UnknownException(super.message, {super.code, super.data});
 
   @override
   String toString() => 'UnknownException: $message';
