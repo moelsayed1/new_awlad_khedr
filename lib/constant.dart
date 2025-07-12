@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
-const mainColor  = Color(0xffFFE3AF);
-const buttonColor  = Color(0xffD9D9D9);
-const darkOrange  = Color(0xffFC6E2A);
-const deepRed  = Color(0xff591712);
-const kBrown  = Color(0xffC29500);
-const blueHawai  = Color(0xff63B4FF);
-const brownDark  = Color(0xffB58938);
+const mainColor = Color(0xffFFE3AF);
+const buttonColor = Color(0xffD9D9D9);
+const darkOrange = Color(0xffFC6E2A);
+const deepRed = Color(0xff591712);
+const kBrown = Color(0xffC29500);
+const blueHawai = Color(0xff63B4FF);
+const brownDark = Color(0xffB58938);
 
 const baseFont = 'GE Dinar One';
-
-
 
 class APIConstant {
   static const BASE_URL = "https://erp.khedrsons.com";
@@ -29,9 +27,11 @@ class APIConstant {
   static const GET_ALL_TRANSACTIONS = "$BASE_URL/api/sells/transactions";
   static const STORE_SELL = "$BASE_URL/api/sells/store";
   static const GET_ORDER = "$BASE_URL/api/orders"; // Usage: /api/orders/{id}
-  static const GET_ORDER_INVOICE = "$BASE_URL/api/order-invoice"; // Usage: /api/order-invoice/{id}
-  static const GET_TRANSACTION_INVOICE = "$BASE_URL/api/transaction-invoice"; // Usage: /api/transaction-invoice/{id}
+  static const GET_ORDER_INVOICE =
+      "$BASE_URL/api/order-invoice"; // Usage: /api/order-invoice/{id}
+  static const GET_TRANSACTION_INVOICE =
+      "$BASE_URL/api/transaction-invoice"; // Usage: /api/transaction-invoice/{id}
   static const STORE_TO_CART = "$BASE_URL/api/cart";
-  
+  static const GET_CART_INDEX_as_a_first_step = "$BASE_URL/api/cart";
   // static final GET_ALL_SUBCATEGORY = "$BASE_URL/api/category/subcategories/";
 }

@@ -1,22 +1,22 @@
-import 'package:awlad_khedr/features/auth/register/data/provider/register_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'core/app_router.dart';
-import 'features/auth/login/data/provider/login_provider.dart';
-import 'features/drawer_slider/controller/notification_provider.dart';
+import 'new_core/app_router.dart';
+import 'new_core/service_locator.dart';
 import 'dart:developer';
-import 'features/order/presentation/controllers/order_provider.dart';
-
 
 String authToken = "";
 
 Future<void> initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize service locator
+  ServiceLocator.setup();
+
   SharedPreferences pref = await SharedPreferences.getInstance();
   authToken = pref.getString('token') ?? '';
-  
+
   // Validate token if it exists
   if (authToken.isNotEmpty) {
     try {
@@ -25,6 +25,7 @@ Future<void> initializeApp() async {
       if (authToken.isEmpty) {
         await pref.remove('token');
         authToken = '';
+        await pref.clear();
       }
     } catch (e) {
       log('Error validating token: $e');
@@ -36,18 +37,16 @@ Future<void> initializeApp() async {
 
 void main() async {
   await initializeApp();
-  
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
-        ChangeNotifierProvider(create: (_) {
-          final loginProvider = LoginProvider();
-          loginProvider.loadToken();
-          return loginProvider;
-        }),
-        ChangeNotifierProvider(create: (_) => RegisterProvider()),
-        ChangeNotifierProvider(create: (_) => OrderProvider()),
+        // UI Providers
+        ChangeNotifierProvider(create: (_) => ServiceLocator.authProvider),
+        ChangeNotifierProvider(create: (_) => ServiceLocator.homeProvider),
+        ChangeNotifierProvider(create: (_) => ServiceLocator.cartProvider),
+        ChangeNotifierProvider(create: (_) => ServiceLocator.orderProvider),
+        ChangeNotifierProvider(create: (_) => ServiceLocator.productProvider),
       ],
       child: const AwladKhedr(),
     ),
