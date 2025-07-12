@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import '../api_constants.dart';
 
@@ -68,6 +69,9 @@ class ApiService {
   Future<http.Response> postFormData(
       String endpoint, Map<String, String> formData) async {
     try {
+      log('Making POST request to: ${ApiConstants.baseUrl}$endpoint');
+      log('Form data: $formData');
+
       final request = http.MultipartRequest(
         'POST',
         Uri.parse('${ApiConstants.baseUrl}$endpoint'),
@@ -75,6 +79,7 @@ class ApiService {
 
       // Add headers
       request.headers.addAll(_getHeaders(isMultipart: true));
+      log('Request headers: ${request.headers}');
 
       // Add form fields
       formData.forEach((key, value) {
@@ -85,6 +90,7 @@ class ApiService {
       final response = await http.Response.fromStream(streamedResponse);
       return response;
     } catch (e) {
+      log('Network error in postFormData: $e');
       throw Exception('Network error: $e');
     }
   }
@@ -161,13 +167,19 @@ class ApiService {
 
   // Handle response and parse JSON
   Map<String, dynamic> handleResponse(http.Response response) {
+    log('Response status: ${response.statusCode}');
+    log('Response headers: ${response.headers}');
+    log('Response body: ${response.body}');
+
     if (response.statusCode >= 200 && response.statusCode < 300) {
       try {
         return jsonDecode(response.body);
       } catch (e) {
+        log('JSON decode error: $e');
         throw Exception('Invalid JSON response: $e');
       }
     } else {
+      log('HTTP error: ${response.statusCode} - ${response.body}');
       throw Exception('HTTP ${response.statusCode}: ${response.body}');
     }
   }

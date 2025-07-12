@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:developer';
 import '../api_constants.dart';
 import '../models/auth_models.dart';
 import 'api_service.dart';
@@ -13,13 +14,21 @@ class AuthService {
   // Login
   Future<LoginResponse> login(LoginRequest request) async {
     try {
+      log('Login request data: ${request.toFormData()}');
+      log('Login endpoint: ${ApiConstants.baseUrl}${ApiConstants.login}');
+
       final response = await _apiService.postFormData(
         ApiConstants.login,
         request.toFormData(),
       );
 
+      log('Login response status: ${response.statusCode}');
+      log('Login response body: ${response.body}');
+
       final responseData = _apiService.handleResponse(response);
       final loginResponse = LoginResponse.fromJson(responseData);
+
+      log('Parsed login response: success=${loginResponse.success}, message=${loginResponse.message}');
 
       // Set auth token if login is successful
       if (loginResponse.success && loginResponse.token != null) {
@@ -28,6 +37,7 @@ class AuthService {
 
       return loginResponse;
     } catch (e) {
+      log('Login error: $e');
       throw Exception('Login failed: $e');
     }
   }

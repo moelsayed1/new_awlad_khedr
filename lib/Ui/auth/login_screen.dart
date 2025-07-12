@@ -70,28 +70,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 36),
 
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: passwordVisible,
-                    ),
-                    // CustomTextField(
-                    //   hintText: 'كلمة المرور',
+                    // TextFormField(
                     //   controller: _passwordController,
                     //   obscureText: passwordVisible,
-                    //   inputType: TextInputType.number,
-                    //   prefixIcon: IconButton(
-                    //     icon: Icon(
-                    //       passwordVisible
-                    //           ? Icons.visibility_off
-                    //           : Icons.visibility,
-                    //     ),
-                    //     onPressed: () {
-                    //       setState(() {
-                    //         passwordVisible = !passwordVisible;
-                    //       });
-                    //     },
-                    //   ),
                     // ),
+                    CustomTextField(
+                      hintText: 'كلمة المرور',
+                      controller: _passwordController,
+                      obscureText: passwordVisible,
+                      inputType: TextInputType.number,
+                      prefixIcon: IconButton(
+                        icon: Icon(
+                          passwordVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            passwordVisible = !passwordVisible;
+                          });
+                        },
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -123,20 +123,20 @@ class _LoginScreenState extends State<LoginScreen> {
                               log("Username: ${_userNameController.text}");
                               log("Password: ${_passwordController.text}");
 
-                              // if (_userNameController.text.isEmpty ||
-                              //     _passwordController.text.isEmpty) {
-                              //   ScaffoldMessenger.of(context).showSnackBar(
-                              //     const SnackBar(
-                              //       content: Text(
-                              //           'Username and password are required.'),
-                              //     ),
-                              //   );
-                              //   return;
-                              // }
+                              if (_userNameController.text.isEmpty ||
+                                  _passwordController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Username and password are required.'),
+                                  ),
+                                );
+                                return;
+                              }
 
                               final success = await authProvider.login(
-                                "Abdelaziz",
-                                "12345",
+                                _userNameController.text,
+                                _passwordController.text,
                               );
 
                               if (success) {

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../Ui/auth/login_screen.dart';
 import '../Ui/home/home_screen.dart';
 import '../Ui/cart/cart_screen.dart';
 import '../constant.dart';
+import 'service_locator.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -51,7 +53,10 @@ abstract class AppRouter {
       // Authentication Routes
       GoRoute(
         path: kLoginView,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => ChangeNotifierProvider.value(
+          value: ServiceLocator.authProvider,
+          child: const LoginScreen(),
+        ),
       ),
       GoRoute(
         path: kRegisterView,
@@ -78,17 +83,26 @@ abstract class AppRouter {
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,
         path: kHomeScreen,
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => ChangeNotifierProvider.value(
+          value: ServiceLocator.homeProvider,
+          child: const HomeScreen(),
+        ),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,
         path: kCartView,
-        builder: (context, state) => const CartScreen(),
+        builder: (context, state) => ChangeNotifierProvider.value(
+          value: ServiceLocator.cartProvider,
+          child: const CartScreen(),
+        ),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,
         path: kOrdersView,
-        builder: (context, state) => const OrdersScreen(),
+        builder: (context, state) => ChangeNotifierProvider.value(
+          value: ServiceLocator.orderProvider,
+          child: const OrdersScreen(),
+        ),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,

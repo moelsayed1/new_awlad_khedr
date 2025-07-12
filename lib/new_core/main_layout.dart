@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../constant.dart';
-import '../ui/cart/cart_provider.dart';
+import '../Ui/cart/cart_provider.dart';
+import '../Ui/home/home_provider.dart';
+import '../Ui/order/order_provider.dart';
+import '../Ui/product/product_provider.dart';
 import 'app_router.dart';
+import 'service_locator.dart';
 
 class MainLayout extends StatelessWidget {
   final int selectedIndex;
@@ -36,10 +40,19 @@ class MainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: child,
-      bottomNavigationBar: showBottomNavigation ? _buildBottomNavigationBar(context) : null,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: ServiceLocator.cartProvider),
+        ChangeNotifierProvider.value(value: ServiceLocator.homeProvider),
+        ChangeNotifierProvider.value(value: ServiceLocator.orderProvider),
+        ChangeNotifierProvider.value(value: ServiceLocator.productProvider),
+      ],
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: child,
+        bottomNavigationBar:
+            showBottomNavigation ? _buildBottomNavigationBar(context) : null,
+      ),
     );
   }
 
@@ -61,7 +74,9 @@ class MainLayout extends StatelessWidget {
             BottomNavigationBarItem(
               icon: Stack(
                 children: [
-                  Icon(selectedIndex == 1 ? Icons.shopping_cart : Icons.shopping_cart_outlined),
+                  Icon(selectedIndex == 1
+                      ? Icons.shopping_cart
+                      : Icons.shopping_cart_outlined),
                   if (cartProvider.cartItems.isNotEmpty)
                     Positioned(
                       right: 0,
@@ -91,11 +106,14 @@ class MainLayout extends StatelessWidget {
               label: 'السلة',
             ),
             BottomNavigationBarItem(
-              icon: Icon(selectedIndex == 2 ? Icons.notifications_active : Icons.notifications_active_outlined),
+              icon: Icon(selectedIndex == 2
+                  ? Icons.notifications_active
+                  : Icons.notifications_active_outlined),
               label: 'التنبيهات',
             ),
             BottomNavigationBarItem(
-              icon: Icon(selectedIndex == 3 ? Icons.person : Icons.person_outline),
+              icon: Icon(
+                  selectedIndex == 3 ? Icons.person : Icons.person_outline),
               label: 'الملف الشخصي',
             ),
           ],
@@ -103,4 +121,4 @@ class MainLayout extends StatelessWidget {
       },
     );
   }
-} 
+}
