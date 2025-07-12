@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../new_core/utils/english_digits_input_formatter.dart';
 import '../constant.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -33,7 +34,9 @@ class CustomTextField extends StatelessWidget {
     this.focusedBorderColor,
     this.errorBorderColor,
     this.textAlign = TextAlign.right,
-    //  this.textDirection = TextDirection.rtl,
+    this.inputFormatters,
+    this.textDirection,
+    this.style, ValueChanged<String>? onFieldSubmitted,
   });
 
   final Function(String)? onChanged;
@@ -64,24 +67,29 @@ class CustomTextField extends StatelessWidget {
   final Color? focusedBorderColor;
   final Color? errorBorderColor;
   final TextAlign textAlign;
-  //final TextDirection textDirection;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextDirection? textDirection;
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
+    final isNumber = inputType == TextInputType.number || inputType == TextInputType.phone;
+    final effectiveTextDirection = textDirection ?? _getTextDirection();
+    final effectiveInputFormatters = inputFormatters ?? _getInputFormatters();
+    final effectiveStyle = style ?? (isNumber
+        ? const TextStyle(fontFamily: 'Roboto', fontSize: 16)
+        : const TextStyle(color: Colors.black, fontFamily: 'Roboto'));
+
     return TextFormField(
       autofocus: autofocus,
       enabled: enabled,
       readOnly: readOnly,
-      style: const TextStyle(
-        color: Colors.black,
-        fontFamily: 'Roboto',
-      ),
+      style: effectiveStyle,
       maxLines: maxLines,
       minLines: minLines,
       maxLength: maxLength,
       cursorColor: darkOrange,
       textAlign: textAlign,
-      //  textDirection: _getTextDirection(),
       keyboardType: inputType,
       obscureText: obscureText,
       onChanged: onChanged,
@@ -90,8 +98,9 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       validator: validator,
       focusNode: focusNode,
-      //   textInputAction: textInputAction,
-      //     inputFormatters: _getInputFormatters(),
+      textInputAction: textInputAction,
+      inputFormatters: effectiveInputFormatters,
+      textDirection: effectiveTextDirection,
       decoration: InputDecoration(
         filled: true,
         fillColor: fillColor,
@@ -139,91 +148,29 @@ class CustomTextField extends StatelessWidget {
   }
 
   List<TextInputFormatter>? _getInputFormatters() {
+    // If the field is a password (obscureText == true), allow all characters (no formatter).
+    if (obscureText) {
+      // If user provided custom inputFormatters, use them, else allow all input.
+      return inputFormatters;
+    }
     switch (inputType) {
       case TextInputType.number:
-        return [FilteringTextInputFormatter.digitsOnly];
       case TextInputType.phone:
-        return [FilteringTextInputFormatter.digitsOnly];
+        return [
+          FilteringTextInputFormatter.digitsOnly,
+          EnglishDigitsInputFormatter(),
+        ];
       default:
-        return null;
+        return inputFormatters;
     }
   }
 
-  // TextDirection _getTextDirection() {
-  //   // Use LTR for numbers and email, RTL for Arabic text
-  //   if (inputType == TextInputType.number ||
-  //       inputType == TextInputType.phone ||
-  //       inputType == TextInputType.emailAddress) {
-  //     return TextDirection.ltr;
-  //   }
-  //   return textDirection;
-  // }
-}
-
-class SearchTextField extends StatelessWidget {
-  const SearchTextField({
-    super.key,
-    this.hintText = 'ابحث عن المنتجات...',
-    this.onChanged,
-    this.controller,
-    this.onSubmitted,
-  });
-
-  final String hintText;
-  final Function(String)? onChanged;
-  final TextEditingController? controller;
-  final Function(String)? onSubmitted;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomTextField(
-      hintText: hintText,
-      onChanged: onChanged,
-      controller: controller,
-      onSubmitted: onSubmitted,
-      prefixIcon: const Icon(Icons.search, color: Colors.grey),
-      radius: 25,
-      fillColor: Colors.grey.shade100,
-      borderColor: Colors.transparent,
-      focusedBorderColor: darkOrange,
-    );
+  TextDirection _getTextDirection() {
+    if (inputType == TextInputType.number ||
+        inputType == TextInputType.phone ||
+        inputType == TextInputType.emailAddress) {
+      return TextDirection.ltr;
+    }
+    return TextDirection.rtl;
   }
-}
-
-class PasswordTextField extends StatelessWidget {
-  const PasswordTextField({
-    super.key,
-    this.hintText = 'كلمة المرور',
-    this.onChanged,
-    this.controller,
-    this.validator,
-    this.obscureText = true,
-    this.onToggleVisibility,
-  });
-
-  final String hintText;
-  final Function(String)? onChanged;
-  final TextEditingController? controller;
-  final String? Function(String?)? validator;
-  final bool obscureText;
-  final VoidCallback? onToggleVisibility;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomTextField(
-      hintText: hintText,
-      onChanged: onChanged,
-      controller: controller,
-      validator: validator,
-      obscureText: obscureText,
-      inputType: TextInputType.visiblePassword,
-      suffixIcon: IconButton(
-        icon: Icon(
-          obscureText ? Icons.visibility : Icons.visibility_off,
-          color: Colors.grey,
-        ),
-        onPressed: onToggleVisibility,
-      ),
-    );
-  }
-}
+} 

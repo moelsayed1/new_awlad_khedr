@@ -7,6 +7,8 @@ import '../../new_core/custom_text_field.dart';
 import '../../new_core/app_router.dart';
 import 'auth_provider.dart';
 import 'dart:developer';
+import 'package:flutter/services.dart';
+import '../../new_core/utils/english_digits_input_formatter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -78,7 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       hintText: 'كلمة المرور',
                       controller: _passwordController,
                       obscureText: passwordVisible,
-                      inputType: TextInputType.number,
+                      inputType: TextInputType.text,
+                      textDirection: TextDirection.ltr,
                       prefixIcon: IconButton(
                         icon: Icon(
                           passwordVisible
@@ -135,8 +138,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               }
 
                               final success = await authProvider.login(
-                                _userNameController.text,
-                                _passwordController.text,
+                                _userNameController.text.trim(),
+                                _passwordController.text.trim(),
                               );
 
                               if (success) {

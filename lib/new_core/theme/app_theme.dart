@@ -5,6 +5,7 @@ import 'app_colors.dart';
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
+      fontFamily: 'Roboto', // Set global font family to Roboto
       // Primary Colors
       primarySwatch: AppColors.primarySwatch,
       primaryColor: AppColors.primary,

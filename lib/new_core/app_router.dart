@@ -53,10 +53,7 @@ abstract class AppRouter {
       // Authentication Routes
       GoRoute(
         path: kLoginView,
-        builder: (context, state) => ChangeNotifierProvider.value(
-          value: ServiceLocator.authProvider,
-          child: const LoginScreen(),
-        ),
+        builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: kRegisterView,
