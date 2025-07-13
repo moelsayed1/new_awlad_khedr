@@ -126,7 +126,7 @@ class _TopRatedItemState extends State<TopRatedItem> {
                             color: Colors.transparent,
                             child: (topRatedItem?.products[index].imageUrl != null &&
                                     topRatedItem!.products[index].imageUrl!.isNotEmpty &&
-                                    topRatedItem!.products[index].imageUrl! != 'https://erp.khedrsons.com/uploads/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
+                                    topRatedItem!.products[index].imageUrl! != 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
                                 ? Image.network(
                                     topRatedItem!.products[index].imageUrl!,
                                     fit: BoxFit.cover,

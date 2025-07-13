@@ -19,7 +19,7 @@ class ProductItemCard extends StatelessWidget {
 
   bool _isValidImage(String? url) {
     if (url == null || url.isEmpty) return false;
-    if (url == 'https://erp.khedrsons.com/uploads/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png') return false;
+    if (url == 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png') return false;
     if (url.toLowerCase().endsWith('فريم.png')) return false;
     return true;
   }

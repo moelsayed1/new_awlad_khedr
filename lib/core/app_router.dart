@@ -8,6 +8,7 @@ import 'package:awlad_khedr/features/onboarding/presentation/views/on_boarding.d
 import 'package:awlad_khedr/features/products_screen/presentation/views/products_screen_view.dart';
 import 'package:awlad_khedr/features/products_screen/presentation/views/banner_products_view.dart';
 import 'package:awlad_khedr/features/payment_gateway/presentation/views/payment_view.dart';
+import 'package:awlad_khedr/features/search/presentation/views/search_results_view.dart';
 import 'package:awlad_khedr/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -48,6 +49,7 @@ abstract class AppRouter {
   static const kConfirmationPage = '/confirmationPage';
   static const kVerificationScreen = '/verificationScreen';
   static const kBannerProductsPage = '/bannerProductsPage';
+  static const kSearchResultsPage = '/searchResultsPage';
 
   static final router = GoRouter(
       initialLocation: authToken.isEmpty ? kOnBoarding : kHomeScreen,
@@ -161,6 +163,16 @@ abstract class AppRouter {
     GoRoute(
       path: kVerificationScreen,
       builder: (context, state) => const VerificationScreen(),
+    ),
+    GoRoute(
+      path: kSearchResultsPage,
+      builder: (context, state) {
+        final Map<String, dynamic> args = state.extra as Map<String, dynamic>? ?? {};
+        return SearchResultsPage(
+          searchQuery: args['searchQuery'] ?? '',
+          selectedCategory: args['selectedCategory'],
+        );
+      },
     ),
   ]);
 }
