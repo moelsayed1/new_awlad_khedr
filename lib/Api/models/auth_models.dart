@@ -28,7 +28,7 @@ class LoginRequest {
 class LoginResponse {
   final bool success;
   final String? message;
-  final String? twoken;
+  final String? token;
   final UserData? user;
 
   LoginResponse({
