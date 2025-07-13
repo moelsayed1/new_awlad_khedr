@@ -39,8 +39,10 @@ class LoginResponse {
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
+    // If token exists, consider it a successful login
+    final hasToken = json['token'] != null;
     return LoginResponse(
-      success: json['success'] ?? (json['token'] != null), // Set success to true if token exists
+      success: json['success'] ?? false,
       message: json['message'],
       token: json['token'],
       user: json['user'] != null ? UserData.fromJson(json['user']) : null,

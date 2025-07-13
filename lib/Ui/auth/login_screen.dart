@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       hintText: 'كلمة المرور',
                       controller: _passwordController,
                       obscureText: passwordVisible,
-                      inputType: TextInputType.text, 
+                      inputType: TextInputType.text,
                       textDirection: TextDirection.ltr,
                       prefixIcon: IconButton(
                         icon: Icon(
