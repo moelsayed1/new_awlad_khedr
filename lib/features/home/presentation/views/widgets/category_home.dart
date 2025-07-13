@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/assets.dart';
@@ -7,6 +8,8 @@ import 'package:awlad_khedr/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:go_router/go_router.dart';
+import 'package:awlad_khedr/core/app_router.dart';
 
 class HomeCategory extends StatefulWidget {
   const HomeCategory({
@@ -50,7 +53,7 @@ class _HomeCategoryState extends State<HomeCategory> {
         height: 200.h,
         child: isListLoaded
             ? ListView.separated(
-                itemCount: productByCategory?.categories.length ?? 0,
+                itemCount: min(productByCategory?.categories.length ?? 0, 10),
                 separatorBuilder: (BuildContext context, int index) =>
                     const SizedBox(
                   width: 15,
@@ -58,61 +61,75 @@ class _HomeCategoryState extends State<HomeCategory> {
                 shrinkWrap: false,
                 scrollDirection: Axis.horizontal,
                 reverse: true,
+                physics: const BouncingScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Container(
-                      width: MediaQuery.sizeOf(context).width * .4,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: MediaQuery.sizeOf(context).height * .15,
-                            color: Colors.transparent,
-                            child: productByCategory?.categories[index] != null
-                                ? Image.network(
-                                    productByCategory!
-                                        .categories[index].categoryImage ?? 'https://img4cdn.haraj.com.sa/userfiles30/2022-08-23/800x689-1_-GO__MTY2MTI4MDM2MzM5OTk0NDE1OTEwNQ.jpg',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset('assets/images/logoPng.png', fit: BoxFit.cover);
-                                    },
-                                  )
-                                : Image.asset(
-                                    AssetsData.callCenter,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                          const Spacer(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                productByCategory!
-                                    .categories[index].categoryName!,
-                                style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: baseFont),
-                              ),
-                            ],
-                          ),
-                        ],
+                    child: GestureDetector(
+                      onTap: () {
+                        final category = productByCategory!.categories[index];
+                        GoRouter.of(context).push(
+                          AppRouter.kBannerProductsPage,
+                          extra: {
+                            'bannerTitle': category.categoryName,
+                            'categoryName': category.categoryName,
+                            'categoryId': category.categoryId,
+                          },
+                        );
+                      },
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width * .4,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 1,
+                              blurRadius: 2,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: MediaQuery.sizeOf(context).height * .15,
+                              color: Colors.transparent,
+                              child: productByCategory?.categories[index] != null
+                                  ? Image.network(
+                                      productByCategory!
+                                          .categories[index].categoryImage ?? 'https://img4cdn.haraj.com.sa/userfiles30/2022-08-23/800x689-1_-GO__MTY2MTI4MDM2MzM5OTk0NDE1OTEwNQ.jpg',
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Image.asset('assets/images/logoPng.png', fit: BoxFit.cover);
+                                      },
+                                    )
+                                  : Image.asset(
+                                      AssetsData.callCenter,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                            const Spacer(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  productByCategory!
+                                      .categories[index].categoryName!,
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: baseFont),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );

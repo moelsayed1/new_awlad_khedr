@@ -6,6 +6,7 @@ import 'package:awlad_khedr/features/notification/presentaion/views/notification
 import 'package:awlad_khedr/features/home/presentation/views/home_view.dart';
 import 'package:awlad_khedr/features/onboarding/presentation/views/on_boarding.dart';
 import 'package:awlad_khedr/features/products_screen/presentation/views/products_screen_view.dart';
+import 'package:awlad_khedr/features/products_screen/presentation/views/banner_products_view.dart';
 import 'package:awlad_khedr/features/payment_gateway/presentation/views/payment_view.dart';
 import 'package:awlad_khedr/main.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ abstract class AppRouter {
   static const kUpdatePasswordScreen = '/updatePasswordScreen';
   static const kConfirmationPage = '/confirmationPage';
   static const kVerificationScreen = '/verificationScreen';
+  static const kBannerProductsPage = '/bannerProductsPage';
 
   static final router = GoRouter(
       initialLocation: authToken.isEmpty ? kOnBoarding : kHomeScreen,
@@ -109,6 +111,19 @@ abstract class AppRouter {
     GoRoute(
       path: kMostRequestedPage,
       builder: (context, state) => const MostRequestedPage(),
+    ),
+    GoRoute(
+      path: kBannerProductsPage,
+      builder: (context, state) {
+        final Map<String, dynamic> args = state.extra as Map<String, dynamic>? ?? {};
+        return BannerProductsPage(
+          bannerTitle: args['bannerTitle'],
+          categoryName: args['categoryName'],
+          categoryId: args['categoryId'],
+          brandName: args['brandName'],
+          brandId: args['brandId'],
+        );
+      },
     ),
     GoRoute(
       path: kCategoriesPage, // <--- NEW ROUTE

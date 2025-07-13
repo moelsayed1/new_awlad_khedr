@@ -27,6 +27,10 @@ class Datum {
     required this.imageUrl,
     required this.createdAt,
     required this.updatedAt,
+    this.categoryId,
+    this.categoryName,
+    this.brandId,
+    this.brandName,
   });
 
   final int? id;
@@ -35,6 +39,10 @@ class Datum {
   final String? imageUrl;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final int? categoryId;
+  final String? categoryName;
+  final int? brandId;
+  final String? brandName;
 
   factory Datum.fromJson(Map<String, dynamic> json){
     return Datum(
@@ -44,6 +52,10 @@ class Datum {
       imageUrl: json["image_url"],
       createdAt: DateTime.tryParse(json["created_at"] ?? ""),
       updatedAt: DateTime.tryParse(json["updated_at"] ?? ""),
+      categoryId: json["category_id"],
+      categoryName: json["category_name"],
+      brandId: json["brand_id"],
+      brandName: json["brand_name"],
     );
   }
 

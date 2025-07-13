@@ -1,0 +1,980 @@
+{
+	"info": {
+		"_postman_id": "52816fc2-d69c-4f3a-b46b-c319387c37c6",
+		"name": "Khader",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35081297"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "motest7",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/login",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store user data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjhiN2M2MzMzZDA0YTBkODE1OGRhMzNjZjVjM2FhNzM3ZTdjYzM4YWU1N2MzMDYwZGJiZjg5NjUwYmFiYzkwZjI4Zjc0YTIzMTcwNDExOWQ2IiwiaWF0IjoxNzM2MDgwODg3LjQ0MjcyLCJuYmYiOjE3MzYwODA4ODcuNDQyNzIzLCJleHAiOjE3Njc2MTY4ODcuMTM4Njc4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.lgR7ShegVU3atQVJSMAx7aqIgqjr9TJ0vBEYwlrALFr5GiJzjt_eaH4RASDtR51w0HibyToc7CJgSmUoNp83K4mqWHuEMUEOTc9PN96QZUAoaaIJNvIvO2DPJeu-YXsKKnz61TALy-pD0haNWbtH7jdX-Id-fIbzUHRIWyBKybBXy2ozDrbsTb266Vtg-d_zGFq4KI5FqibH1JB5KfrV9AvUaaeVZmu5L0vmoUQ0CNEYBDskc47FxJwhITda3AXAJqvyGQ3tKsw44fhcQp4dR_eIPLRcDkJ4Cp0PknINuDd9oZ7RDGNVPkeauadQoLK5mBZEbonPkTssWg6G6C6zxcstmPqq86s4O9Py7wSrX9I3l1l2F0X92reMnXIEpaD6npI-89AeTLm_syaiCuva85hZUKpg9zxbt3-FXMc9zdVp9dY1sE5szUaZzYUfT5h0qCLi2h9NOj917SjHgC9SrIEr5obh8OPA7zttIm5CwS3mZuBQKHXrv5GgqDPOBvm0MNELWX5ecIyU5xSeVOdLTIfqUWpGI-N6mE8ob0wv6cjQcGYz4_0rBoxpN5XGwByQ86ck4i5XsLP8dfvS5hbUC9SISBjyxrElVIrd8bSd5ZIFvJFd_brq3BW_yXB8NtC_VOjT-8iXV3NX0JLudjTHC7V_g66qD9EGFUJrTFRR40c",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/encrypted",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "surname",
+									"value": "test",
+									"type": "text"
+								},
+								{
+									"key": "first_name",
+									"value": "motest5",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "mostafaembaby19@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "motest5",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								},
+								{
+									"key": "allow_mob",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "mobile",
+									"value": "01062062492",
+									"type": "text"
+								},
+								{
+									"key": "address_line_1",
+									"value": "cairo",
+									"type": "text"
+								},
+								{
+									"key": "supplier_business_name",
+									"value": "نشاط اولي",
+									"type": "text"
+								},
+								{
+									"key": "tax_card_image",
+									"type": "file",
+									"src": "postman-cloud:///1efbed8c-63a5-4620-9fb4-0c0f0f35aee9"
+								},
+								{
+									"key": "commercial_register_image",
+									"type": "file",
+									"src": "postman-cloud:///1efbed8c-9125-4550-88dd-a9838fd33c72"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/user/register",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjI3MWNmNzViZjY3MWQ0ZTg4YTdhZmFmYzdjOTgzOTE3OTNhOWQ2NjNjMzZmODQ4NWJkNDg2NjAxOWViNzc1MmJhNzI3MjY0NTk1Yjg3YjdiIiwiaWF0IjoxNzM2MTcwNTk3LjA1MTEzMywibmJmIjoxNzM2MTcwNTk3LjA1MTEzNSwiZXhwIjoxNzY3NzA2NTk3LjA0NzM5Niwic3ViIjoiMSIsInNjb3BlcyI6W119.DWyeQ55I--MjNTSjKRAQfnqsVhs_o_JEPek4oru5Zqt_VUURQIBqtNc2DHYD3-tzbst6Ee_eOLKPR43Wa0d6VQMet5ro38wJH7OAsfFof6kTCp24W8LmE3cBADUSmvefMWkTU8NSnDinmDPUahlyVA2YUygwDSYLk_L6WzwYHhW1o6Uu7yWA-OhxYB5QgMplNpUiWwusb5eYxUJQAsXKsvyZwT4gfRDpHP3CdQGewJg5RUzFw0hCRu7o3yanBztuhUTPtmE7GjIB-fu9HeM5IBn2vrJbyocQwuVoxvrz6G0ML4PG1DTNOfguKkj5u9BEUA1qfzrVm8J3XlZukP_sEMHFBKes3LXzHHOpX4EZ3A_8l259itJFnKH6Z3wn22GzHZVm7qjxeZHD7-YnYXB8CoTALU3KdJSBP9QKOSZtN70kPQyWNaP0gYZ9m3gwITFNaDOT5A-7JTyjKY3hZoFM0aZQcg9IgPlffhABXhrgeDGkMM2pCJpUy8oHOpXfz8Eg_BTEYdxGmc5tqi8O2pYhEy2QwUoJPqvBRMye_64Wo9iqFcEQuIX2eiTkSAdOXO7B_fX9VK8IKS4Ucp39CToC4PwhMPSzfAUxLA6MpbfYL8QLKWErN8UR412FGCbh5MyKqcxmquhUW0AVwn_Yb2ltRy2AQkAalN1lO7pPmU-Rm4E",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Yossif",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "yousefhagag179@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "id",
+									"value": "448",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/update/user",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"update",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send_otp",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImE0Y2ZlZmM1ODhmOTdlZmMzNzdjOGZkYWU1YmNlNThkOWY1ZjM4ZmVjYzYxYTY5MzJjNTgzMGZjYTFmZDc5YmExMmI0YWIzYzkxYWRmYjgwIiwiaWF0IjoxNzUxNTMzNjA4LjcyOTE0NywibmJmIjoxNzUxNTMzNjA4LjcyOTE0OSwiZXhwIjoxNzgzMDY5NjA4LjcyNzk1LCJzdWIiOiI1MjQiLCJzY29wZXMiOltdfQ.iU7d63eD4PEmP27a_o8XvYu1aib3PAnXWjn-LNMOnQESr8QN-ClXB_RLhJOkwfwS0sXzaQb0y6Onx_LC_PvoB-Um6dr7dJikF5vcj8A9BigA0WsO5TI9ELoqtDXFCPKOebaIZxbFJqoloSQqbevkTepGbDZ4B0ZQlolle-GfSlHIFimuZAxHaHSbSQTv2DfI-Dh7XIQT1cnpr49m2JCNzdZXkZEATSeqV0Dym_KZC1xwwdRugMkr4Pw3Zi4acL1EpsFDpcU0YRRIRHiGPyYLm7p-IjYN7dAZs8FYkLf8VnbNH8rb_l3ZZ7Dxg_q7QHNYlAf6iaEGU-XvDwHV67DVekXVTCyIiU-z8OQcQlqDLoAd6_UlNqzkWa1s4_jXnO81ez2PV6AqTDmKj1bUjqAGN4xHuwAYF0yRcqH5rWviHhBZg89eI8f48FF6NrYvaJ6jvJbK3JJbVQxMdmsLd27DMbvrHCMnhmQbFNIyL53dVdr7uIClPq81IshmlGU8GLBfQCn-N0W4fiWDTzM7TJtbQycUegfZ0RGrMu3HkynIS2xWOfJezl6MKqiFiyVdHgTOX5p9RlNjdwxHmT7wPh7otCdHYiCqzbXXkfU4W8T_JIMQpAzhRlEfMKN_tR5x3q8q9nsCknJ2ruxdWo6HE7LIbOXaGQ42h_NEOVksPcb8ITw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "mostafaembaby19@gmail.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/send-otp",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"send-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset-password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "mostafaembaby19@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "otp",
+									"value": "376942",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Dis12345",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "Dis12345",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/reset-password",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send-verification-email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "mostafaembaby19@gmail.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/send-verification-email",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"send-verification-email"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "customer main data",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImJhZjlhMTIxOTg1NjJjNWE0MGRjMmQyNDNmZjAzN2JjZjViZDljMzRjZjcyOWI2MjZhYWM2M2Y1ZGY2MzViZmQ4MjI0NDAwNWMzNjRjN2I2IiwiaWF0IjoxNzUxNzg3OTU2LjA2OTUxMSwibmJmIjoxNzUxNzg3OTU2LjA2OTUxMywiZXhwIjoxNzgzMzIzOTU2LjA2ODI0OCwic3ViIjoiNTI1Iiwic2NvcGVzIjpbXX0.irUqgzsinKahjFNzupzAr-LFgC3dX53O27zRXmbufCsFlwNifAKh3ZxHIyNVe2aWZEEV56DeOP8sANqSr-6GvLKI1G67QRdtEPaITyXtDR7dKV4b7xautmrCy67SU32k-23ZE4Ktk3LQsCZwxjrE0dO7sArS4tVGClNkX5rQmCLaFfHOmjbdK1wLiYJbU2-u7cLe1OCOO7J3FQLMeH7U8QU8EIEWTN24d98rUgBpXkRe319NfslQR8DBrEOloUZ-lYMVahRRVOm3nP4W6uIIqyLPFT7ddQlokxRbCNqpeN6DBO0xZb3P2ZY8ZacYC3Bc9SgeDDfSz5RWyRvlJ_Xb3_rx_Ml4qDhCR1204loo6QAvJPVbuCMF_4y6sIWD792qVHBTkn1_7YveS-oT4sK5IIOMYkTMRb_eRoXxQnlqCkLjR9C55hmSnwIu7KwKxd_ubqLoWLHQDIH8fveE5tggXrlvIxlZRvnf75QFMNT2uHnxA4puJDjrG7KopFZEiTP-Cz9jgJOlw2YlfKApys8hBqivG6i3cLnVLQmvsEq5nCUIlD-wZlc1KnSOH9vVW5ZGszFtrF6VAEJX4lDsAG9REzqTG2PFSAte6HRYJPslABf7bJO-GBFs54OeSMErQd8y5iBBtbUCsaV6JqZk6z0Vw_h4_ruy1yU5lQ3A0_DrLvE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/customer",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"customer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Home",
+			"item": [
+				{
+					"name": "get all products",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/products",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all banners",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/banners",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"banners"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "total sold",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImE0Y2ZlZmM1ODhmOTdlZmMzNzdjOGZkYWU1YmNlNThkOWY1ZjM4ZmVjYzYxYTY5MzJjNTgzMGZjYTFmZDc5YmExMmI0YWIzYzkxYWRmYjgwIiwiaWF0IjoxNzUxNTMzNjA4LjcyOTE0NywibmJmIjoxNzUxNTMzNjA4LjcyOTE0OSwiZXhwIjoxNzgzMDY5NjA4LjcyNzk1LCJzdWIiOiI1MjQiLCJzY29wZXMiOltdfQ.iU7d63eD4PEmP27a_o8XvYu1aib3PAnXWjn-LNMOnQESr8QN-ClXB_RLhJOkwfwS0sXzaQb0y6Onx_LC_PvoB-Um6dr7dJikF5vcj8A9BigA0WsO5TI9ELoqtDXFCPKOebaIZxbFJqoloSQqbevkTepGbDZ4B0ZQlolle-GfSlHIFimuZAxHaHSbSQTv2DfI-Dh7XIQT1cnpr49m2JCNzdZXkZEATSeqV0Dym_KZC1xwwdRugMkr4Pw3Zi4acL1EpsFDpcU0YRRIRHiGPyYLm7p-IjYN7dAZs8FYkLf8VnbNH8rb_l3ZZ7Dxg_q7QHNYlAf6iaEGU-XvDwHV67DVekXVTCyIiU-z8OQcQlqDLoAd6_UlNqzkWa1s4_jXnO81ez2PV6AqTDmKj1bUjqAGN4xHuwAYF0yRcqH5rWviHhBZg89eI8f48FF6NrYvaJ6jvJbK3JJbVQxMdmsLd27DMbvrHCMnhmQbFNIyL53dVdr7uIClPq81IshmlGU8GLBfQCn-N0W4fiWDTzM7TJtbQycUegfZ0RGrMu3HkynIS2xWOfJezl6MKqiFiyVdHgTOX5p9RlNjdwxHmT7wPh7otCdHYiCqzbXXkfU4W8T_JIMQpAzhRlEfMKN_tR5x3q8q9nsCknJ2ruxdWo6HE7LIbOXaGQ42h_NEOVksPcb8ITw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/api/products/totalSold",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"totalSold"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "categoryProducts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/api/category/products",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"category",
+								"products"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/cart",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Store",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjM4ZWY1ZDI4NTEzZmVhNmEwOGIwZmVmNDI1MjhkN2MxMDVlMTNkMWM4NDhkNTg2MzMyMTZjMGMxN2ZhNzEzZTU4NTY0ZTczYjY5NTM3NzNhIiwiaWF0IjoxNzUxODk5NjIyLjQ3MzA0OCwibmJmIjoxNzUxODk5NjIyLjQ3MzA1LCJleHAiOjE3ODM0MzU2MjIuNDcxODMsInN1YiI6IjUzNCIsInNjb3BlcyI6W119.F3FM68I0n7vsLv5eljmliH_Yw_g6x63lpswc2rbNVzL6BlXCi3gZgXG1nOjX13h7_qbefA-T4ozWjvj4b6owovcd6NO74rSXrBZuCLHBW9958NvHqLPFyN7g4-8JtPe88KWmeZB_xVE8hqmjjFeuCgAMnEmb-oCwXQVla_XXqqGr38KcMKHVCgOP0QycSPjCo_9D_lhHqcn3Ien0kXMOpysGRFIH97KrFSBdUBpaJdW-DuByhelNEp9UzkEh6ct6dv06QmomzfPqou9vxNZ-vwVxT4mAwUmE8MY4Q1oMT2OwEHUoGr1q1o9AtcYdifEOLKrlwCsU9tv1ADaTz4TCok1PEjhdokVwayIH1OiXYrYUpab9baXNKtx-h6EDir3QtcRbYYdmq1wlzjoMxYI1JwzpJc7MZ4GnOQwjJkmtBdOPCn5XYqnJ4hQmMb7o6hViHLp4cgLkh_lHhMDyCdbJvtrSelgN48pxK_p0a7S0vwz2tt_4YiR6AdH66c-kayaEM-9PPb1tcBGkIh4K2B-E_dbjoRI9WvHhZKXmGZjErcJSWAYKYwDSQTYSo-JAYfOWgmrwQC7KRKJDWEjdGMAoHK9B0pw1ntyeN8iCFoNZEMkxIXAeUmCJRKnHPF3v5K2lkpzw0xSXAyo37g9b8qmaalCGJBdPKydvTjjhgE_J7qo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "product_id",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "product_quantity",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "7500",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/cart",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjE0ZjVhYzIxNmU4MWJhMWRkM2MwZmVhZWJjZWNlZTJjNmE0NGVmMTZlZjI1ODIzNTAxYzM2NDk0ZDgyMDU4YzE4YWU0NjRjNGVmMjM3NTQ3IiwiaWF0IjoxNzM0NjQ1MTAwLjIxNDIxLCJuYmYiOjE3MzQ2NDUxMDAuMjE0MjE2LCJleHAiOjE3NjYxODEwOTkuMjk1NTkxLCJzdWIiOiIzMzQiLCJzY29wZXMiOltdfQ.AJkww04oF4R9-JuOCt-be-z71Vwg-LIPS37-ife4nB9Kj-0TmTK4yGLU4Dc-_z7g-k0SL43CbB2CXRM5rkjYXAbaFpBiV4LN9JB9T9vrFpAWOzlTEtQvbTTyFcGBKEusgVCajmVXdqMCzeCpu1U7KRNL34S9QB3rGOSZUulsBJ2mcstZf3FsELWkI3YBbhwuYEOxZK23adddNqWpV_5UrXreAZZIHJuAX71Q7kIj_Bfbx-5BXYLq5tGLM31nz4GnxESvi6CIjKVv3lXI5_LSSteuuQ5VxyHy8zHfd3AhOYVZuFEODw8VNCzro_7ClvpgVtbKWrJl6mH_DS6fwbp0cfkotODW-Orfsd--2PJaoMUAQVAo0awvgVzwX1cYW0XFEX45LW6LYeSR9_ZTZF86yZjEopXZM2ao1zn3s_jtvv6pWorF3neCr3gBCAv-CUwl4AQzyoaSlwPK5eVabJeSwoUxReV63HNPV9LfWGy304sulO92w2-sa43vh5srZayB3YKckpGzTrm2DbFaVRry4ZU009ity-9DXMu_KplHa7fw66Pn8RxBi_JmsYmolluvHFx_2KNVlTZQfbIypITbZGAy8pJ1dHpEUvuc70umSgMfkRT0omCmubQKtg_Cpj-t-RQiX2inIWsFFowYlq8skz_c40KZ5qAl_UBjzAJZPh0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "product_id",
+									"value": "9781",
+									"type": "text"
+								},
+								{
+									"key": "product_quantity",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "175.00",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/cart/2",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjE0ZjVhYzIxNmU4MWJhMWRkM2MwZmVhZWJjZWNlZTJjNmE0NGVmMTZlZjI1ODIzNTAxYzM2NDk0ZDgyMDU4YzE4YWU0NjRjNGVmMjM3NTQ3IiwiaWF0IjoxNzM0NjQ1MTAwLjIxNDIxLCJuYmYiOjE3MzQ2NDUxMDAuMjE0MjE2LCJleHAiOjE3NjYxODEwOTkuMjk1NTkxLCJzdWIiOiIzMzQiLCJzY29wZXMiOltdfQ.AJkww04oF4R9-JuOCt-be-z71Vwg-LIPS37-ife4nB9Kj-0TmTK4yGLU4Dc-_z7g-k0SL43CbB2CXRM5rkjYXAbaFpBiV4LN9JB9T9vrFpAWOzlTEtQvbTTyFcGBKEusgVCajmVXdqMCzeCpu1U7KRNL34S9QB3rGOSZUulsBJ2mcstZf3FsELWkI3YBbhwuYEOxZK23adddNqWpV_5UrXreAZZIHJuAX71Q7kIj_Bfbx-5BXYLq5tGLM31nz4GnxESvi6CIjKVv3lXI5_LSSteuuQ5VxyHy8zHfd3AhOYVZuFEODw8VNCzro_7ClvpgVtbKWrJl6mH_DS6fwbp0cfkotODW-Orfsd--2PJaoMUAQVAo0awvgVzwX1cYW0XFEX45LW6LYeSR9_ZTZF86yZjEopXZM2ao1zn3s_jtvv6pWorF3neCr3gBCAv-CUwl4AQzyoaSlwPK5eVabJeSwoUxReV63HNPV9LfWGy304sulO92w2-sa43vh5srZayB3YKckpGzTrm2DbFaVRry4ZU009ity-9DXMu_KplHa7fw66Pn8RxBi_JmsYmolluvHFx_2KNVlTZQfbIypITbZGAy8pJ1dHpEUvuc70umSgMfkRT0omCmubQKtg_Cpj-t-RQiX2inIWsFFowYlq8skz_c40KZ5qAl_UBjzAJZPh0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/cart/delete/2",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								"delete",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Invoice",
+			"item": [
+				{
+					"name": "store_sell",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImIyNDBlZTY0ZGM0MTcxODc5OTU3M2IzZDljMzVmZjI5MmU1OTRlNDM0MDUxZjRhZWVmMzMwN2M3ZjFhY2Q3YWM2NjFhNWYzMmFiZjlhN2EwIiwiaWF0IjoxNzUxODAyMDgzLjMxMTY0NywibmJmIjoxNzUxODAyMDgzLjMxMTY0OSwiZXhwIjoxNzgzMzM4MDgzLjMwOTUzNSwic3ViIjoiNTM0Iiwic2NvcGVzIjpbXX0.fklYsoCCQGUOJVLsJmQ2M58C4q77z9TChBc3-xK8CoGoBiyKaBH1VZOcucijYdK4cDEypO6WB5PWZtRAtQGDVYqauaCmoeRYpJye8ztyq4kApBb256Koe2QWiBIjsCQ8RL14ZKylx88hvgmnjGE-Jb8RumnkNANuKCuzV-xekOSWWGNeeCSaN7hUu6KKFdObfEcAKXkrKEtcPZlB4_POfUbLvp-qGFEoZ67kAEETHSExNK_gxBnh1vxXaV3Tar7Hl7uBH2zcMfYEXKPOOrTYrOIfBmuZZXqMklh6gS-tVmisGHXon3Oljxmkomj3EqK3ikmeyMqhZBzIz0v3njgQFBZbQRFq0EHitR5rB91wgU8WfcRNBAzczUsHqduRTpbcYZ_wHE1T5jdQRvbZXY78xTVlYZQLTJP-g2TEq3_2p0nSqbe2N8K9NggSA1pGy5e51hDryWgMHdFRv_VQX_0rrI7Yi_S8fHUbHWEF0dXrjR2JYmCrhxlokPOxumUMcQnJ7d2sQ1e6g48Wy89oQQjuuWLk2UOe2QUihLVluQtqMOPhRSu44WKq6DLVovKbFmxqTvfC0yuHrDwF8DR2CIRnfNKFH_iJM-bAuakVqneNycJohz8nketk2QNJe4eD3hVag4mbrI0lrECoblT3UoNZWBYuGCT1UuqK-HhD9OR2vZc",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "mobile",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/sells/store",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"sells",
+								"store"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all orders",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/sells/orders",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"sells",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all transactions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/sells/transactions",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"sells",
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjE4ODY3OWQ0NDBkMzFkZTE3Yzg3MWE4MWExMTg0MmZkZWQwMzk1OTE1NmI5M2ZlNTkyY2FjMzliM2YzY2QxODcxMGZmNmY1Yjk1MzIxNDE0IiwiaWF0IjoxNzM2MjQ4Njc4LjMxMTcsIm5iZiI6MTczNjI0ODY3OC4zMTE3MDIsImV4cCI6MTc2Nzc4NDY3OC4zMDAxMDQsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.bweKuZhbj_nIUgidh6wCuAfRFiLrQ1etWHXQTdOVU8HzliZ1fOc6eym5d2SDPHxo2ZzO_195Y760CtVR331f32SFcqm1sxfOkHumlrw_SQkGzEbpE5B_ZHKEUlp6jYNucRkC4GxGcV_vgQka7w_UR673mknQfwziuIypuqbHqp_22kykMjmSGNZW6BtldMfQOIlnqrNqq1wVq5JKNWyHGATv8LJjQTpS34ud_RIdIM334Y0G86xa7MB7md-AQJ4TN2Rp-72BmcaI5HP7zIAbXcAI6QQfgkaCmoNt1K-vrI37TJa2RoT92hhlmvbvDF2KvhYn4Aw4dLYdqNs-4rcWfJeRkmcg1N_t3JmAIymeai2zvm66zOQne4H-sCE67ZnASaoGVh4QHsKxG9XFXmNqrdrhA3qPl3_BhtK3t_YZYntH46r8_onlTxjdBb2cyARqbpDDDnvZrqMJ1uLazRDZrYJ50-7HluUuwk4sBRzckn8RjBB2EDaq6XAf1jos283pLiTi_xzM5gwSfy2IRICvTzJRfwQBKqd0FIEjxBJqZOmYH_nXdP4gAswTdnyNaWQfXS4nTZq7w223_FOuhNkAyR6ymUKcu1TkbYcCq9RbcH12gEI2964ycEam9v5BPAmE00IUoOgifJP9OEDuL44Ef6UXiSNY5sP2IP1aBoHCQQg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/orders/1245",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"1245"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "order-invoice",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjE4ODY3OWQ0NDBkMzFkZTE3Yzg3MWE4MWExMTg0MmZkZWQwMzk1OTE1NmI5M2ZlNTkyY2FjMzliM2YzY2QxODcxMGZmNmY1Yjk1MzIxNDE0IiwiaWF0IjoxNzM2MjQ4Njc4LjMxMTcsIm5iZiI6MTczNjI0ODY3OC4zMTE3MDIsImV4cCI6MTc2Nzc4NDY3OC4zMDAxMDQsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.bweKuZhbj_nIUgidh6wCuAfRFiLrQ1etWHXQTdOVU8HzliZ1fOc6eym5d2SDPHxo2ZzO_195Y760CtVR331f32SFcqm1sxfOkHumlrw_SQkGzEbpE5B_ZHKEUlp6jYNucRkC4GxGcV_vgQka7w_UR673mknQfwziuIypuqbHqp_22kykMjmSGNZW6BtldMfQOIlnqrNqq1wVq5JKNWyHGATv8LJjQTpS34ud_RIdIM334Y0G86xa7MB7md-AQJ4TN2Rp-72BmcaI5HP7zIAbXcAI6QQfgkaCmoNt1K-vrI37TJa2RoT92hhlmvbvDF2KvhYn4Aw4dLYdqNs-4rcWfJeRkmcg1N_t3JmAIymeai2zvm66zOQne4H-sCE67ZnASaoGVh4QHsKxG9XFXmNqrdrhA3qPl3_BhtK3t_YZYntH46r8_onlTxjdBb2cyARqbpDDDnvZrqMJ1uLazRDZrYJ50-7HluUuwk4sBRzckn8RjBB2EDaq6XAf1jos283pLiTi_xzM5gwSfy2IRICvTzJRfwQBKqd0FIEjxBJqZOmYH_nXdP4gAswTdnyNaWQfXS4nTZq7w223_FOuhNkAyR6ymUKcu1TkbYcCq9RbcH12gEI2964ycEam9v5BPAmE00IUoOgifJP9OEDuL44Ef6UXiSNY5sP2IP1aBoHCQQg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/order-invoice/1245",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"order-invoice",
+								"1245"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transaction-invoice",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImM2OTU3YmZjY2NiYjNiOTkyMGFkYzdjMTJkM2U4NGExNjU0YmNjZDU2YmNiNmYwOTI5NWVlNmVlMjcxZmVhMjZhN2U1NmY2MDVhYTY2NGM1IiwiaWF0IjoxNzM2OTMyNDYyLjgxNTc2NCwibmJmIjoxNzM2OTMyNDYyLjgxNTc2OSwiZXhwIjoxNzY4NDY4NDYyLjI3ODkwMSwic3ViIjoiMSIsInNjb3BlcyI6W119.lfci_Z9Cuv6VryUjuEkYhJT9WuemKfwJWT6w1Ex4XpdhNJEkKVEzzuzl3r5DDNL_hFBZT5PNJdvGBiz_Ucaj94AH_FwSbUMeMN6FZK7GBPHPcReNaPSRzAJfT94VY7-JSmfK8HA0KfnKqsg78-Ek68eiL9Gq7xArgwtJ3PZJ-pxIxJe5ZvYYHCc0NG9tMZkBy0CQDfBkx1yD9cSVphahu6UbiwQ1Y8RMzDkky9b9ad8bPqZwFmmL8z6-oJwQ0bYqxz4i3pmlxMbJkVczIR1RKrH80OrNepL19gu_pSSTYsapGimLGrVXm05rfvx_jyAbYGsFNfzZMNkMqAPZKof3TplCRkuvYJO8enP-rISK7hHDA4mGfkVSDMrknEbbtv-B1PeRb3EW73kOqv0-TH9cULYJbWoDFmszDQzSOxcRniT4snUjYFJySKJSZlMCkRNBLRcl_vmPMythQ8ngbsblqIvBztcP8Ie80Eac7X69zFxED6KFoLFM-rUrvVVWtcK0icj1vCHLBGUpjU9xnjwXs-A6uqbb1YLCSlgGaSV6HLEI6ui8ubAFNrpaCW63Z0mKeW9KUEQ-xSfAKZFIsFMS6Bh0t-1XXT_BD7frjoamAjgtMkeoJ7wFsG8ebsYresiOu8qbY5ITi3y5Y1B-Db4jqP4TdltDsLg_7N95eEA3hWI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/transaction-invoice/1246",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"transaction-invoice",
+								"1246"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjlhNjk0ODFjYzFlZTllNDg2MTkxNDBmNGUyZjIyMjEyNDE1ZDhjMzA5YzZjYTgzNWY1NTBlZjhlMDhiOTBjZWEyNGRhY2ViZDg0Yzg3YzUzIiwiaWF0IjoxNzM1NTc4NzMyLjg4NDQ1OSwibmJmIjoxNzM1NTc4NzMyLjg4NDQ3LCJleHAiOjE3NjcxMTQ3MzIuODU5ODE0LCJzdWIiOiIzMzQiLCJzY29wZXMiOltdfQ.S97cqZWVgw2B818M2uBOLJzyQLrf5NoORlELq0iQYu0zpTZFu_oFOW2XnGmdeOHTBkQ6Knhht-rWs2JL1qeITA1Ug4q8NpFcWUCIlMMH8dJsWvrvGfGnQjRIWldJGrqgIPnNw0UEkozyGAnOXccTruH2qqgib5Rqd0TZ0h6JxhSx8fKj0ofHwKUwgBe2mwWjkwJDP_3FMGEvasIb1JnUcLDykCyd1ck_pWTKaUrBS2_xc5DiLzzDHiRAC6xxTY1ShcSlMzdxO9eihuRpRIi20c01UzR-lq7IealpZJZzOqCoUh5yLVKDbpFra6BhxIGmHWjCB0vLbkivu22899_v-M6kXzGnQPryGxc84Uf7fgaGEEFtA16BDyFdO9XtppWscA8zGFxoSnx0XhLXQAc0LAyCZDLpe2u_86MBcO65Uf6x8jTdd0T-jBAFt7W9gxm7fXarF22WIU5WEgYtKwtSQg2Mpzh8yOYd3o2FsyEI6qRriuRKRWyAhewwQaXOxuM7enhJ6xJTMHlD18oyGGvRydvGyYe10UyHSbnibVU8GRdkWqSNq9YTwXhDuBgWRdAm1L2hh6vbZxFdBASIAVYJy8YgV8hR9Qs0Kv8hIm68trwrHZwsPsMponjU1MO3ylBVkdg0qt43l0emmrPTUcIkzpNW4vi0bSgeP9labw7d-j4",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "domain",
+			"value": "https://erp.khedrsons.com",
+			"type": "string"
+		}
+	]
+}

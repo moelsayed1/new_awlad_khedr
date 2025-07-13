@@ -5,16 +5,16 @@ import 'package:http/http.dart' as http;
 import '../../../../../constant.dart';
 import '../../../../../main.dart';
 
-class ProductItemByCategory extends StatefulWidget {
-  final int selectedCategoryId; // Receive selectedCategoryId
+class ProductItemByBrand extends StatefulWidget {
+  final int selectedBrandId; // Receive selectedBrandId
 
-  const ProductItemByCategory({super.key, required this.selectedCategoryId});
+  const ProductItemByBrand({super.key, required this.selectedBrandId});
 
   @override
-  ProductItemByCategoryState createState() => ProductItemByCategoryState();
+  ProductItemByBrandState createState() => ProductItemByBrandState();
 }
 
-class ProductItemByCategoryState extends State<ProductItemByCategory> {
+class ProductItemByBrandState extends State<ProductItemByBrand> {
   ProductByCategoryModel? productByCategoryModel;
   bool isProductsLoaded = false;
   bool isLoadingMore = false;
@@ -28,7 +28,7 @@ class ProductItemByCategoryState extends State<ProductItemByCategory> {
   int _lastRefreshTime = 0;
 
   @override
-  void didUpdateWidget(ProductItemByCategory oldWidget) {
+  void didUpdateWidget(ProductItemByBrand oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Check if this is a refresh trigger
     int currentTime = DateTime.now().millisecondsSinceEpoch;
@@ -47,28 +47,24 @@ class ProductItemByCategoryState extends State<ProductItemByCategory> {
     });
     
     // Reload all products from API
-    await GetAllProductsByCategory();
+    await GetAllProductsByBrand();
   }
 
-  Future<void> GetAllProductsByCategory() async {
+  Future<void> GetAllProductsByBrand() async {
+    // Use the existing category products endpoint to get all products
     Uri uriToSend = Uri.parse(APIConstant.GET_ALL_PRODUCTS_BY_CATEGORY);
     final response = await http.get(uriToSend, headers: {"Authorization" : "Bearer $authToken"});
     if (response.statusCode == 200) {
       productByCategoryModel =
           ProductByCategoryModel.fromJson(jsonDecode(response.body));
       
-      // Get products for the selected category
+      // Get all products from all categories
       allProducts.clear();
-      final selectedCategory = productByCategoryModel?.categories.firstWhere(
-          (category) => category.categoryId == widget.selectedCategoryId,
-          orElse: () => Category(
-              categoryId: widget.selectedCategoryId,
-              categoryName: '',
-              categoryImage: '',
-              products: [],
-              subCategories: []));
-      
-      allProducts = selectedCategory?.products ?? [];
+      if (productByCategoryModel?.categories != null) {
+        for (var category in productByCategoryModel!.categories) {
+          allProducts.addAll(category.products);
+        }
+      }
       
       // Load first page
       loadNextPage();
@@ -113,7 +109,7 @@ class ProductItemByCategoryState extends State<ProductItemByCategory> {
 
   @override
   void initState() {
-    GetAllProductsByCategory();
+    GetAllProductsByBrand();
     super.initState();
   }
 
@@ -264,8 +260,8 @@ class ProductItemByCategoryState extends State<ProductItemByCategory> {
     )
         : const Directionality(
       textDirection: TextDirection.rtl,
-      child: Center(child: Text('لا توجد منتجات لهذه الفئة' , style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25 , color: Colors.black),)),
+      child: Center(child: Text('لا توجد منتجات متاحة' , style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25 , color: Colors.black),)),
     )
         : const Center(child: CircularProgressIndicator());
   }
-}
+} 

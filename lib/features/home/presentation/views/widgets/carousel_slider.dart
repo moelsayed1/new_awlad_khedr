@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import '../../../../../constant.dart'; // For APIConstant.GET_BANNERS
 import '../../../../../main.dart'; // For authToken
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // For responsive units
+import 'package:go_router/go_router.dart';
+import '../../../../../core/app_router.dart';
 
 class CarouselWithIndicator extends StatefulWidget {
   const CarouselWithIndicator({super.key});
@@ -78,7 +80,10 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       imageUrl: 'https://picsum.photos/seed/banner$index/800/400',
-      // Add other Datum fields if needed
+      categoryId: index + 1,
+      categoryName: 'Category ${index + 1}',
+      brandId: index + 1,
+      brandName: 'Brand ${index + 1}',
     ));
   }
 
@@ -98,15 +103,22 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
 
     return Column(
       children: [
-        InkWell(
-          onTap: () {
-            // GoRouter.of(context).push(AppRouter.kProductCarouselView);
-          },
-          child: CarouselSlider(
-            items: bannersToShow.map((Datum item) {
-              return Builder(
-                builder: (BuildContext context) {
-                  return Container(
+        CarouselSlider(
+          items: bannersToShow.map((Datum item) {
+            return Builder(
+              builder: (BuildContext context) {
+                return InkWell(
+                  onTap: () {
+                    GoRouter.of(context).push(
+                      AppRouter.kBannerProductsPage,
+                      extra: {
+                        'bannerTitle': item.categoryName,
+                        'categoryName': item.categoryName,
+                        'categoryId': item.categoryId,
+                      },
+                    );
+                  },
+                  child: Container(
                     width: MediaQuery.of(context).size.width,
                     margin: EdgeInsets.symmetric(horizontal: 5.w),
                     decoration: BoxDecoration(
@@ -126,24 +138,24 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
                         : Center(
                       child: Icon(Icons.image_not_supported, size: 50.sp, color: Colors.grey),
                     ),
-                  );
-                },
-              );
-            }).toList(),
-            carouselController: _controller,
-            options: CarouselOptions(
-              height: 180.h,
-              viewportFraction: 0.9,
-              autoPlay: true,
-              enlargeCenterPage: true,
-              autoPlayCurve: Curves.easeOutSine,
-              aspectRatio: 16 / 9,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  _current = index;
-                });
+                  ),
+                );
               },
-            ),
+            );
+          }).toList(),
+          carouselController: _controller,
+          options: CarouselOptions(
+            height: 180.h,
+            viewportFraction: 0.9,
+            autoPlay: true,
+            enlargeCenterPage: true,
+            autoPlayCurve: Curves.easeOutSine,
+            aspectRatio: 16 / 9,
+            onPageChanged: (index, reason) {
+              setState(() {
+                _current = index;
+              });
+            },
           ),
         ),
         SizedBox(height: 10.h),
