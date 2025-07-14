@@ -71,7 +71,16 @@ class _SearchWidgetState extends State<SearchWidget> {
     setState(() {
       showSuggestions = false;
     });
-    widget.onSubmitted?.call(query);
+    // If the query is contained in any category name (partial match, case-insensitive), treat it as a category selection
+    final matchedCategory = categories.firstWhere(
+      (cat) => cat.toLowerCase().contains(query.trim().toLowerCase()),
+      orElse: () => '',
+    );
+    if (matchedCategory.isNotEmpty) {
+      widget.onCategorySelected?.call(matchedCategory);
+    } else {
+      widget.onSubmitted?.call(query);
+    }
   }
 
   void _onSearchSubmitted() {
@@ -94,69 +103,129 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: TextField(
-            controller: widget.controller,
-            onChanged: widget.onChanged,
-            onSubmitted: _onSubmitted,
-            onTap: _onTap,
-            textAlign: TextAlign.right,
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-              fontFamily: baseFont,
-              fontSize: 16.sp,
+        // This GestureDetector covers the whole area and hides suggestions on tap
+        if (showSuggestions)
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  showSuggestions = false;
+                });
+              },
+              behavior: HitTestBehavior.translucent,
+              child: const SizedBox.expand(),
             ),
-            decoration: InputDecoration(
-              hintText: 'أبحث عن منتجاتك أو اختر صنف',
-              hintStyle: TextStyle(
-                fontFamily: baseFont,
-                color: Colors.grey[600],
+          ),
+        Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
               ),
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: widget.onSubmitted != null
-                  ? IconButton(
-                      icon: const Icon(Icons.search),
-                      onPressed: _onSearchSubmitted,
-                    )
-                  : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            ),
-          ),
-        ),
-        if (showSuggestions && (searchHistory.isNotEmpty || categories.isNotEmpty))
-          Container(
-            margin: const EdgeInsets.only(top: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, 2),
+              child: TextField(
+                controller: widget.controller,
+                onChanged: widget.onChanged,
+                onSubmitted: _onSubmitted,
+                onTap: _onTap,
+                textAlign: TextAlign.right,
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: baseFont,
+                  fontSize: 16.sp,
                 ),
-              ],
+                decoration: InputDecoration(
+                  hintText: 'أبحث عن منتجاتك أو اختر صنف',
+                  hintStyle: TextStyle(
+                    fontFamily: baseFont,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16.sp,
+                  ),
+                  prefixIcon: const Icon(Icons.search),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
+              ),
             ),
-            child: Column(
-              children: [
-                // Search History Section
-                if (searchHistory.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'البحث السابق',
+            if (showSuggestions && (searchHistory.isNotEmpty || categories.isNotEmpty))
+              Container(
+                margin: const EdgeInsets.only(top: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // Search History Section
+                    if (searchHistory.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              'البحث السابق',
+                              style: TextStyle(
+                                fontFamily: baseFont,
+                                fontSize: 12.sp,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () async {
+                                final prefs = await SharedPreferences.getInstance();
+                                await prefs.remove('search_history');
+                                if (mounted) {
+                                  setState(() {
+                                    searchHistory.clear();
+                                  });
+                                }
+                              },
+                              child: Icon(
+                                Icons.clear,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ...searchHistory.take(3).map((query) => ListTile(
+                        dense: true,
+                        title: Text(
+                          query,
+                          style: TextStyle(
+                            fontFamily: baseFont,
+                            fontSize: 14.sp, // Increased for clarity
+                            color: Colors.black,
+                          ),
+                        ),
+                        leading: const Icon(Icons.history, size: 16),
+                        onTap: () => _onHistoryItemSelected(query),
+                      )),
+                    ],
+                    // Categories Section
+                    if (categories.isNotEmpty) ...[
+                      if (searchHistory.isNotEmpty)
+                        const Divider(height: 1),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'الأصناف',
                           style: TextStyle(
                             fontFamily: baseFont,
                             fontSize: 12.sp,
@@ -164,71 +233,26 @@ class _SearchWidgetState extends State<SearchWidget> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () async {
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.remove('search_history');
-                            if (mounted) {
-                              setState(() {
-                                searchHistory.clear();
-                              });
-                            }
-                          },
-                          child: Icon(
-                            Icons.clear,
-                            size: 16,
-                            color: Colors.grey[600],
+                      ),
+                      ...categories.take(6).map((category) => ListTile(
+                        dense: true,
+                        title: Text(
+                          category,
+                          style: TextStyle(
+                            fontFamily: baseFont,
+                            color: Colors.black,
+                            fontSize: 14.sp, // Increased for clarity
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  ...searchHistory.take(3).map((query) => ListTile(
-                    dense: true,
-                    title: Text(
-                      query,
-                      style: TextStyle(
-                        fontFamily: baseFont,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                    leading: const Icon(Icons.history, size: 16),
-                    onTap: () => _onHistoryItemSelected(query),
-                  )),
-                ],
-                // Categories Section
-                if (categories.isNotEmpty) ...[
-                  if (searchHistory.isNotEmpty)
-                    const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'الأصناف',
-                      style: TextStyle(
-                        fontFamily: baseFont,
-                        fontSize: 12.sp,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  ...categories.take(6).map((category) => ListTile(
-                    dense: true,
-                    title: Text(
-                      category,
-                      style: TextStyle(
-                        fontFamily: baseFont,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                    leading: const Icon(Icons.category, size: 16),
-                    onTap: () => _onCategorySelected(category),
-                  )),
-                ],
-              ],
-            ),
-          ),
+                        leading: const Icon(Icons.category, size: 16),
+                        onTap: () => _onCategorySelected(category),
+                      )),
+                    ],
+                  ],
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }

@@ -141,20 +141,26 @@ class ProductSearchController extends ChangeNotifier {
     }
 
     try {
-      log('Fetching initial products - Category: "$selectedCategory", Search: "$searchQuery"');
-      
-      List<Product> firstPage = await _repository.searchProducts(
-        category: selectedCategory.isNotEmpty && selectedCategory != 'الكل' ? selectedCategory : null,
-        productName: searchQuery.isNotEmpty ? searchQuery : null,
-        page: currentPage,
-        pageSize: pageSize,
-      );
-
+      log('Fetching initial products - Category: "' + selectedCategory + '", Search: "' + searchQuery + '"');
+      List<Product> firstPage;
+      if (selectedCategory.isNotEmpty && selectedCategory != 'الكل') {
+        // Always use the category endpoint if a category is selected
+        firstPage = await _repository.fetchProductsByCategory(
+          selectedCategory,
+          page: currentPage,
+          pageSize: pageSize,
+          search: searchQuery.isNotEmpty ? searchQuery : null,
+        );
+      } else {
+        firstPage = await _repository.fetchAllProducts(
+          page: currentPage,
+          pageSize: pageSize,
+          search: searchQuery.isNotEmpty ? searchQuery : null,
+        );
+      }
       pagedProducts.addAll(firstPage);
       hasMore = firstPage.length == pageSize;
-      
-      log('Initial products loaded: ${firstPage.length} products, hasMore: $hasMore');
-      
+      log('Initial products loaded: ' + firstPage.length.toString() + ' products, hasMore: ' + hasMore.toString());
     } catch (e) {
       log('Error fetching initial products: $e');
       pagedProducts = [];
