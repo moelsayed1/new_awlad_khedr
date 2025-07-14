@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "52816fc2-d69c-4f3a-b46b-c319387c37c6",
+		"_postman_id": "64683006-7960-42a3-96b2-d955f1c97701",
 		"name": "Khader",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "35081297"
@@ -28,12 +28,12 @@
 							"formdata": [
 								{
 									"key": "username",
-									"value": "motest7",
+									"value": "Abdelaziz",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "12345678",
+									"value": "12345",
 									"type": "text"
 								}
 							]
@@ -59,7 +59,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjhiN2M2MzMzZDA0YTBkODE1OGRhMzNjZjVjM2FhNzM3ZTdjYzM4YWU1N2MzMDYwZGJiZjg5NjUwYmFiYzkwZjI4Zjc0YTIzMTcwNDExOWQ2IiwiaWF0IjoxNzM2MDgwODg3LjQ0MjcyLCJuYmYiOjE3MzYwODA4ODcuNDQyNzIzLCJleHAiOjE3Njc2MTY4ODcuMTM4Njc4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.lgR7ShegVU3atQVJSMAx7aqIgqjr9TJ0vBEYwlrALFr5GiJzjt_eaH4RASDtR51w0HibyToc7CJgSmUoNp83K4mqWHuEMUEOTc9PN96QZUAoaaIJNvIvO2DPJeu-YXsKKnz61TALy-pD0haNWbtH7jdX-Id-fIbzUHRIWyBKybBXy2ozDrbsTb266Vtg-d_zGFq4KI5FqibH1JB5KfrV9AvUaaeVZmu5L0vmoUQ0CNEYBDskc47FxJwhITda3AXAJqvyGQ3tKsw44fhcQp4dR_eIPLRcDkJ4Cp0PknINuDd9oZ7RDGNVPkeauadQoLK5mBZEbonPkTssWg6G6C6zxcstmPqq86s4O9Py7wSrX9I3l1l2F0X92reMnXIEpaD6npI-89AeTLm_syaiCuva85hZUKpg9zxbt3-FXMc9zdVp9dY1sE5szUaZzYUfT5h0qCLi2h9NOj917SjHgC9SrIEr5obh8OPA7zttIm5CwS3mZuBQKHXrv5GgqDPOBvm0MNELWX5ecIyU5xSeVOdLTIfqUWpGI-N6mE8ob0wv6cjQcGYz4_0rBoxpN5XGwByQ86ck4i5XsLP8dfvS5hbUC9SISBjyxrElVIrd8bSd5ZIFvJFd_brq3BW_yXB8NtC_VOjT-8iXV3NX0JLudjTHC7V_g66qD9EGFUJrTFRR40c",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjhlYTlmMWRmOTJkNjU3MDM5NDgxOGQ3MjM3YTNhNWM3MDU5NDMyNzU1YTQ1YzY3ZTUwYjE2NjdlMDU3YjAxNDEzZGU1OTU0Yjc3ZTBhZjU4IiwiaWF0IjoxNzUxNzkyNjYyLjE5MDk1NSwibmJmIjoxNzUxNzkyNjYyLjE5MDk1OCwiZXhwIjoxNzgzMzI4NjYxLjg2MzgyMiwic3ViIjoiMSIsInNjb3BlcyI6W119.nE1KuvW7ftnU6zI6OZ2ssgei4jBFpTCNVcymdY0KpY9FBvZQlkQHD42Rzu_d8pKUApzL57oalT4VHKj-cNRgKYSL6osutdE1JIjD_g02sU2nVmA2gOmflYJoo9j5xSwRLvO_o5fz8Si-B3kMF-bQ4GBydR0s2IaE6m27yAMt-FfE3qZpp4VGOxOK-oNSrJ_T05JneUeQK8jIBDuT88lx9gJ0ICFdkl1T0KJHx_ZXzqlQd91QK43ooRvI0onHpIGMZWHPtxiXe5cbeDAr4BJc7w6HGCyLZ30N1W7tvfsJopM5L_oq_Jw_eDUr7NZqeK6N0jUKIxSpCEY7vtdeAFvRXxgbi-jlhWDBm2FsHpZHPble6F0odZd1QgEhKz5SkgTqp0lBcYpFDrHLlZ3rBWKzA6zbnfOQGocGBFA07yWr2KT55uyxmkzw1zP-4AnVlDaaDZt0366RORR8IByu8y3PbErsgNMe_YqUo4gK5KAW5IqWmmrsfhwvJps6vw3ymnfJjwAezK-aFn1w_S58qUhsb69E08QofVbjw_NpncOxEvSHzkOQvH5kvxKpb-837lctGpso1LB2e9wqIk6p_WdEsf_N7mdyDB8YfjiTvbn1fFZs5Or9lu6Y7hXm1G61_8FpLjfvtYWygealVzFkDUN4H-DmwEMunNtriRvte5Z6rbM",
 									"type": "string"
 								}
 							]
@@ -82,22 +82,22 @@
 							"formdata": [
 								{
 									"key": "surname",
-									"value": "test",
+									"value": "sur",
 									"type": "text"
 								},
 								{
 									"key": "first_name",
-									"value": "motest5",
+									"value": "YossifMob 1",
 									"type": "text"
 								},
 								{
 									"key": "email",
-									"value": "mostafaembaby19@gmail.com",
+									"value": "yousefhagag179@gmail.com",
 									"type": "text"
 								},
 								{
 									"key": "username",
-									"value": "motest5",
+									"value": "YossifMob 306 1",
 									"type": "text"
 								},
 								{
@@ -112,12 +112,12 @@
 								},
 								{
 									"key": "mobile",
-									"value": "01062062492",
+									"value": "01210456504",
 									"type": "text"
 								},
 								{
 									"key": "address_line_1",
-									"value": "cairo",
+									"value": "في الشقة الي فوق",
 									"type": "text"
 								},
 								{
@@ -209,16 +209,6 @@
 				{
 					"name": "send_otp",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImE0Y2ZlZmM1ODhmOTdlZmMzNzdjOGZkYWU1YmNlNThkOWY1ZjM4ZmVjYzYxYTY5MzJjNTgzMGZjYTFmZDc5YmExMmI0YWIzYzkxYWRmYjgwIiwiaWF0IjoxNzUxNTMzNjA4LjcyOTE0NywibmJmIjoxNzUxNTMzNjA4LjcyOTE0OSwiZXhwIjoxNzgzMDY5NjA4LjcyNzk1LCJzdWIiOiI1MjQiLCJzY29wZXMiOltdfQ.iU7d63eD4PEmP27a_o8XvYu1aib3PAnXWjn-LNMOnQESr8QN-ClXB_RLhJOkwfwS0sXzaQb0y6Onx_LC_PvoB-Um6dr7dJikF5vcj8A9BigA0WsO5TI9ELoqtDXFCPKOebaIZxbFJqoloSQqbevkTepGbDZ4B0ZQlolle-GfSlHIFimuZAxHaHSbSQTv2DfI-Dh7XIQT1cnpr49m2JCNzdZXkZEATSeqV0Dym_KZC1xwwdRugMkr4Pw3Zi4acL1EpsFDpcU0YRRIRHiGPyYLm7p-IjYN7dAZs8FYkLf8VnbNH8rb_l3ZZ7Dxg_q7QHNYlAf6iaEGU-XvDwHV67DVekXVTCyIiU-z8OQcQlqDLoAd6_UlNqzkWa1s4_jXnO81ez2PV6AqTDmKj1bUjqAGN4xHuwAYF0yRcqH5rWviHhBZg89eI8f48FF6NrYvaJ6jvJbK3JJbVQxMdmsLd27DMbvrHCMnhmQbFNIyL53dVdr7uIClPq81IshmlGU8GLBfQCn-N0W4fiWDTzM7TJtbQycUegfZ0RGrMu3HkynIS2xWOfJezl6MKqiFiyVdHgTOX5p9RlNjdwxHmT7wPh7otCdHYiCqzbXXkfU4W8T_JIMQpAzhRlEfMKN_tR5x3q8q9nsCknJ2ruxdWo6HE7LIbOXaGQ42h_NEOVksPcb8ITw",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [
 							{
@@ -232,7 +222,7 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "mostafaembaby19@gmail.com",
+									"value": "yousefhagag179@gmail.com",
 									"type": "text"
 								}
 							]
@@ -266,22 +256,22 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "mostafaembaby19@gmail.com",
+									"value": "yousefhagag179@gmail.com",
 									"type": "text"
 								},
 								{
 									"key": "otp",
-									"value": "376942",
+									"value": "476646",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "Dis12345",
+									"value": "********",
 									"type": "text"
 								},
 								{
 									"key": "password_confirmation",
-									"value": "Dis12345",
+									"value": "********",
 									"type": "text"
 								}
 							]
@@ -315,7 +305,7 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "mostafaembaby19@gmail.com",
+									"value": "yousefhagag179@gmail.com",
 									"type": "text"
 								}
 							]
@@ -349,7 +339,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImJhZjlhMTIxOTg1NjJjNWE0MGRjMmQyNDNmZjAzN2JjZjViZDljMzRjZjcyOWI2MjZhYWM2M2Y1ZGY2MzViZmQ4MjI0NDAwNWMzNjRjN2I2IiwiaWF0IjoxNzUxNzg3OTU2LjA2OTUxMSwibmJmIjoxNzUxNzg3OTU2LjA2OTUxMywiZXhwIjoxNzgzMzIzOTU2LjA2ODI0OCwic3ViIjoiNTI1Iiwic2NvcGVzIjpbXX0.irUqgzsinKahjFNzupzAr-LFgC3dX53O27zRXmbufCsFlwNifAKh3ZxHIyNVe2aWZEEV56DeOP8sANqSr-6GvLKI1G67QRdtEPaITyXtDR7dKV4b7xautmrCy67SU32k-23ZE4Ktk3LQsCZwxjrE0dO7sArS4tVGClNkX5rQmCLaFfHOmjbdK1wLiYJbU2-u7cLe1OCOO7J3FQLMeH7U8QU8EIEWTN24d98rUgBpXkRe319NfslQR8DBrEOloUZ-lYMVahRRVOm3nP4W6uIIqyLPFT7ddQlokxRbCNqpeN6DBO0xZb3P2ZY8ZacYC3Bc9SgeDDfSz5RWyRvlJ_Xb3_rx_Ml4qDhCR1204loo6QAvJPVbuCMF_4y6sIWD792qVHBTkn1_7YveS-oT4sK5IIOMYkTMRb_eRoXxQnlqCkLjR9C55hmSnwIu7KwKxd_ubqLoWLHQDIH8fveE5tggXrlvIxlZRvnf75QFMNT2uHnxA4puJDjrG7KopFZEiTP-Cz9jgJOlw2YlfKApys8hBqivG6i3cLnVLQmvsEq5nCUIlD-wZlc1KnSOH9vVW5ZGszFtrF6VAEJX4lDsAG9REzqTG2PFSAte6HRYJPslABf7bJO-GBFs54OeSMErQd8y5iBBtbUCsaV6JqZk6z0Vw_h4_ruy1yU5lQ3A0_DrLvE",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjM3NzA5Y2I1ZjZjNWZjMTcyNzZlOTRhYjgxNDRlODI3ZmNiMGEwZjdkMGYzNmZiMWM5NDliZWMzYmY4ZTE1MWJlMmQ1ZGY1ODM5MmUwMTg3IiwiaWF0IjoxNzM2ODY0MzQ1LjM2OTY4NSwibmJmIjoxNzM2ODY0MzQ1LjM2OTY4OCwiZXhwIjoxNzY4NDAwMzQ1LjE4MjkyLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.H0OBuT8NkNCevelb78qY2BXyEwJgN81lsthAQz-2AYhB_OMZ0_Iwqr7DkahxMI27pd2sM-7ylDpQo5PoZPdXdVb9BDTeGWe6FXgl0239mjMdhg2mnMkIPpRCzWwZVShKpbZbEUU17Ef51Vhket7gfesucOlFOZPMz86Uh5Ittv8eLe43GFESAdj-TSXedsJ2jSaNBO6DFRyR2HQeKJ7kYh2X0cyTNUB-Gw9TbBfJ63hnoZ1tGhXAWVtu2q0uLzCfRTM-NRyt5RZpWGBxkddRDRCduu-je8ynrNCQtkZnlRRCWzI3Ik6XmZn3c4_Qvq58MoFKZS0S6C3S3ITFWnn8y0oPCn31exFq6uJjI7op0q-dIQL-lCCiGxXts_Cx5KDZVU5Y4zMR8Kwwl7rOHUekM3cZnUY0b-AF25i0wgExHNLrgDj1ocm0lQ2nh7oUrZw1dHFCJoYt2FcJWl70nWsijCE784iUQVdmV8suHQNh7USQcmgA7TEElnOQ5IX-MkfFE4bjRkakVQrgFqKnMa7pXH7vg_5sprnUQ5J4UZqG9ebWTjnqYEB_C8yeDovEArwgm_ODZ1wo0mATllrmfx4zliWRCHO5dcvcjiGP64MKaSKhesqjX3CpiGY8n2EjqviYJgvCXhB223CTAQFAyb1RCvPZqa5BJ0RA9lhDNTLW7jg",
 									"type": "string"
 								}
 							]
@@ -395,7 +385,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjMyNmU4NWFiNzJkMDMzOTEzYmMyMTk4ZDIxNTU1MzBiNDJlMGZiZTViZTZjMDc5OTJlYmJlYjRmMzRlMmViZGE3MzQ1ODgzYWE5ZDJhMWM3IiwiaWF0IjoxNzUyNDE3NzY2Ljk1MDEzNSwibmJmIjoxNzUyNDE3NzY2Ljk1MDEzOCwiZXhwIjoxNzgzOTUzNzY2Ljk0ODAxNCwic3ViIjoiNTM1Iiwic2NvcGVzIjpbXX0.PNYsC8xQFJbR9laohNxr4VjS0e8au5DUF2G04B9-GTpFCEoD7zNQIYJBx0eSnhWuFDj9itwJyuEKaPWSNqfNJoJbw6SwtwRHqcMvPqri_fapgvqBeUulVFN7-nmAYDBy2bZUvHx-GFaiEQ1qn4Bx0aPxGprKGI03sX1ryonLtQMRuaVFCk88zodR894sDksvODK3aRjrWXvcJk4RUbRGzL4sRLrUSOG6j7ixLPvZVsYdKa_zLOONpZvO4R5BcgSvIBi-gAVwpd0QQPY2jXuD2ER5Axm2mnaev8kKbigSzfWSwjPdOEKOSxlZTWtGPieUPZBrlMtdMPgrwlxmQcl4tQmIXjDOG-2r7jM1tupc3XcaBk6axEbNrECSYi_VaGurZeGf-0K3GSho7rWxNx5HQh60MeObKSkdCT6wcKRW8QNAz6d5DhdhUao9kbyf1tVnUQ1pnI3174lB8BZF04xC2W-oDNda4TVFuP9VwnyhwrRfakJmiILzXRowRi2OlFczbgTOMjOef0TI4yanQjzZdC8Vma34dq1a4BgQdcjywTZ8A7K0aLFh29z7vzGkpOXmb_cmfI71urwEeIm-UDjghmoa-KfkcZc1Kh8Pu2uF5PBFNIxLSBMf7tpIy99uTcdGdfNtBYXoWDufwlPIiQvMLlZDoVf0zl9QGo6EDZzSWPw",
 									"type": "string"
 								}
 							]
@@ -430,7 +420,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"value": "{{access_token}}",
 									"type": "string"
 								}
 							]
@@ -457,16 +447,6 @@
 				{
 					"name": "total sold",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImE0Y2ZlZmM1ODhmOTdlZmMzNzdjOGZkYWU1YmNlNThkOWY1ZjM4ZmVjYzYxYTY5MzJjNTgzMGZjYTFmZDc5YmExMmI0YWIzYzkxYWRmYjgwIiwiaWF0IjoxNzUxNTMzNjA4LjcyOTE0NywibmJmIjoxNzUxNTMzNjA4LjcyOTE0OSwiZXhwIjoxNzgzMDY5NjA4LjcyNzk1LCJzdWIiOiI1MjQiLCJzY29wZXMiOltdfQ.iU7d63eD4PEmP27a_o8XvYu1aib3PAnXWjn-LNMOnQESr8QN-ClXB_RLhJOkwfwS0sXzaQb0y6Onx_LC_PvoB-Um6dr7dJikF5vcj8A9BigA0WsO5TI9ELoqtDXFCPKOebaIZxbFJqoloSQqbevkTepGbDZ4B0ZQlolle-GfSlHIFimuZAxHaHSbSQTv2DfI-Dh7XIQT1cnpr49m2JCNzdZXkZEATSeqV0Dym_KZC1xwwdRugMkr4Pw3Zi4acL1EpsFDpcU0YRRIRHiGPyYLm7p-IjYN7dAZs8FYkLf8VnbNH8rb_l3ZZ7Dxg_q7QHNYlAf6iaEGU-XvDwHV67DVekXVTCyIiU-z8OQcQlqDLoAd6_UlNqzkWa1s4_jXnO81ez2PV6AqTDmKj1bUjqAGN4xHuwAYF0yRcqH5rWviHhBZg89eI8f48FF6NrYvaJ6jvJbK3JJbVQxMdmsLd27DMbvrHCMnhmQbFNIyL53dVdr7uIClPq81IshmlGU8GLBfQCn-N0W4fiWDTzM7TJtbQycUegfZ0RGrMu3HkynIS2xWOfJezl6MKqiFiyVdHgTOX5p9RlNjdwxHmT7wPh7otCdHYiCqzbXXkfU4W8T_JIMQpAzhRlEfMKN_tR5x3q8q9nsCknJ2ruxdWo6HE7LIbOXaGQ42h_NEOVksPcb8ITw",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -486,16 +466,6 @@
 				{
 					"name": "categoryProducts",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -511,6 +481,231 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "get banner products",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6Ijc3NWYxODQwNjMxOWY3ZTI2NWM3OGMyYzBlNTFkY2UzMzBiYzM5NjgxM2M4MTMzNDI5MWUxZDA3ZTI0NjE3MTEzOTdlYmU4NGViM2M3ODcyIiwiaWF0IjoxNzUyNDc3Njk0Ljk3ODA5NSwibmJmIjoxNzUyNDc3Njk0Ljk3ODA5OCwiZXhwIjoxNzg0MDEzNjk0Ljk2MDI5OSwic3ViIjoiNTM1Iiwic2NvcGVzIjpbXX0.MnkjL_gqFlukyvjziOcvVshuay5DwsNiv4PWy2G5OpzSp1MU9TmVRdmHdXfOIC-xcrT-em0FsTy82WdmT6tnhwiLIvVdQNp3s045zzSw2uvCPt4VrAYVnr-f35LEnuwI-Tl69fVibjuurt1ffkE2G3vovNxi2EApw6x43v0eyzmSxFxIu_hKWwV4uw6_wLgkPaJJRFB-BAF3hXQSxXGr32zxQVDOwWMUooLu8po4_-7RwrmxaKdDME1BTmkDlQFVEX5QZlAgNGKkXhB4Zv3UOhLfUjhvbwbnKMWpPRxloqdP6k6THt26xRRZcZBm6t5wNgbMbcdls372e7mKr-eYr0M7Q8QRWw7LUeP1QSGI_Lf3wjLVnvOtq9Qf-Vas-CGu3YS_Ijy0q7ogSCjYuOFYgfsFU7VnpaSSGyfyUKE8SzPnBnwI_W-2v5IoFvEM2zcp7Oqlu4n3OJyIYpdt9UysJVJ15qlA-W4KG0cZxxph5sr2ORfMwyHucgOy19gv5ovKsLn11CjrpAJxprLGOgDQfMx3Kf3gxrC0xQJBYjL2r1bhh78j9O7-yqrQiE3xEGrnEOQYLANFxtObphIaUU87bvdX1eTaIEW_Lhh7wWoq9f12assF8GHL9r6JeIK-AeR9U3WN_Ev1fom9OdUuzMJvn2xl_2KYJ1oJddMj9BDpF_g",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/banner-products?brand_id=174",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"banner-products"
+							],
+							"query": [
+								{
+									"key": "brand_id",
+									"value": "174"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "error no brand id  exist",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{domain}}/api/banner-products",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"api",
+										"banner-products"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.2"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Jul 2025 07:53:30 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"brand_id is required\"\n}"
+						},
+						{
+							"name": "success get products of brand",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{domain}}/api/banner-products?brand_id=174",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"api",
+										"banner-products"
+									],
+									"query": [
+										{
+											"key": "brand_id",
+											"value": "174"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.2"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Jul 2025 07:55:01 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"products\": [\n        {\n            \"id\": 29,\n            \"name\": \"ارز جاويش 1كيلو\\\"20كيلو\",\n            \"business_id\": 1,\n            \"type\": \"single\",\n            \"unit_id\": 72,\n            \"secondary_unit_id\": null,\n            \"sub_unit_ids\": null,\n            \"brand_id\": 174,\n            \"category_id\": 272,\n            \"sub_category_id\": 283,\n            \"tax\": null,\n            \"tax_type\": \"exclusive\",\n            \"enable_stock\": 1,\n            \"alert_quantity\": null,\n            \"sku\": \"0029\",\n            \"barcode_type\": \"C128\",\n            \"expiry_period\": \"12.00\",\n            \"expiry_period_type\": \"months\",\n            \"enable_sr_no\": 0,\n            \"weight\": null,\n            \"size\": null,\n            \"width\": null,\n            \"height\": null,\n            \"length\": null,\n            \"product_custom_field1\": null,\n            \"product_custom_field2\": null,\n            \"product_custom_field3\": null,\n            \"product_custom_field4\": null,\n            \"product_custom_field5\": null,\n            \"product_custom_field6\": null,\n            \"product_custom_field7\": null,\n            \"product_custom_field8\": null,\n            \"product_custom_field9\": null,\n            \"product_custom_field10\": null,\n            \"product_custom_field11\": null,\n            \"product_custom_field12\": null,\n            \"product_custom_field13\": null,\n            \"product_custom_field14\": null,\n            \"product_custom_field15\": null,\n            \"product_custom_field16\": null,\n            \"product_custom_field17\": null,\n            \"product_custom_field18\": null,\n            \"product_custom_field19\": null,\n            \"product_custom_field20\": null,\n            \"image\": null,\n            \"woocommerce_media_id\": null,\n            \"product_description\": null,\n            \"created_by\": 459,\n            \"woocommerce_product_id\": null,\n            \"woocommerce_disable_sync\": 0,\n            \"preparation_time_in_minutes\": null,\n            \"warranty_id\": null,\n            \"is_inactive\": 0,\n            \"repair_model_id\": null,\n            \"not_for_selling\": 0,\n            \"created_at\": \"2025-04-28T10:09:42.000000Z\",\n            \"updated_at\": \"2025-06-19T08:26:49.000000Z\",\n            \"minimum_sold_quantity\": \"1\",\n            \"image_url\": \"http://khedrsons.test/img/default.png\"\n        },\n        {\n            \"id\": 30,\n            \"name\": \"ارز جاويش بالزيت 10ك\",\n            \"business_id\": 1,\n            \"type\": \"single\",\n            \"unit_id\": 72,\n            \"secondary_unit_id\": null,\n            \"sub_unit_ids\": null,\n            \"brand_id\": 174,\n            \"category_id\": 272,\n            \"sub_category_id\": 283,\n            \"tax\": null,\n            \"tax_type\": \"exclusive\",\n            \"enable_stock\": 1,\n            \"alert_quantity\": null,\n            \"sku\": \"0030\",\n            \"barcode_type\": \"C128\",\n            \"expiry_period\": \"12.00\",\n            \"expiry_period_type\": \"months\",\n            \"enable_sr_no\": 0,\n            \"weight\": null,\n            \"size\": null,\n            \"width\": null,\n            \"height\": null,\n            \"length\": null,\n            \"product_custom_field1\": null,\n            \"product_custom_field2\": null,\n            \"product_custom_field3\": null,\n            \"product_custom_field4\": null,\n            \"product_custom_field5\": null,\n            \"product_custom_field6\": null,\n            \"product_custom_field7\": null,\n            \"product_custom_field8\": null,\n            \"product_custom_field9\": null,\n            \"product_custom_field10\": null,\n            \"product_custom_field11\": null,\n            \"product_custom_field12\": null,\n            \"product_custom_field13\": null,\n            \"product_custom_field14\": null,\n            \"product_custom_field15\": null,\n            \"product_custom_field16\": null,\n            \"product_custom_field17\": null,\n            \"product_custom_field18\": null,\n            \"product_custom_field19\": null,\n            \"product_custom_field20\": null,\n            \"image\": null,\n            \"woocommerce_media_id\": null,\n            \"product_description\": null,\n            \"created_by\": 459,\n            \"woocommerce_product_id\": null,\n            \"woocommerce_disable_sync\": 0,\n            \"preparation_time_in_minutes\": null,\n            \"warranty_id\": null,\n            \"is_inactive\": 0,\n            \"repair_model_id\": null,\n            \"not_for_selling\": 0,\n            \"created_at\": \"2025-04-28T10:10:17.000000Z\",\n            \"updated_at\": \"2025-07-13T05:09:37.000000Z\",\n            \"minimum_sold_quantity\": \"1\",\n            \"image_url\": \"http://khedrsons.test/img/default.png\"\n        },\n        {\n            \"id\": 31,\n            \"name\": \"ارز جاويش بالزيت 25ك\",\n            \"business_id\": 1,\n            \"type\": \"single\",\n            \"unit_id\": 72,\n            \"secondary_unit_id\": null,\n            \"sub_unit_ids\": null,\n            \"brand_id\": 174,\n            \"category_id\": 272,\n            \"sub_category_id\": 283,\n            \"tax\": null,\n            \"tax_type\": \"exclusive\",\n            \"enable_stock\": 1,\n            \"alert_quantity\": null,\n            \"sku\": \"0031\",\n            \"barcode_type\": \"C128\",\n            \"expiry_period\": \"12.00\",\n            \"expiry_period_type\": \"months\",\n            \"enable_sr_no\": 0,\n            \"weight\": null,\n            \"size\": null,\n            \"width\": null,\n            \"height\": null,\n            \"length\": null,\n            \"product_custom_field1\": null,\n            \"product_custom_field2\": null,\n            \"product_custom_field3\": null,\n            \"product_custom_field4\": null,\n            \"product_custom_field5\": null,\n            \"product_custom_field6\": null,\n            \"product_custom_field7\": null,\n            \"product_custom_field8\": null,\n            \"product_custom_field9\": null,\n            \"product_custom_field10\": null,\n            \"product_custom_field11\": null,\n            \"product_custom_field12\": null,\n            \"product_custom_field13\": null,\n            \"product_custom_field14\": null,\n            \"product_custom_field15\": null,\n            \"product_custom_field16\": null,\n            \"product_custom_field17\": null,\n            \"product_custom_field18\": null,\n            \"product_custom_field19\": null,\n            \"product_custom_field20\": null,\n            \"image\": null,\n            \"woocommerce_media_id\": null,\n            \"product_description\": null,\n            \"created_by\": 459,\n            \"woocommerce_product_id\": null,\n            \"woocommerce_disable_sync\": 0,\n            \"preparation_time_in_minutes\": null,\n            \"warranty_id\": null,\n            \"is_inactive\": 0,\n            \"repair_model_id\": null,\n            \"not_for_selling\": 0,\n            \"created_at\": \"2025-04-28T10:11:02.000000Z\",\n            \"updated_at\": \"2025-07-13T07:01:21.000000Z\",\n            \"minimum_sold_quantity\": \"1\",\n            \"image_url\": \"http://khedrsons.test/img/default.png\"\n        },\n        {\n            \"id\": 32,\n            \"name\": \"ارز جاويش طبيعي 25ك\",\n            \"business_id\": 1,\n            \"type\": \"single\",\n            \"unit_id\": 72,\n            \"secondary_unit_id\": null,\n            \"sub_unit_ids\": null,\n            \"brand_id\": 174,\n            \"category_id\": 272,\n            \"sub_category_id\": 283,\n            \"tax\": null,\n            \"tax_type\": \"exclusive\",\n            \"enable_stock\": 1,\n            \"alert_quantity\": null,\n            \"sku\": \"0032\",\n            \"barcode_type\": \"C128\",\n            \"expiry_period\": \"12.00\",\n            \"expiry_period_type\": \"months\",\n            \"enable_sr_no\": 0,\n            \"weight\": null,\n            \"size\": null,\n            \"width\": null,\n            \"height\": null,\n            \"length\": null,\n            \"product_custom_field1\": null,\n            \"product_custom_field2\": null,\n            \"product_custom_field3\": null,\n            \"product_custom_field4\": null,\n            \"product_custom_field5\": null,\n            \"product_custom_field6\": null,\n            \"product_custom_field7\": null,\n            \"product_custom_field8\": null,\n            \"product_custom_field9\": null,\n            \"product_custom_field10\": null,\n            \"product_custom_field11\": null,\n            \"product_custom_field12\": null,\n            \"product_custom_field13\": null,\n            \"product_custom_field14\": null,\n            \"product_custom_field15\": null,\n            \"product_custom_field16\": null,\n            \"product_custom_field17\": null,\n            \"product_custom_field18\": null,\n            \"product_custom_field19\": null,\n            \"product_custom_field20\": null,\n            \"image\": null,\n            \"woocommerce_media_id\": null,\n            \"product_description\": null,\n            \"created_by\": 459,\n            \"woocommerce_product_id\": null,\n            \"woocommerce_disable_sync\": 0,\n            \"preparation_time_in_minutes\": null,\n            \"warranty_id\": null,\n            \"is_inactive\": 0,\n            \"repair_model_id\": null,\n            \"not_for_selling\": 0,\n            \"created_at\": \"2025-04-28T10:11:43.000000Z\",\n            \"updated_at\": \"2025-07-13T07:01:42.000000Z\",\n            \"minimum_sold_quantity\": \"1\",\n            \"image_url\": \"http://khedrsons.test/img/default.png\"\n        },\n        {\n            \"id\": 33,\n            \"name\": \"ارز ماريا طبيعي 25ك\",\n            \"business_id\": 1,\n            \"type\": \"single\",\n            \"unit_id\": 72,\n            \"secondary_unit_id\": null,\n            \"sub_unit_ids\": null,\n            \"brand_id\": 174,\n            \"category_id\": 272,\n            \"sub_category_id\": 283,\n            \"tax\": null,\n            \"tax_type\": \"exclusive\",\n            \"enable_stock\": 1,\n            \"alert_quantity\": null,\n            \"sku\": \"0033\",\n            \"barcode_type\": \"C128\",\n            \"expiry_period\": \"12.00\",\n            \"expiry_period_type\": \"months\",\n            \"enable_sr_no\": 0,\n            \"weight\": null,\n            \"size\": null,\n            \"width\": null,\n            \"height\": null,\n            \"length\": null,\n            \"product_custom_field1\": null,\n            \"product_custom_field2\": null,\n            \"product_custom_field3\": null,\n            \"product_custom_field4\": null,\n            \"product_custom_field5\": null,\n            \"product_custom_field6\": null,\n            \"product_custom_field7\": null,\n            \"product_custom_field8\": null,\n            \"product_custom_field9\": null,\n            \"product_custom_field10\": null,\n            \"product_custom_field11\": null,\n            \"product_custom_field12\": null,\n            \"product_custom_field13\": null,\n            \"product_custom_field14\": null,\n            \"product_custom_field15\": null,\n            \"product_custom_field16\": null,\n            \"product_custom_field17\": null,\n            \"product_custom_field18\": null,\n            \"product_custom_field19\": null,\n            \"product_custom_field20\": null,\n            \"image\": null,\n            \"woocommerce_media_id\": null,\n            \"product_description\": null,\n            \"created_by\": 459,\n            \"woocommerce_product_id\": null,\n            \"woocommerce_disable_sync\": 0,\n            \"preparation_time_in_minutes\": null,\n            \"warranty_id\": null,\n            \"is_inactive\": 0,\n            \"repair_model_id\": null,\n            \"not_for_selling\": 0,\n            \"created_at\": \"2025-04-28T10:12:23.000000Z\",\n            \"updated_at\": \"2025-07-13T05:09:11.000000Z\",\n            \"minimum_sold_quantity\": \"1\",\n            \"image_url\": \"http://khedrsons.test/img/default.png\"\n        }\n    ]\n}"
+						}
+					]
 				}
 			]
 		},
@@ -525,7 +720,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjE4ODY3OWQ0NDBkMzFkZTE3Yzg3MWE4MWExMTg0MmZkZWQwMzk1OTE1NmI5M2ZlNTkyY2FjMzliM2YzY2QxODcxMGZmNmY1Yjk1MzIxNDE0IiwiaWF0IjoxNzM2MjQ4Njc4LjMxMTcsIm5iZiI6MTczNjI0ODY3OC4zMTE3MDIsImV4cCI6MTc2Nzc4NDY3OC4zMDAxMDQsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.bweKuZhbj_nIUgidh6wCuAfRFiLrQ1etWHXQTdOVU8HzliZ1fOc6eym5d2SDPHxo2ZzO_195Y760CtVR331f32SFcqm1sxfOkHumlrw_SQkGzEbpE5B_ZHKEUlp6jYNucRkC4GxGcV_vgQka7w_UR673mknQfwziuIypuqbHqp_22kykMjmSGNZW6BtldMfQOIlnqrNqq1wVq5JKNWyHGATv8LJjQTpS34ud_RIdIM334Y0G86xa7MB7md-AQJ4TN2Rp-72BmcaI5HP7zIAbXcAI6QQfgkaCmoNt1K-vrI37TJa2RoT92hhlmvbvDF2KvhYn4Aw4dLYdqNs-4rcWfJeRkmcg1N_t3JmAIymeai2zvm66zOQne4H-sCE67ZnASaoGVh4QHsKxG9XFXmNqrdrhA3qPl3_BhtK3t_YZYntH46r8_onlTxjdBb2cyARqbpDDDnvZrqMJ1uLazRDZrYJ50-7HluUuwk4sBRzckn8RjBB2EDaq6XAf1jos283pLiTi_xzM5gwSfy2IRICvTzJRfwQBKqd0FIEjxBJqZOmYH_nXdP4gAswTdnyNaWQfXS4nTZq7w223_FOuhNkAyR6ymUKcu1TkbYcCq9RbcH12gEI2964ycEam9v5BPAmE00IUoOgifJP9OEDuL44Ef6UXiSNY5sP2IP1aBoHCQQg",
 									"type": "string"
 								}
 							]
@@ -559,7 +754,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjM4ZWY1ZDI4NTEzZmVhNmEwOGIwZmVmNDI1MjhkN2MxMDVlMTNkMWM4NDhkNTg2MzMyMTZjMGMxN2ZhNzEzZTU4NTY0ZTczYjY5NTM3NzNhIiwiaWF0IjoxNzUxODk5NjIyLjQ3MzA0OCwibmJmIjoxNzUxODk5NjIyLjQ3MzA1LCJleHAiOjE3ODM0MzU2MjIuNDcxODMsInN1YiI6IjUzNCIsInNjb3BlcyI6W119.F3FM68I0n7vsLv5eljmliH_Yw_g6x63lpswc2rbNVzL6BlXCi3gZgXG1nOjX13h7_qbefA-T4ozWjvj4b6owovcd6NO74rSXrBZuCLHBW9958NvHqLPFyN7g4-8JtPe88KWmeZB_xVE8hqmjjFeuCgAMnEmb-oCwXQVla_XXqqGr38KcMKHVCgOP0QycSPjCo_9D_lhHqcn3Ien0kXMOpysGRFIH97KrFSBdUBpaJdW-DuByhelNEp9UzkEh6ct6dv06QmomzfPqou9vxNZ-vwVxT4mAwUmE8MY4Q1oMT2OwEHUoGr1q1o9AtcYdifEOLKrlwCsU9tv1ADaTz4TCok1PEjhdokVwayIH1OiXYrYUpab9baXNKtx-h6EDir3QtcRbYYdmq1wlzjoMxYI1JwzpJc7MZ4GnOQwjJkmtBdOPCn5XYqnJ4hQmMb7o6hViHLp4cgLkh_lHhMDyCdbJvtrSelgN48pxK_p0a7S0vwz2tt_4YiR6AdH66c-kayaEM-9PPb1tcBGkIh4K2B-E_dbjoRI9WvHhZKXmGZjErcJSWAYKYwDSQTYSo-JAYfOWgmrwQC7KRKJDWEjdGMAoHK9B0pw1ntyeN8iCFoNZEMkxIXAeUmCJRKnHPF3v5K2lkpzw0xSXAyo37g9b8qmaalCGJBdPKydvTjjhgE_J7qo",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjE4ODY3OWQ0NDBkMzFkZTE3Yzg3MWE4MWExMTg0MmZkZWQwMzk1OTE1NmI5M2ZlNTkyY2FjMzliM2YzY2QxODcxMGZmNmY1Yjk1MzIxNDE0IiwiaWF0IjoxNzM2MjQ4Njc4LjMxMTcsIm5iZiI6MTczNjI0ODY3OC4zMTE3MDIsImV4cCI6MTc2Nzc4NDY3OC4zMDAxMDQsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.bweKuZhbj_nIUgidh6wCuAfRFiLrQ1etWHXQTdOVU8HzliZ1fOc6eym5d2SDPHxo2ZzO_195Y760CtVR331f32SFcqm1sxfOkHumlrw_SQkGzEbpE5B_ZHKEUlp6jYNucRkC4GxGcV_vgQka7w_UR673mknQfwziuIypuqbHqp_22kykMjmSGNZW6BtldMfQOIlnqrNqq1wVq5JKNWyHGATv8LJjQTpS34ud_RIdIM334Y0G86xa7MB7md-AQJ4TN2Rp-72BmcaI5HP7zIAbXcAI6QQfgkaCmoNt1K-vrI37TJa2RoT92hhlmvbvDF2KvhYn4Aw4dLYdqNs-4rcWfJeRkmcg1N_t3JmAIymeai2zvm66zOQne4H-sCE67ZnASaoGVh4QHsKxG9XFXmNqrdrhA3qPl3_BhtK3t_YZYntH46r8_onlTxjdBb2cyARqbpDDDnvZrqMJ1uLazRDZrYJ50-7HluUuwk4sBRzckn8RjBB2EDaq6XAf1jos283pLiTi_xzM5gwSfy2IRICvTzJRfwQBKqd0FIEjxBJqZOmYH_nXdP4gAswTdnyNaWQfXS4nTZq7w223_FOuhNkAyR6ymUKcu1TkbYcCq9RbcH12gEI2964ycEam9v5BPAmE00IUoOgifJP9OEDuL44Ef6UXiSNY5sP2IP1aBoHCQQg",
 									"type": "string"
 								}
 							]
@@ -577,7 +772,7 @@
 							"formdata": [
 								{
 									"key": "product_id",
-									"value": "4",
+									"value": "9780",
 									"type": "text"
 								},
 								{
@@ -709,7 +904,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImIyNDBlZTY0ZGM0MTcxODc5OTU3M2IzZDljMzVmZjI5MmU1OTRlNDM0MDUxZjRhZWVmMzMwN2M3ZjFhY2Q3YWM2NjFhNWYzMmFiZjlhN2EwIiwiaWF0IjoxNzUxODAyMDgzLjMxMTY0NywibmJmIjoxNzUxODAyMDgzLjMxMTY0OSwiZXhwIjoxNzgzMzM4MDgzLjMwOTUzNSwic3ViIjoiNTM0Iiwic2NvcGVzIjpbXX0.fklYsoCCQGUOJVLsJmQ2M58C4q77z9TChBc3-xK8CoGoBiyKaBH1VZOcucijYdK4cDEypO6WB5PWZtRAtQGDVYqauaCmoeRYpJye8ztyq4kApBb256Koe2QWiBIjsCQ8RL14ZKylx88hvgmnjGE-Jb8RumnkNANuKCuzV-xekOSWWGNeeCSaN7hUu6KKFdObfEcAKXkrKEtcPZlB4_POfUbLvp-qGFEoZ67kAEETHSExNK_gxBnh1vxXaV3Tar7Hl7uBH2zcMfYEXKPOOrTYrOIfBmuZZXqMklh6gS-tVmisGHXon3Oljxmkomj3EqK3ikmeyMqhZBzIz0v3njgQFBZbQRFq0EHitR5rB91wgU8WfcRNBAzczUsHqduRTpbcYZ_wHE1T5jdQRvbZXY78xTVlYZQLTJP-g2TEq3_2p0nSqbe2N8K9NggSA1pGy5e51hDryWgMHdFRv_VQX_0rrI7Yi_S8fHUbHWEF0dXrjR2JYmCrhxlokPOxumUMcQnJ7d2sQ1e6g48Wy89oQQjuuWLk2UOe2QUihLVluQtqMOPhRSu44WKq6DLVovKbFmxqTvfC0yuHrDwF8DR2CIRnfNKFH_iJM-bAuakVqneNycJohz8nketk2QNJe4eD3hVag4mbrI0lrECoblT3UoNZWBYuGCT1UuqK-HhD9OR2vZc",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjFiMjZjNTQ5NWMwMzdiZDhjNDQ2MGJhM2ZmYzI3MTIwY2Q2YzA0YmJlNGEyYzQzOTQ1NWE3MWZmYTk1ZjQwYWZiMTIxZjMwZTIzY2ZkYTIwIiwiaWF0IjoxNzM2MzI3MTkxLjYxMDk5NiwibmJmIjoxNzM2MzI3MTkxLjYxMDk5OSwiZXhwIjoxNzY3ODYzMTkxLjYwMDQxMSwic3ViIjoiMSIsInNjb3BlcyI6W119.WNCYzQnenUo94W9iCBl5HNQmsFZvNg-9YVHlCUmn5ZCt-YxRRpRfYf64GKIiclVRyYeVhH0eqslEoO4DjWjsGdKwGR-1RA0yXfuIx1MRTiEyl6Z3FEq7UtkXFRgozQyHsvlR5y8mONmQT4_t2juEA_epiqf9v1IEpNh0tEomzRxjMeGo2M-s1nb7zOhTDB8a116fHlHVaJm12kRzL2YloCAhdUVG2JYbRzz0rWQ2zfTp1a6mJOkzce0eEUEPufF0HHCOXZDEcGFiTQW5j9_k2ZAoINVfT-bklGYaOFaBkOxoig8D1g0LIMccLZvufJc9PBnprSjlziQnegCED6Lrv51-lnLhbnI2N6uyCwNC3WKFwHpl4BQfiSPQuW-x0xlCUhTF9QF_wPSdvvuUf5v_VH8f8UKqj_q0S-DLcoqYaxZNgvaojlr9rDa4m0UkLrCNwKhQIVTtC-GAnpGNx5wVJNRIRphiGSWftmsaKTK3ayE2I_ZvoRq2tb1pmfUO6NRqb9nIP9A6rgXKoh34jbQlG7Gin7660LtjKkZPSVEUtNYZGOV4hIKx5n34_p3o1oKYqJUMyMKGNq_DqHZdXLPjcPYeDmZMbknYykIeEb-srAQiQPaRl_SztIwleFD8XnIWRtXmQ35Gr1_6vVqeXsM85bl7j6z66nGYlpo1d3_URUA",
 									"type": "string"
 								}
 							]
@@ -757,7 +952,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjE4ODY3OWQ0NDBkMzFkZTE3Yzg3MWE4MWExMTg0MmZkZWQwMzk1OTE1NmI5M2ZlNTkyY2FjMzliM2YzY2QxODcxMGZmNmY1Yjk1MzIxNDE0IiwiaWF0IjoxNzM2MjQ4Njc4LjMxMTcsIm5iZiI6MTczNjI0ODY3OC4zMTE3MDIsImV4cCI6MTc2Nzc4NDY3OC4zMDAxMDQsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.bweKuZhbj_nIUgidh6wCuAfRFiLrQ1etWHXQTdOVU8HzliZ1fOc6eym5d2SDPHxo2ZzO_195Y760CtVR331f32SFcqm1sxfOkHumlrw_SQkGzEbpE5B_ZHKEUlp6jYNucRkC4GxGcV_vgQka7w_UR673mknQfwziuIypuqbHqp_22kykMjmSGNZW6BtldMfQOIlnqrNqq1wVq5JKNWyHGATv8LJjQTpS34ud_RIdIM334Y0G86xa7MB7md-AQJ4TN2Rp-72BmcaI5HP7zIAbXcAI6QQfgkaCmoNt1K-vrI37TJa2RoT92hhlmvbvDF2KvhYn4Aw4dLYdqNs-4rcWfJeRkmcg1N_t3JmAIymeai2zvm66zOQne4H-sCE67ZnASaoGVh4QHsKxG9XFXmNqrdrhA3qPl3_BhtK3t_YZYntH46r8_onlTxjdBb2cyARqbpDDDnvZrqMJ1uLazRDZrYJ50-7HluUuwk4sBRzckn8RjBB2EDaq6XAf1jos283pLiTi_xzM5gwSfy2IRICvTzJRfwQBKqd0FIEjxBJqZOmYH_nXdP4gAswTdnyNaWQfXS4nTZq7w223_FOuhNkAyR6ymUKcu1TkbYcCq9RbcH12gEI2964ycEam9v5BPAmE00IUoOgifJP9OEDuL44Ef6UXiSNY5sP2IP1aBoHCQQg",
 									"type": "string"
 								}
 							]
@@ -799,7 +994,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6ImFkN2RjMmQyMjI3MzZhODgyYjc3ZDA4YmZmY2Y1MzBjODViZTRmZmQxMzRhYmYzMjNmOGVhM2E3ZWJjMjljZjhkNDg5ZGI3YTg2MmRkMjcwIiwiaWF0IjoxNzUxNzkwODAzLjE3NTMyOCwibmJmIjoxNzUxNzkwODAzLjE3NTMzLCJleHAiOjE3ODMzMjY4MDMuMTczOTgxLCJzdWIiOiI1MjgiLCJzY29wZXMiOltdfQ.aRDopkCE3lq2eTNVerIrwIqNos5ygDFPwI106u1cvq4opDWDO_S1BtpJStVMIYxYbbV-ZpzdKd4N4EgCaoYjQ1vmfTyfhC_S8kAshzqm7ebN2QI7Cw4tnZl4Kc58SUqC3qLbI01eY0sFx4xlyeKXYgTcA6pX2IyBDVtVjwkC0U7SimY2oxqUXa6WUYY2FE5QDt3XqjOXPXr9kdANae1UTHJVUj6IuE4b6xcIhlZM1AKZuGmnASuxwIwLbJc1yT2cdnLQ0NvxZKSVeBQkL30f2MzDRBvQdy96YEXTga7l1zE3MKu31csjeqbqv2VkMGtxd4tmxRBQTtrKOy7YjWj82oJ5QlCg2Vjpuags-_klWMPS6SGSUoQnGqkJbJguvCy3JcrbrSD_CmjRWgo98jo8LaGXLs_Gg4jON0n26QBXdWNPy8x_UGEWMdx0zHUgIDury6rnv50HKBl31b6gfKv1-7akobgBna-vSNNRQo85kkjZOob0bkKKDt8-rgUuA_ORwGMuYcJhugsp_PsqNalNxF80PVPEoIq2N44U2QTP7-hdXUzAMNYG9aiGb4oI2Q8HUxkuZ2ZkX5UlNNKKIiEVcgGSosxpPEuGxqcT2SqIqib3zRmEjIYCAKMHvv6lPDqiazYeNmCcaOtSEHOzygpwqhFnT_ZAy-K9YlvipvafvEY",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyMCIsImp0aSI6IjE4ODY3OWQ0NDBkMzFkZTE3Yzg3MWE4MWExMTg0MmZkZWQwMzk1OTE1NmI5M2ZlNTkyY2FjMzliM2YzY2QxODcxMGZmNmY1Yjk1MzIxNDE0IiwiaWF0IjoxNzM2MjQ4Njc4LjMxMTcsIm5iZiI6MTczNjI0ODY3OC4zMTE3MDIsImV4cCI6MTc2Nzc4NDY3OC4zMDAxMDQsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.bweKuZhbj_nIUgidh6wCuAfRFiLrQ1etWHXQTdOVU8HzliZ1fOc6eym5d2SDPHxo2ZzO_195Y760CtVR331f32SFcqm1sxfOkHumlrw_SQkGzEbpE5B_ZHKEUlp6jYNucRkC4GxGcV_vgQka7w_UR673mknQfwziuIypuqbHqp_22kykMjmSGNZW6BtldMfQOIlnqrNqq1wVq5JKNWyHGATv8LJjQTpS34ud_RIdIM334Y0G86xa7MB7md-AQJ4TN2Rp-72BmcaI5HP7zIAbXcAI6QQfgkaCmoNt1K-vrI37TJa2RoT92hhlmvbvDF2KvhYn4Aw4dLYdqNs-4rcWfJeRkmcg1N_t3JmAIymeai2zvm66zOQne4H-sCE67ZnASaoGVh4QHsKxG9XFXmNqrdrhA3qPl3_BhtK3t_YZYntH46r8_onlTxjdBb2cyARqbpDDDnvZrqMJ1uLazRDZrYJ50-7HluUuwk4sBRzckn8RjBB2EDaq6XAf1jos283pLiTi_xzM5gwSfy2IRICvTzJRfwQBKqd0FIEjxBJqZOmYH_nXdP4gAswTdnyNaWQfXS4nTZq7w223_FOuhNkAyR6ymUKcu1TkbYcCq9RbcH12gEI2964ycEam9v5BPAmE00IUoOgifJP9OEDuL44Ef6UXiSNY5sP2IP1aBoHCQQg",
 									"type": "string"
 								}
 							]

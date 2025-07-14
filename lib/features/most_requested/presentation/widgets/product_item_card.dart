@@ -19,9 +19,15 @@ class ProductItemCard extends StatelessWidget {
 
   bool _isValidImage(String? url) {
     if (url == null || url.isEmpty) return false;
-    if (url == 'https://erp.khedrsons.com/uploads/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png') return false;
+    if (url == 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png') return false;
     if (url.toLowerCase().endsWith('فريم.png')) return false;
     return true;
+  }
+
+  String _splitAfterTwoWords(String text) {
+    final words = text.split(' ');
+    if (words.length <= 2) return text;
+    return '${words.sublist(0, 2).join(' ')}\n${words.sublist(2).join(' ')}';
   }
 
   Widget _buildProductDetails() {
@@ -29,7 +35,7 @@ class ProductItemCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          product.productName ?? '',
+          _splitAfterTwoWords(product.productName ?? ''),
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,

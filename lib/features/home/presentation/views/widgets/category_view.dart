@@ -17,50 +17,13 @@ import 'package:awlad_khedr/features/home/data/repositories/category_repository.
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
 
-// Add this to your APIConstant class in constant.dart
-// class APIConstant {
-//   static const String BASE_URL = 'https://erp.khedrsons.com/api/';
-//   static const String GET_ALL_PRODUCTS = BASE_URL + 'products';
-//   static const String GET_CATEGORY_PRODUCTS = BASE_URL + 'category/products';
-//   // ... other API constants
-// }
-
-// Ensure your Product model has a productId field if you want to use it as a key
-// (e.g., in top_rated_model.dart, if your API response includes 'product_id')
-// class Product {
-//   final int? productId; // Add this field
-//   final String? productName;
-//   final dynamic price; // Can be num or String
-//   final dynamic qtyAvailable;
-//   final String? minimumSoldQuantity;
-//   final String? image;
-//   final String? imageUrl;
-//   final String? categoryName; // Added for completeness if needed in filtering
-
-//   Product({
-//     this.productId, // Initialize it
-//     this.productName,
-//     this.price,
-//     this.qtyAvailable,
-//     this.minimumSoldQuantity,
-//     this.image,
-//     this.imageUrl,
-//     this.categoryName,
-//   });
-
-//   factory Product.fromJson(Map<String, dynamic> json) {
-//     return Product(
-//       productId: json['product_id'] as int?,
-//       productName: json['product_name'] as String?,
-//       price: json['price'], // Keep dynamic for flexibility
-//       qtyAvailable: json['qty_available'],
-//       minimumSoldQuantity: json['minimum_sold_quantity'] as String?,
-//       image: json['image'] as String?,
-//       imageUrl: json['image_url'] as String?,
-//       categoryName: json['category_name'] as String?, // Parse if available
-//     );
-//   }
-// }
+// Helper function to split product name after two words
+String splitAfterTwoWords(String? name) {
+  if (name == null || name.trim().isEmpty) return '';
+  final words = name.trim().split(RegExp(r'\s+'));
+  if (words.length <= 2) return name;
+  return '${words.take(2).join(' ')}\n${words.skip(2).join(' ')}';
+}
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
@@ -177,6 +140,9 @@ class _CategoriesViewState extends State<_CategoriesView> {
                           children: [
                             ProductItemCard(
                               product: product,
+                              // Pass a custom productTitleBuilder to ProductItemCard if supported
+                              // Otherwise, you may need to modify ProductItemCard to accept a title string
+                              // Here, we assume ProductItemCard has a 'productTitle' or similar parameter
                               quantity: controller.productQuantities[quantityKey] ?? 0,
                               onQuantityChanged: (newQuantity) {
                                 controller.onQuantityChanged(quantityKey, newQuantity);
@@ -194,6 +160,8 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                 controller.cart[product] = newQuantity;
                                 controller.safeNotifyListeners();
                               },
+                              // If ProductItemCard supports a custom title, pass it here:
+                              // productTitle: splitAfterTwoWords(product.productName),
                             ),
                           ],
                         ),

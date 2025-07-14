@@ -5,7 +5,9 @@ import 'package:awlad_khedr/features/home/presentation/views/widgets/carousel_sl
 import 'package:awlad_khedr/features/home/presentation/views/widgets/category_home.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
 import 'package:awlad_khedr/features/most_requested/presentation/views/top_rated.dart';
+import 'package:awlad_khedr/features/search/presentation/widgets/category_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/app_router.dart';
@@ -19,10 +21,35 @@ class HomeScreenView extends StatefulWidget {
 }
 
 class _HomeScreenViewState extends State<HomeScreenView> {
+  late final TextEditingController searchController;
+
   @override
   void initState() {
     super.initState();
+    searchController = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkAndShowPopup());
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchSubmitted(String query) {
+    if (query.trim().isNotEmpty) {
+      GoRouter.of(context).push(
+        AppRouter.kSearchResultsPage,
+        extra: {'searchQuery': query.trim()},
+      );
+    }
+  }
+
+  void _onCategorySelected(String category) {
+    GoRouter.of(context).push(
+      AppRouter.kSearchResultsPage,
+      extra: {'searchQuery': '', 'selectedCategory': category},
+    );
   }
 
   Future<void> _checkAndShowPopup() async {
@@ -105,7 +132,11 @@ class _HomeScreenViewState extends State<HomeScreenView> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                const SearchWidget(),
+                SearchWidget(
+                  controller: searchController,
+                  onSubmitted: _onSearchSubmitted,
+                  onCategorySelected: _onCategorySelected,
+                ),
                 const SizedBox(
                   height: 15,
                 ),

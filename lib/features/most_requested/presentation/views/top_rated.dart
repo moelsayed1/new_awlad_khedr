@@ -82,23 +82,9 @@ class _TopRatedItemState extends State<TopRatedItem> {
                   child: GestureDetector(
                     onTap: () {
                       final product = topRatedItem!.products[index];
-                      final category = categories.firstWhere(
-                        (cat) => cat.categoryName == product.categoryName,
-                        orElse: () => Category(
-                          categoryId: null,
-                          categoryName: product.categoryName,
-                          categoryImage: '',
-                          products: [],
-                          subCategories: [],
-                        ),
-                      );
                       GoRouter.of(context).push(
-                        AppRouter.kBannerProductsPage,
-                        extra: {
-                          'bannerTitle': product.categoryName,
-                          'categoryName': product.categoryName,
-                          'categoryId': category.categoryId,
-                        },
+                        '/productDetails',
+                        extra: product.toJson(),
                       );
                     },
                     child: Container(
@@ -126,7 +112,7 @@ class _TopRatedItemState extends State<TopRatedItem> {
                             color: Colors.transparent,
                             child: (topRatedItem?.products[index].imageUrl != null &&
                                     topRatedItem!.products[index].imageUrl!.isNotEmpty &&
-                                    topRatedItem!.products[index].imageUrl! != 'https://erp.khedrsons.com/uploads/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
+                                    topRatedItem!.products[index].imageUrl! != 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
                                 ? Image.network(
                                     topRatedItem!.products[index].imageUrl!,
                                     fit: BoxFit.cover,

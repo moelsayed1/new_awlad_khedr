@@ -33,6 +33,19 @@ class Product {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'product_id': productId,
+      'product_name': productName,
+      'price': price,
+      'qty_available': qtyAvailable,
+      'minimum_sold_quantity': minimumSoldQuantity,
+      'image': image,
+      'image_url': imageUrl,
+      'category_name': categoryName,
+    };
+  }
+
   // It's good practice to override == and hashCode for objects used as map keys
   @override
   bool operator ==(Object other) =>
