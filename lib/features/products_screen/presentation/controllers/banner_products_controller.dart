@@ -97,9 +97,9 @@ class BannerProductsController extends ChangeNotifier {
     try {
       List<Product> products = [];
       
-      // If brand ID is provided, fetch all products (since we don't have brand-specific endpoint)
+      // If brand ID is provided, fetch products by brand
       if (brandId != null) {
-        products = await _repository.fetchAllProducts();
+        products = await _repository.fetchProductsByBrand(brandId!);
       } 
       // If category name is provided, fetch products by category
       else if (categoryName != null) {

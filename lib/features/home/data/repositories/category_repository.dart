@@ -293,4 +293,57 @@ class CategoryRepository {
       return [];
     }
   }
+
+  Future<List<Product>> fetchProductsByBrand(int brandId) async {
+    try {
+      if (!await _validateToken()) {
+        await _clearInvalidToken();
+        throw Exception('Invalid or expired token');
+      }
+
+      final queryParams = <String, String>{
+        'brand_id': brandId.toString(),
+      };
+
+      final uri = Uri.parse(APIConstant.GET_PRODUCTS_BY_BRAND).replace(
+        queryParameters: queryParams,
+      );
+
+      log('Fetching products by brand from: $uri');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          "Authorization": "Bearer $authToken",
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+        },
+      );
+
+      log('Brand products response status: ${response.statusCode}');
+      log('Brand products response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        List<Product> products = [];
+        if (jsonResponse is Map<String, dynamic> && jsonResponse['products'] is List) {
+          products = (jsonResponse['products'] as List)
+              .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
+              .toList();
+        }
+        log('Parsed ${products.length} products from brand id $brandId');
+        return products;
+      } else if (response.statusCode == 401) {
+        await _clearInvalidToken();
+        throw Exception('Unauthorized access');
+      } else {
+        throw Exception('Failed to fetch products by brand: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error fetching products by brand: $e');
+      return [];
+    }
+  }
 } 

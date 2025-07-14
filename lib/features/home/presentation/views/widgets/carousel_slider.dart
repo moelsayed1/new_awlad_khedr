@@ -80,10 +80,10 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       imageUrl: 'https://picsum.photos/seed/banner$index/800/400',
-      categoryId: index + 1,
-      categoryName: 'Category ${index + 1}',
-      brandId: index + 1,
-      brandName: 'Brand ${index + 1}',
+      categoryId: index % 2 == 0 ? index + 1 : null,
+      categoryName: index % 2 == 0 ? 'Category ${index + 1}' : null,
+      brandId: index % 2 == 1 ? 100 + index : null,
+      brandName: index % 2 == 1 ? 'Brand ${index + 1}' : null,
     ));
   }
 
@@ -112,9 +112,11 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
                     GoRouter.of(context).push(
                       AppRouter.kBannerProductsPage,
                       extra: {
-                        'bannerTitle': item.categoryName,
+                        'bannerTitle': item.brandName ?? item.categoryName,
                         'categoryName': item.categoryName,
                         'categoryId': item.categoryId,
+                        'brandName': item.brandName,
+                        'brandId': item.brandId,
                       },
                     );
                   },
