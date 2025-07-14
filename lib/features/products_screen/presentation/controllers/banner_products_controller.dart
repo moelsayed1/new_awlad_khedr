@@ -9,6 +9,7 @@ class BannerProductsController extends ChangeNotifier {
   final int? brandId;
   final String? categoryName;
   final String? brandName;
+  final dynamic selectedProduct;
 
   bool _disposed = false;
 
@@ -28,6 +29,7 @@ class BannerProductsController extends ChangeNotifier {
     this.brandId,
     this.categoryName,
     this.brandName,
+    this.selectedProduct,
   }) {
     // Initialize data immediately when controller is created
     initializeData();
@@ -71,6 +73,19 @@ class BannerProductsController extends ChangeNotifier {
     safeNotifyListeners();
 
     try {
+      // If a selectedProduct is provided, show only that product
+      if (selectedProduct != null) {
+        final product = selectedProduct as Product;
+        topRatedItem = TopRatedModel(products: [product]);
+        allProducts = [product];
+        _updateProductQuantities([product]);
+        filteredProducts = [product];
+        resetPagination();
+        loadNextPage();
+        isListLoaded = true;
+        safeNotifyListeners();
+        return;
+      }
       // Fetch products based on banner data
       await fetchBannerProducts();
 

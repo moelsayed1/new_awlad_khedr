@@ -83,23 +83,22 @@ class CategoryRepository {
         throw Exception('Invalid or expired token');
       }
 
-      // If no category name is provided, return empty list (do not fetch all products)
-      if (search == null || search.trim().isEmpty) {
-        log('No category name provided for search. Returning empty product list.');
-        return [];
-      }
-
       final queryParams = <String, String>{
-        'category_name': search.trim(),
         'page': page.toString(),
         'page_size': pageSize.toString(),
       };
 
-      log('Fetching products only from category: "${search.trim()}" with params: $queryParams');
+      // Add search parameter if provided
+      if (search != null && search.trim().isNotEmpty) {
+        queryParams['search'] = search.trim();
+        log('Searching all products with query: "${search.trim()}"');
+      }
 
-      final uri = Uri.parse(APIConstant.GET_ALL_PRODUCTS_BY_CATEGORY).replace(
+      final uri = Uri.parse(APIConstant.GET_ALL_PRODUCTS).replace(
         queryParameters: queryParams,
       );
+
+      log('Fetching all products from: $uri');
 
       final response = await http.get(
         uri,
@@ -112,14 +111,13 @@ class CategoryRepository {
         },
       );
 
-      log('Category products response status: ${response.statusCode}');
-      log('Category products response body: ${response.body}');
+      log('All products response status: ${response.statusCode}');
+      log('All products response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         List<Product> products = [];
 
-        // The response may contain products in different structures, handle accordingly
         if (jsonResponse is Map<String, dynamic>) {
           if (jsonResponse['products'] is List) {
             products = (jsonResponse['products'] as List)
@@ -134,27 +132,14 @@ class CategoryRepository {
             products = (jsonResponse['data'] as List)
                 .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
-          } else if (jsonResponse['categories'] is List) {
-            // If the API returns a list of categories, find the one matching the search and extract its products
-            for (var categoryEntry in jsonResponse['categories']) {
-              final categoryName = categoryEntry['category_name']?.toString() ?? '';
-              if (categoryName.trim() == search.trim()) {
-                if (categoryEntry['products'] is List) {
-                  products = (categoryEntry['products'] as List)
-                      .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
-                      .toList();
-                }
-                break;
-              }
-            }
           }
         } else if (jsonResponse is List) {
           products = jsonResponse
               .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
               .toList();
         }
-
-        log('Parsed ${products.length} products from category "$search"');
+        
+        log('Parsed ${products.length} products from all products endpoint');
         return products;
       } else if (response.statusCode == 401) {
         await _clearInvalidToken();
@@ -163,7 +148,7 @@ class CategoryRepository {
         throw Exception('Failed to fetch products: ${response.statusCode}');
       }
     } catch (e) {
-      log('Error fetching products by category name: $e');
+      log('Error fetching all products: $e');
       return [];
     }
   }

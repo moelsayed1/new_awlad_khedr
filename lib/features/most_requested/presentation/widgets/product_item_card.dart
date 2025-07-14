@@ -24,12 +24,18 @@ class ProductItemCard extends StatelessWidget {
     return true;
   }
 
+  String _splitAfterTwoWords(String text) {
+    final words = text.split(' ');
+    if (words.length <= 2) return text;
+    return '${words.sublist(0, 2).join(' ')}\n${words.sublist(2).join(' ')}';
+  }
+
   Widget _buildProductDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          product.productName ?? '',
+          _splitAfterTwoWords(product.productName ?? ''),
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,

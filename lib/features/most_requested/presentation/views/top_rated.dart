@@ -82,23 +82,9 @@ class _TopRatedItemState extends State<TopRatedItem> {
                   child: GestureDetector(
                     onTap: () {
                       final product = topRatedItem!.products[index];
-                      final category = categories.firstWhere(
-                        (cat) => cat.categoryName == product.categoryName,
-                        orElse: () => Category(
-                          categoryId: null,
-                          categoryName: product.categoryName,
-                          categoryImage: '',
-                          products: [],
-                          subCategories: [],
-                        ),
-                      );
                       GoRouter.of(context).push(
-                        AppRouter.kBannerProductsPage,
-                        extra: {
-                          'bannerTitle': product.categoryName,
-                          'categoryName': product.categoryName,
-                          'categoryId': category.categoryId,
-                        },
+                        '/productDetails',
+                        extra: product.toJson(),
                       );
                     },
                     child: Container(

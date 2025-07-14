@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../drawer_slider/presentation/views/side_slider.dart';
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 
 class BannerProductsPage extends StatefulWidget {
   final String? bannerTitle;
@@ -18,6 +19,7 @@ class BannerProductsPage extends StatefulWidget {
   final int? categoryId;
   final String? brandName;
   final int? brandId;
+  final dynamic selectedProduct;
 
   const BannerProductsPage({
     super.key,
@@ -26,6 +28,7 @@ class BannerProductsPage extends StatefulWidget {
     this.categoryId,
     this.brandName,
     this.brandId,
+    this.selectedProduct,
   });
 
   @override
@@ -35,6 +38,10 @@ class BannerProductsPage extends StatefulWidget {
 class _BannerProductsPageState extends State<BannerProductsPage> {
   @override
   Widget build(BuildContext context) {
+    // If selectedProduct is a Map, reconstruct as Product
+    final dynamic selectedProductObj = (widget.selectedProduct is Map<String, dynamic>)
+        ? Product.fromJson(widget.selectedProduct as Map<String, dynamic>)
+        : widget.selectedProduct;
     return ChangeNotifierProvider(
       create: (context) => BannerProductsController(
         CategoryRepository(),
@@ -42,6 +49,7 @@ class _BannerProductsPageState extends State<BannerProductsPage> {
         brandId: widget.brandId,
         categoryName: widget.categoryName,
         brandName: widget.brandName,
+        selectedProduct: selectedProductObj,
       ),
       child: const _BannerProductsView(),
     );

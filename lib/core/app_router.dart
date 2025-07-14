@@ -25,6 +25,8 @@ import '../features/order/presentation/views/orders_view.dart';
 import 'package:provider/provider.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
+import 'package:awlad_khedr/features/most_requested/presentation/views/product_details_view.dart';
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -172,6 +174,13 @@ abstract class AppRouter {
           searchQuery: args['searchQuery'] ?? '',
           selectedCategory: args['selectedCategory'],
         );
+      },
+    ),
+    GoRoute(
+      path: '/productDetails',
+      builder: (context, state) {
+        final product = Product.fromJson(state.extra as Map<String, dynamic>);
+        return ProductDetailsPage(product: product);
       },
     ),
   ]);
