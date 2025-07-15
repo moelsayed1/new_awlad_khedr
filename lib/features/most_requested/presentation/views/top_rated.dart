@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
-
+import 'dart:developer' as dev;
 import 'package:awlad_khedr/core/assets.dart';
+import 'package:awlad_khedr/features/auth/login/data/provider/login_provider.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../constant.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +17,9 @@ import 'package:awlad_khedr/features/products_screen/model/product_by_category_m
 import 'package:go_router/go_router.dart';
 
 class TopRatedItem extends StatefulWidget {
-  const TopRatedItem({super.key,});
+  const TopRatedItem({
+    super.key,
+  });
 
   @override
   State<TopRatedItem> createState() => _TopRatedItemState();
@@ -28,12 +32,40 @@ class _TopRatedItemState extends State<TopRatedItem> {
   // Add category list
   List<Category> categories = [];
 
-  GetTopRatedItems() async {
+  // ignore: non_constant_identifier_names
+  Future<void> GetTopRatedItems() async {
+    dev.log("current token :$authToken");
     Uri uriToSend = Uri.parse(APIConstant.GET_TOP_RATED_ITEMS);
-    final response = await http.get(uriToSend, headers: {"Authorization" : "Bearer $authToken"});
-    if (response.statusCode == 200) {
-      topRatedItem = TopRatedModel.fromJson(jsonDecode(response.body));
+
+    const int maxRetries = 3;
+    int attempt = 0;
+    bool success = false;
+
+    while (attempt < maxRetries && !success) {
+      try {
+        final response = await http.get(
+          uriToSend,
+          headers: {
+            "Authorization":
+                "Bearer ${authToken.isNotEmpty ? authToken : (await SharedPreferences.getInstance()).getString('token') ?? ''}"
+          },
+        );
+        if (response.statusCode == 200) {
+          topRatedItem = TopRatedModel.fromJson(jsonDecode(response.body));
+          success = true;
+        } else {
+          dev.log(
+              "Failed to fetch top rated items. Status: ${response.statusCode}");
+        }
+      } catch (e) {
+        dev.log("Error fetching top rated items: $e");
+      }
+      attempt++;
+      if (!success && attempt < maxRetries) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
     }
+
     if (mounted) {
       setState(() {
         isListLoaded = true;
@@ -44,9 +76,16 @@ class _TopRatedItemState extends State<TopRatedItem> {
   Future<void> fetchCategories() async {
     try {
       Uri uriToSend = Uri.parse(APIConstant.GET_ALL_PRODUCTS_BY_CATEGORY);
-      final response = await http.get(uriToSend, headers: {"Authorization": "Bearer $authToken"});
+      final response = await http.get(
+        uriToSend,
+        headers: {
+          "Authorization":
+              "Bearer ${authToken.isNotEmpty ? authToken : (await SharedPreferences.getInstance()).getString('token') ?? ''}"
+        },
+      );
       if (response.statusCode == 200) {
-        final model = ProductByCategoryModel.fromJson(jsonDecode(response.body));
+        final model =
+            ProductByCategoryModel.fromJson(jsonDecode(response.body));
         categories = model.categories;
       }
     } catch (e) {
@@ -57,8 +96,10 @@ class _TopRatedItemState extends State<TopRatedItem> {
   @override
   void initState() {
     super.initState();
-    GetTopRatedItems();
-    fetchCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await GetTopRatedItems();
+      await fetchCategories();
+    });
   }
 
   @override
@@ -110,9 +151,12 @@ class _TopRatedItemState extends State<TopRatedItem> {
                             width: MediaQuery.sizeOf(context).width * 0.4,
                             height: MediaQuery.sizeOf(context).height * .18,
                             color: Colors.transparent,
-                            child: (topRatedItem?.products[index].imageUrl != null &&
-                                    topRatedItem!.products[index].imageUrl!.isNotEmpty &&
-                                    topRatedItem!.products[index].imageUrl! != 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
+                            child: (topRatedItem?.products[index].imageUrl !=
+                                        null &&
+                                    topRatedItem!
+                                        .products[index].imageUrl!.isNotEmpty &&
+                                    topRatedItem!.products[index].imageUrl! !=
+                                        'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
                                 ? Image.network(
                                     topRatedItem!.products[index].imageUrl!,
                                     fit: BoxFit.cover,
@@ -132,7 +176,8 @@ class _TopRatedItemState extends State<TopRatedItem> {
                           SingleChildScrollView(
                             child: Row(
                               children: [
-                                Icon(Icons.star, color: Colors.orange, size: 16.sp),
+                                Icon(Icons.star,
+                                    color: Colors.orange, size: 16.sp),
                                 SizedBox(width: 4.w),
                                 Text(
                                   '4.5',
@@ -145,7 +190,8 @@ class _TopRatedItemState extends State<TopRatedItem> {
                                 const Spacer(),
                                 Expanded(
                                   child: Text(
-                                    topRatedItem?.products[index].productName ?? '',
+                                    topRatedItem?.products[index].productName ??
+                                        '',
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14.sp,

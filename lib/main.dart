@@ -9,14 +9,13 @@ import 'features/drawer_slider/controller/notification_provider.dart';
 import 'dart:developer';
 import 'features/order/presentation/controllers/order_provider.dart';
 
-
 String authToken = "";
 
 Future<void> initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences pref = await SharedPreferences.getInstance();
   authToken = pref.getString('token') ?? '';
-  
+
   // Validate token if it exists
   if (authToken.isNotEmpty) {
     try {
@@ -36,7 +35,7 @@ Future<void> initializeApp() async {
 
 void main() async {
   await initializeApp();
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -44,6 +43,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) {
           final loginProvider = LoginProvider();
           loginProvider.loadToken();
+          
           return loginProvider;
         }),
         ChangeNotifierProvider(create: (_) => RegisterProvider()),

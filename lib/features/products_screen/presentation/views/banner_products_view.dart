@@ -39,9 +39,10 @@ class _BannerProductsPageState extends State<BannerProductsPage> {
   @override
   Widget build(BuildContext context) {
     // If selectedProduct is a Map, reconstruct as Product
-    final dynamic selectedProductObj = (widget.selectedProduct is Map<String, dynamic>)
-        ? Product.fromJson(widget.selectedProduct as Map<String, dynamic>)
-        : widget.selectedProduct;
+    final dynamic selectedProductObj =
+        (widget.selectedProduct is Map<String, dynamic>)
+            ? Product.fromJson(widget.selectedProduct as Map<String, dynamic>)
+            : widget.selectedProduct;
     return ChangeNotifierProvider(
       create: (context) => BannerProductsController(
         CategoryRepository(),
@@ -120,7 +121,7 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                     ),
                     onPressed: () => GoRouter.of(context).pop(),
                   ),
-                 //const SizedBox(width: 4),
+                  //const SizedBox(width: 4),
                   const Text(
                     'للرجوع',
                     style: TextStyle(
@@ -157,7 +158,9 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
               Expanded(
                 child: Center(
                   child: Text(
-                    'لا توجد منتجات متاحة لهذا البانر.',
+                    !controller.isListLoaded
+                        ? 'لا توجد منتجات متاحة لهذا البانر.'
+                        : "جاري التحميل",
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 16.sp,
@@ -175,19 +178,22 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                   backgroundColor: Colors.white,
                   child: NotificationListener<ScrollNotification>(
                     onNotification: (ScrollNotification scrollInfo) {
-                      if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                      if (scrollInfo.metrics.pixels ==
+                          scrollInfo.metrics.maxScrollExtent) {
                         controller.loadNextPage();
                       }
                       return true;
                     },
                     child: ListView.separated(
-                      itemCount: controller.displayedProducts.length + (controller.hasMoreProducts ? 1 : 0),
-                      separatorBuilder: (context, index) => const SizedBox(height: 15),
+                      itemCount: controller.displayedProducts.length +
+                          (controller.hasMoreProducts ? 1 : 0),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 15),
                       itemBuilder: (context, index) {
                         if (index == controller.displayedProducts.length) {
                           return Container(
                             padding: const EdgeInsets.all(16.0),
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SizedBox(
@@ -195,10 +201,11 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.0,
-                                    valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        darkOrange),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 Text(
                                   'جاري تحميل المزيد من المنتجات...',
                                   style: TextStyle(
@@ -213,16 +220,22 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                         }
 
                         final product = controller.displayedProducts[index];
-                        final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${index}';
+                        final String quantityKey =
+                            product.productId?.toString() ??
+                                product.productName ??
+                                'product_${index}';
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Column(
                             children: [
                               ProductItemCard(
                                 product: product,
-                                quantity: controller.productQuantities[quantityKey] ?? 0,
+                                quantity:
+                                    controller.productQuantities[quantityKey] ??
+                                        0,
                                 onQuantityChanged: (newQuantity) {
-                                  controller.onQuantityChanged(quantityKey, newQuantity);
+                                  controller.onQuantityChanged(
+                                      quantityKey, newQuantity);
                                   if (newQuantity > 0) {
                                     controller.cart[product] = newQuantity;
                                   } else {
@@ -231,9 +244,12 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                                   controller.safeNotifyListeners();
                                 },
                                 onAddToCart: () {
-                                  final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                  final currentQuantity = controller
+                                          .productQuantities[quantityKey] ??
+                                      0;
                                   final newQuantity = currentQuantity + 1;
-                                  controller.onQuantityChanged(quantityKey, newQuantity);
+                                  controller.onQuantityChanged(
+                                      quantityKey, newQuantity);
                                   controller.cart[product] = newQuantity;
                                   controller.safeNotifyListeners();
                                 },
@@ -251,41 +267,41 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
       ),
       floatingActionButton: controller.cart.isNotEmpty
           ? FloatingActionButton.extended(
-        backgroundColor: Colors.orange,
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => DraggableScrollableSheet(
-              initialChildSize: 0.33,
-              minChildSize: 0.33,
-              maxChildSize: 0.33,
-              expand: false,
-              builder: (context, scrollController) {
-                return CartSheet(
-                  cart: controller.cart,
-                  total: controller.cartTotal,
-                  onClose: () => Navigator.pop(context),
-                  onPaymentSuccess: () {
-                    controller.clearCart();
-                  },
+              backgroundColor: Colors.orange,
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => DraggableScrollableSheet(
+                    initialChildSize: 0.33,
+                    minChildSize: 0.33,
+                    maxChildSize: 0.33,
+                    expand: false,
+                    builder: (context, scrollController) {
+                      return CartSheet(
+                        cart: controller.cart,
+                        total: controller.cartTotal,
+                        onClose: () => Navigator.pop(context),
+                        onPaymentSuccess: () {
+                          controller.clearCart();
+                        },
+                      );
+                    },
+                  ),
                 );
               },
-            ),
-          );
-        },
-        label: Text(
-          'السلة (${controller.cart.length})',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-            fontFamily: baseFont,
-          ),
-        ),
-        icon: const Icon(Icons.shopping_cart, color: Colors.white),
-      )
+              label: Text(
+                'السلة (${controller.cart.length})',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: baseFont,
+                ),
+              ),
+              icon: const Icon(Icons.shopping_cart, color: Colors.white),
+            )
           : null,
     );
   }

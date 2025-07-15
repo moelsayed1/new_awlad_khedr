@@ -4,7 +4,6 @@ import 'package:awlad_khedr/features/home/presentation/views/widgets/category_vi
 import 'package:awlad_khedr/features/my_information/presentation/views/my_information.dart';
 import 'package:awlad_khedr/features/notification/presentaion/views/notification_page.dart';
 import 'package:awlad_khedr/features/home/presentation/views/home_view.dart';
-import 'package:awlad_khedr/features/onboarding/presentation/views/on_boarding.dart';
 import 'package:awlad_khedr/features/products_screen/presentation/views/products_screen_view.dart';
 import 'package:awlad_khedr/features/products_screen/presentation/views/banner_products_view.dart';
 import 'package:awlad_khedr/features/payment_gateway/presentation/views/payment_view.dart';
@@ -31,7 +30,6 @@ import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.d
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 abstract class AppRouter {
-  static const kOnBoarding = '/onBoarding';
   static const kLoginView = '/loginView';
   static const kRegisterView = '/registerView';
   static const kReservationPage = '/reservationPage';
@@ -54,134 +52,137 @@ abstract class AppRouter {
   static const kSearchResultsPage = '/searchResultsPage';
 
   static final router = GoRouter(
-      initialLocation: authToken.isEmpty ? kOnBoarding : kHomeScreen,
-      navigatorKey: _rootNavigatorKey, routes: [
-
-    GoRoute(
-      path: kOnBoarding,
-      builder: (context, state) => const OnBoardingPage(),
-    ),
-    GoRoute(
-      path: kLoginView,
-      builder: (context, state) => const LoginView(),
-    ),
-    GoRoute(
-
-      path: kRegisterView,
-      builder: (context, state) => const RegisterView(),
-    ),
-    GoRoute(
-      path: kReservationPage,
-      builder: (context, state) => const ReservationPage(),
-    ),
-    GoRoute(
-      path: kSuccessScreen,
-      builder: (context, state) => const SuccessScreen(),
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: kHomeScreen,
-      builder: (context, state) => const HomeScreenView(),
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: kPaymentView,
-      builder: (context, state) {
-        final Map<String, dynamic> args = state.extra as Map<String, dynamic>;
-        return PaymentView(
-          products: args['products'],
-          total: args['total'],
-        );
-      },
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: kMyInformation,
-      builder: (context, state) => const MyInformation(),
-    ),
-    GoRoute(
-      path: kMyAccounts,
-      builder: (context, state) => const MyAccounts(),
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: kNotificationPage,
-      builder: (context, state) => const NotificationScreen(),
-    ),
-    GoRoute(
-      path: kProductsScreenView,
-      builder: (context, state) => const ProductsScreenView(),
-    ),
-    GoRoute(
-      path: kMostRequestedPage,
-      builder: (context, state) => const MostRequestedPage(),
-    ),
-    GoRoute(
-      path: kBannerProductsPage,
-      builder: (context, state) {
-        final Map<String, dynamic> args = state.extra as Map<String, dynamic>? ?? {};
-        return BannerProductsPage(
-          bannerTitle: args['bannerTitle'],
-          categoryName: args['categoryName'],
-          categoryId: args['categoryId'],
-          brandName: args['brandName'],
-          brandId: args['brandId'],
-        );
-      },
-    ),
-    GoRoute(
-      path: kCategoriesPage, // <--- NEW ROUTE
-      builder: (context, state) => ChangeNotifierProvider(
-        create: (_) => CategoryController(CategoryRepository()),
-        child: const CategoriesPage(),
-      ),
-    ),
-    GoRoute(
-      path: kCartViewPage,
-      builder: (context, state) {
-        final args = state.extra as Map<String, dynamic>?;
-        return CartViewPage(
-          products: args?['products'] ?? [],
-          quantities: args?['quantities'] ?? [],
-        );
-      },
-    ),
-    GoRoute(
-      path: kOrdersViewPage,
-      builder: (context, state) => const OrdersViewPage(),
-    ),
-    GoRoute(
-      path: kResetPasswordScreen,
-      builder: (context, state) => const ResetPasswordScreen(),
-    ),
-    GoRoute(
-      path: kUpdatePasswordScreen,
-      builder: (context, state) => const UpdatePasswordScreen(),
-    ),
-    GoRoute(
-      path: kConfirmationPage,
-      builder: (context, state) => const ConfirmationPage(),
-    ),
-    GoRoute(
-      path: kVerificationScreen,
-      builder: (context, state) => const VerificationScreen(),
-    ),
-    GoRoute(
-      path: kSearchResultsPage,
-      builder: (context, state) {
-        final Map<String, dynamic> args = state.extra as Map<String, dynamic>? ?? {};
-        return SearchResultsPage(
-          searchQuery: args['searchQuery'] ?? '',
-          selectedCategory: args['selectedCategory'],
-        );
-      },
-    ),
-    GoRoute(
-      path: '/productDetails',
-      builder: (context, state) {
-        final product = Product.fromJson(state.extra as Map<String, dynamic>);
-        return ProductDetailsPage(product: product);
-      },
-    ),
-  ]);
+      initialLocation: authToken.isEmpty ? kLoginView : kHomeScreen,
+      navigatorKey: _rootNavigatorKey,
+      routes: [
+        // GoRoute(
+        //   path: kOnBoarding,
+        //   builder: (context, state) => const OnBoardingPage(),
+        // ),
+        GoRoute(
+          path: kLoginView,
+          builder: (context, state) => const LoginView(),
+        ),
+        GoRoute(
+          path: kRegisterView,
+          builder: (context, state) => const RegisterView(),
+        ),
+        GoRoute(
+          path: kReservationPage,
+          builder: (context, state) => const ReservationPage(),
+        ),
+        GoRoute(
+          path: kSuccessScreen,
+          builder: (context, state) => const SuccessScreen(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: kHomeScreen,
+          builder: (context, state) => const HomeScreenView(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: kPaymentView,
+          builder: (context, state) {
+            final Map<String, dynamic> args =
+                state.extra as Map<String, dynamic>;
+            return PaymentView(
+              products: args['products'],
+              total: args['total'],
+            );
+          },
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: kMyInformation,
+          builder: (context, state) => const MyInformation(),
+        ),
+        GoRoute(
+          path: kMyAccounts,
+          builder: (context, state) => const MyAccounts(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: kNotificationPage,
+          builder: (context, state) => const NotificationScreen(),
+        ),
+        GoRoute(
+          path: kProductsScreenView,
+          builder: (context, state) => const ProductsScreenView(),
+        ),
+        GoRoute(
+          path: kMostRequestedPage,
+          builder: (context, state) => const MostRequestedPage(),
+        ),
+        GoRoute(
+          path: kBannerProductsPage,
+          builder: (context, state) {
+            final Map<String, dynamic> args =
+                state.extra as Map<String, dynamic>? ?? {};
+            return BannerProductsPage(
+              bannerTitle: args['bannerTitle'],
+              categoryName: args['categoryName'],
+              categoryId: args['categoryId'],
+              brandName: args['brandName'],
+              brandId: args['brandId'],
+            );
+          },
+        ),
+        GoRoute(
+          path: kCategoriesPage, // <--- NEW ROUTE
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (_) => CategoryController(CategoryRepository()),
+            child: const CategoriesPage(),
+          ),
+        ),
+        GoRoute(
+          path: kCartViewPage,
+          builder: (context, state) {
+            final args = state.extra as Map<String, dynamic>?;
+            return CartViewPage(
+              products: args?['products'] ?? [],
+              quantities: args?['quantities'] ?? [],
+            );
+          },
+        ),
+        GoRoute(
+          path: kOrdersViewPage,
+          builder: (context, state) => const OrdersViewPage(),
+        ),
+        GoRoute(
+          path: kResetPasswordScreen,
+          builder: (context, state) => const ResetPasswordScreen(),
+        ),
+        GoRoute(
+          path: kUpdatePasswordScreen,
+          builder: (context, state) => const UpdatePasswordScreen(),
+        ),
+        GoRoute(
+          path: kConfirmationPage,
+          builder: (context, state) => const ConfirmationPage(),
+        ),
+        GoRoute(
+          path: kVerificationScreen,
+          builder: (context, state) => const VerificationScreen(),
+        ),
+        GoRoute(
+          path: kSearchResultsPage,
+          builder: (context, state) {
+            final Map<String, dynamic> args =
+                state.extra as Map<String, dynamic>? ?? {};
+            return SearchResultsPage(
+              searchQuery: args['searchQuery'] ?? '',
+              selectedCategory: args['selectedCategory'],
+            );
+          },
+        ),
+        GoRoute(
+          path: '/productDetails',
+          builder: (context, state) {
+            final product =
+                Product.fromJson(state.extra as Map<String, dynamic>);
+            return ProductDetailsPage(product: product);
+          },
+        ),
+      ]);
 }

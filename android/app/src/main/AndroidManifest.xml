@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="awlad_khedr"
+        android:label="اولاد خضر"
         android:name="${applicationName}"
         android:icon="@mipmap/logo"
         android:enableOnBackInvokedCallback="true"

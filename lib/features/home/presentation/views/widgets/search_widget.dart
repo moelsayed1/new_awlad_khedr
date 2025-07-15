@@ -10,8 +10,8 @@ class SearchWidget extends StatefulWidget {
   final Function(String)? onSubmitted;
   final Function(String)? onCategorySelected;
   const SearchWidget({
-    super.key, 
-    this.controller, 
+    super.key,
+    this.controller,
     this.onChanged,
     this.onSubmitted,
     this.onCategorySelected,
@@ -30,8 +30,10 @@ class _SearchWidgetState extends State<SearchWidget> {
   @override
   void initState() {
     super.initState();
-    loadSearchHistory();
-    loadCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await loadSearchHistory();
+      await loadCategories();
+    });
   }
 
   Future<void> loadSearchHistory() async {
@@ -83,11 +85,6 @@ class _SearchWidgetState extends State<SearchWidget> {
     }
   }
 
-  void _onSearchSubmitted() {
-    if (widget.controller?.text.isNotEmpty == true) {
-      _onSubmitted(widget.controller!.text);
-    }
-  }
 
   void _onCategorySelected(String category) {
     setState(() {
@@ -148,11 +145,13 @@ class _SearchWidgetState extends State<SearchWidget> {
                   ),
                   prefixIcon: const Icon(Icons.search),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
               ),
             ),
-            if (showSuggestions && (searchHistory.isNotEmpty || categories.isNotEmpty))
+            if (showSuggestions &&
+                (searchHistory.isNotEmpty || categories.isNotEmpty))
               Container(
                 margin: const EdgeInsets.only(top: 4),
                 decoration: BoxDecoration(
@@ -187,7 +186,8 @@ class _SearchWidgetState extends State<SearchWidget> {
                             const Spacer(),
                             GestureDetector(
                               onTap: () async {
-                                final prefs = await SharedPreferences.getInstance();
+                                final prefs =
+                                    await SharedPreferences.getInstance();
                                 await prefs.remove('search_history');
                                 if (mounted) {
                                   setState(() {
@@ -205,23 +205,22 @@ class _SearchWidgetState extends State<SearchWidget> {
                         ),
                       ),
                       ...searchHistory.take(3).map((query) => ListTile(
-                        dense: true,
-                        title: Text(
-                          query,
-                          style: TextStyle(
-                            fontFamily: baseFont,
-                            fontSize: 14.sp, // Increased for clarity
-                            color: Colors.black,
-                          ),
-                        ),
-                        leading: const Icon(Icons.history, size: 16),
-                        onTap: () => _onHistoryItemSelected(query),
-                      )),
+                            dense: true,
+                            title: Text(
+                              query,
+                              style: TextStyle(
+                                fontFamily: baseFont,
+                                fontSize: 14.sp, // Increased for clarity
+                                color: Colors.black,
+                              ),
+                            ),
+                            leading: const Icon(Icons.history, size: 16),
+                            onTap: () => _onHistoryItemSelected(query),
+                          )),
                     ],
                     // Categories Section
                     if (categories.isNotEmpty) ...[
-                      if (searchHistory.isNotEmpty)
-                        const Divider(height: 1),
+                      if (searchHistory.isNotEmpty) const Divider(height: 1),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
@@ -235,18 +234,18 @@ class _SearchWidgetState extends State<SearchWidget> {
                         ),
                       ),
                       ...categories.take(6).map((category) => ListTile(
-                        dense: true,
-                        title: Text(
-                          category,
-                          style: TextStyle(
-                            fontFamily: baseFont,
-                            color: Colors.black,
-                            fontSize: 14.sp, // Increased for clarity
-                          ),
-                        ),
-                        leading: const Icon(Icons.category, size: 16),
-                        onTap: () => _onCategorySelected(category),
-                      )),
+                            dense: true,
+                            title: Text(
+                              category,
+                              style: TextStyle(
+                                fontFamily: baseFont,
+                                color: Colors.black,
+                                fontSize: 14.sp, // Increased for clarity
+                              ),
+                            ),
+                            leading: const Icon(Icons.category, size: 16),
+                            onTap: () => _onCategorySelected(category),
+                          )),
                     ],
                   ],
                 ),

@@ -19,7 +19,9 @@ class ProductItemCard extends StatelessWidget {
 
   bool _isValidImage(String? url) {
     if (url == null || url.isEmpty) return false;
-    if (url == 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png') return false;
+    if (url ==
+        'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
+      return false;
     if (url.toLowerCase().endsWith('فريم.png')) return false;
     return true;
   }
@@ -45,7 +47,7 @@ class ProductItemCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'السعــر: ${product.price} ج.م',
+          'السعــر: ${product.price ?? 0} ج.م',
           style: TextStyle(
             fontSize: 18.sp,
             color: Colors.orange[700],
@@ -81,7 +83,8 @@ class ProductItemCard extends StatelessWidget {
                 product.imageUrl!,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return Image.asset('assets/images/logoPng.png', fit: BoxFit.contain);
+                  return Image.asset('assets/images/logoPng.png',
+                      fit: BoxFit.contain);
                 },
               )
             : Image.asset('assets/images/logoPng.png', fit: BoxFit.contain),
@@ -149,46 +152,48 @@ class ProductItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      color: Colors.white,
-      child: Container(
-        height: 230.h,
-        decoration: BoxDecoration(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange.withOpacity(0.3)),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Product Details (Left Side)
-                    Expanded(child: _buildProductDetails()),
-                    const SizedBox(width: 12),
-                    // Product Image and Quantity Control (Right Side)
-                    Column(
+        color: Colors.white,
+        child: Container(
+          height: 230.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.orange.withOpacity(0.3)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildProductImage(),
-                        SizedBox(height: 28.h),
-                        _buildQuantityControl(),
+                        // Product Details (Left Side)
+                        Expanded(child: _buildProductDetails()),
+                        const SizedBox(width: 12),
+                        // Product Image and Quantity Control (Right Side)
+                        Column(
+                          children: [
+                            _buildProductImage(),
+                            SizedBox(height: 28.h),
+                            _buildQuantityControl(),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 8.h),
+                  // Add to Cart Button
+                  _buildAddToCartButton(),
+                ],
               ),
-              SizedBox(height: 8.h),
-              // Add to Cart Button
-              _buildAddToCartButton(),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 import 'package:awlad_khedr/core/app_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeCategory extends StatefulWidget {
   const HomeCategory({
@@ -25,10 +26,15 @@ class _HomeCategoryState extends State<HomeCategory> {
 
   bool isListLoaded = false;
 
-  GetProductByCategory() async {
+  Future<void> GetProductByCategory() async {
     Uri uriToSend = Uri.parse(APIConstant.GET_ALL_PRODUCTS_BY_CATEGORY);
-    final response = await http
-        .get(uriToSend, headers: {"Authorization": "Bearer $authToken"});
+    final response = await http.get(
+      uriToSend,
+      headers: {
+        "Authorization":
+            "Bearer ${authToken.isNotEmpty ? authToken : (await SharedPreferences.getInstance()).getString('token') ?? ''}"
+      },
+    );
     if (response.statusCode == 200) {
       productByCategory =
           ProductByCategoryModel.fromJson(jsonDecode(response.body));
@@ -43,11 +49,15 @@ class _HomeCategoryState extends State<HomeCategory> {
   @override
   void initState() {
     super.initState();
-    GetProductByCategory();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await GetProductByCategory();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    productByCategory?.categories
+        .removeWhere((category) => category.categoryName == 'operation');
     return SizedBox(
         width: double.infinity,
         height: 200.h,
@@ -99,19 +109,24 @@ class _HomeCategoryState extends State<HomeCategory> {
                               width: double.infinity,
                               height: MediaQuery.sizeOf(context).height * .15,
                               color: Colors.transparent,
-                              child: productByCategory?.categories[index] != null
-                                  ? Image.network(
-                                      productByCategory!
-                                          .categories[index].categoryImage ?? 'https://img4cdn.haraj.com.sa/userfiles30/2022-08-23/800x689-1_-GO__MTY2MTI4MDM2MzM5OTk0NDE1OTEwNQ.jpg',
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Image.asset('assets/images/logoPng.png', fit: BoxFit.cover);
-                                      },
-                                    )
-                                  : Image.asset(
-                                      AssetsData.callCenter,
-                                      fit: BoxFit.cover,
-                                    ),
+                              child:
+                                  productByCategory?.categories[index] != null
+                                      ? Image.network(
+                                          productByCategory!.categories[index]
+                                                  .categoryImage ??
+                                              'https://img4cdn.haraj.com.sa/userfiles30/2022-08-23/800x689-1_-GO__MTY2MTI4MDM2MzM5OTk0NDE1OTEwNQ.jpg',
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                                'assets/images/logoPng.png',
+                                                fit: BoxFit.cover);
+                                          },
+                                        )
+                                      : Image.asset(
+                                          AssetsData.callCenter,
+                                          fit: BoxFit.cover,
+                                        ),
                             ),
                             const Spacer(),
                             Row(
