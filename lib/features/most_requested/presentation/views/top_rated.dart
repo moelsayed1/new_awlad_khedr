@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:developer' as dev;
 import 'package:awlad_khedr/core/assets.dart';
-import 'package:awlad_khedr/features/auth/login/data/provider/login_provider.dart';
+
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,7 +12,7 @@ import '../../../../constant.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../main.dart';
-import 'package:awlad_khedr/core/app_router.dart';
+
 import 'package:awlad_khedr/features/products_screen/model/product_by_category_model.dart';
 import 'package:go_router/go_router.dart';
 
@@ -154,9 +154,7 @@ class _TopRatedItemState extends State<TopRatedItem> {
                             child: (topRatedItem?.products[index].imageUrl !=
                                         null &&
                                     topRatedItem!
-                                        .products[index].imageUrl!.isNotEmpty &&
-                                    topRatedItem!.products[index].imageUrl! !=
-                                        'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
+                                        .products[index].imageUrl!.isNotEmpty)
                                 ? Image.network(
                                     topRatedItem!.products[index].imageUrl!,
                                     fit: BoxFit.cover,
@@ -174,34 +172,24 @@ class _TopRatedItemState extends State<TopRatedItem> {
                           ),
                           const Spacer(),
                           SingleChildScrollView(
-                            child: Row(
-                              children: [
-                                Icon(Icons.star,
-                                    color: Colors.orange, size: 16.sp),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  '4.5',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Expanded(
-                                  child: Text(
-                                    topRatedItem?.products[index].productName ??
-                                        '',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: baseFont,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              (() {
+                                final name = topRatedItem?.products[index].productName ?? '';
+                                final words = name.split(' ');
+                                if (words.length <= 2) {
+                                  return name;
+                                } else {
+                                  return '... ${words.take(3).join(' ')}';
+                                }
+                              })(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: baseFont,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

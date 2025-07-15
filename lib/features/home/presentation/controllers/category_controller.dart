@@ -32,7 +32,13 @@ class CategoryController extends ChangeNotifier {
   final Map<String, int> productQuantities = {}; // Key will be product ID or unique identifier
   final Map<Product, int> cart = {};
   List<Product> filteredProducts = [];
-  String _currentSearchQuery = ''; // Add a field to store the current search query
+  String _currentSearchQuery = '';
+
+  // Pagination state
+  int currentPage = 1;
+  bool hasMoreProducts = true;
+  bool isLoadingProducts = false;
+  final List<Product> _allLoadedProducts = [];
 
   // Getters
   double get cartTotal {
@@ -87,50 +93,91 @@ class CategoryController extends ChangeNotifier {
     safeNotifyListeners();
   }
 
-  Future<void> fetchAllProducts() async {
-    isListLoaded = false; // Set to false before fetching
-    safeNotifyListeners();
+  Future<void> fetchAllProducts({bool reset = true}) async {
+    if (isLoadingProducts) return;
+    isLoadingProducts = true;
+    if (reset) {
+      isListLoaded = false;
+      currentPage = 1;
+      hasMoreProducts = true;
+      _allLoadedProducts.clear();
+      safeNotifyListeners();
+    }
     try {
-      final products = await _repository.fetchAllProducts();
-      topRatedItem = TopRatedModel(products: products);
-      _updateProductQuantities(products);
-      applySearchFilter(_currentSearchQuery); // Re-apply search filter after new products are fetched
+      final products = await _repository.fetchAllProducts(page: currentPage, pageSize: 10, search: _currentSearchQuery.isNotEmpty ? _currentSearchQuery : null);
+      if (reset) {
+        _allLoadedProducts.clear();
+      }
+      _allLoadedProducts.addAll(products);
+      topRatedItem = TopRatedModel(products: _allLoadedProducts);
+      _updateProductQuantities(_allLoadedProducts);
+      applySearchFilter(_currentSearchQuery, notify: false);
+      if (products.length < 10) {
+        hasMoreProducts = false;
+      }
     } catch (e) {
       log('Error fetching all products: $e');
-      topRatedItem = TopRatedModel(products: []); // Clear products on error
+      if (reset) {
+        topRatedItem = TopRatedModel(products: []);
+        _allLoadedProducts.clear();
+      }
+      hasMoreProducts = false;
     } finally {
       isListLoaded = true;
+      isLoadingProducts = false;
       safeNotifyListeners();
     }
   }
 
-  Future<void> fetchProductsByCategory() async {
+  Future<void> fetchProductsByCategory({bool reset = true}) async {
     if (selectedCategory == null || selectedCategory.isEmpty) {
       log('No category selected');
       return;
     }
-
-    isListLoaded = false; // Set to false before fetching
-    safeNotifyListeners();
-    
+    if (isLoadingProducts) return;
+    isLoadingProducts = true;
+    if (reset) {
+      isListLoaded = false;
+      currentPage = 1;
+      hasMoreProducts = true;
+      _allLoadedProducts.clear();
+      safeNotifyListeners();
+    }
     try {
-      final products = await _repository.fetchProductsByCategory(selectedCategory);
-      if (products != null && products.isNotEmpty) {
-        topRatedItem = TopRatedModel(products: products);
-        _updateProductQuantities(products);
-        filteredProducts = products; // Set filtered products directly first
-        applySearchFilter(_currentSearchQuery); // Then apply any search filter
-      } else {
-        topRatedItem = TopRatedModel(products: []);
-        filteredProducts = [];
+      final products = await _repository.fetchProductsByCategory(selectedCategory, page: currentPage, pageSize: 10, search: _currentSearchQuery.isNotEmpty ? _currentSearchQuery : null);
+      if (reset) {
+        _allLoadedProducts.clear();
+      }
+      _allLoadedProducts.addAll(products);
+      topRatedItem = TopRatedModel(products: _allLoadedProducts);
+      _updateProductQuantities(_allLoadedProducts);
+      filteredProducts = _allLoadedProducts;
+      applySearchFilter(_currentSearchQuery, notify: false);
+      if (products.length < 10) {
+        hasMoreProducts = false;
       }
     } catch (e) {
       log('Error fetching category products: $e');
-      topRatedItem = TopRatedModel(products: []); // Clear products on error
+      if (reset) {
+        topRatedItem = TopRatedModel(products: []);
+        _allLoadedProducts.clear();
+      }
+      hasMoreProducts = false;
       filteredProducts = [];
     } finally {
       isListLoaded = true;
+      isLoadingProducts = false;
       safeNotifyListeners();
+    }
+  }
+
+  Future<void> loadMoreProducts() async {
+    if (!hasMoreProducts || isLoadingProducts) return;
+    currentPage++;
+    if (selectedCategory == 'الكل') {
+      await fetchAllProducts(reset: false);
+    } else {
+      await fetchProductsByCategory(reset: false);
     }
   }
 
@@ -145,9 +192,9 @@ class CategoryController extends ChangeNotifier {
     productQuantities.addAll(newProductQuantities);
   }
 
-  void applySearchFilter(String query) {
-    _currentSearchQuery = query; // Update the stored search query
-    List<Product> productsToFilter = topRatedItem?.products ?? [];
+  void applySearchFilter(String query, {bool notify = true}) {
+    _currentSearchQuery = query;
+    List<Product> productsToFilter = _allLoadedProducts;
     if (query.isNotEmpty) {
       filteredProducts = productsToFilter.where((product) {
         return (product.productName?.toLowerCase().contains(query.toLowerCase()) ?? false);
@@ -155,7 +202,7 @@ class CategoryController extends ChangeNotifier {
     } else {
       filteredProducts = productsToFilter;
     }
-    safeNotifyListeners();
+    if (notify) safeNotifyListeners();
   }
 
   // This internal method is now redundant as applySearchFilter is public and stores the query

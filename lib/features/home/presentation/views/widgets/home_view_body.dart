@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/most_requested_products_section.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as trm;
+import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
+import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeViewBody extends StatefulWidget {
   const HomeViewBody({super.key});
@@ -39,6 +43,8 @@ class _HomeViewBodyState extends State<HomeViewBody> {
 
   @override
   Widget build(BuildContext context) {
+    final categoryController = Provider.of<CategoryController>(context, listen: false);
+    final TextEditingController searchController = TextEditingController();
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -47,22 +53,17 @@ class _HomeViewBodyState extends State<HomeViewBody> {
           // Search Bar
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: TextField(
-              textAlign: TextAlign.right,
-              style: const TextStyle(color: Colors.black),
-              decoration: InputDecoration(
-                hintText: 'ابحث عن منتجاتك',
-                hintStyle: TextStyle(fontFamily: baseFont, color: Colors.grey[600]),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
-                contentPadding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.grey[100],
-              ),
-              textDirection: TextDirection.rtl,
+            child: SearchWidget(
+              controller: searchController,
+              onSubmitted: (query) {
+                if (query.trim().isNotEmpty) {
+                  GoRouter.of(context).push(
+                    '/searchResultsPage',
+                    extra: {'searchQuery': query.trim()},
+                  );
+                  searchController.clear(); // Clear the search bar after navigating
+                }
+              },
             ),
           ),
           SizedBox(height: 20.h), // Space after search bar

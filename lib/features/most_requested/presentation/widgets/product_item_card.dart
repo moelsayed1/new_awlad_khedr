@@ -102,10 +102,11 @@ class ProductItemCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: Icon(Icons.remove, color: Colors.orange[700], size: 20),
-            onPressed: () => onQuantityChanged(quantity > 0 ? quantity - 1 : 0),
+            icon: Icon(Icons.add, color: Colors.orange[700], size: 20),
+            onPressed: () => onQuantityChanged(quantity + 1),
             padding: const EdgeInsets.all(4),
           ),
+          
           Text(
             '$quantity',
             style: TextStyle(
@@ -115,8 +116,8 @@ class ProductItemCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.add, color: Colors.orange[700], size: 20),
-            onPressed: () => onQuantityChanged(quantity + 1),
+            icon: Icon(Icons.remove, color: Colors.orange[700], size: 20),
+            onPressed: () => onQuantityChanged(quantity > 0 ? quantity - 1 : 0),
             padding: const EdgeInsets.all(4),
           ),
         ],

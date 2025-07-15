@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:awlad_khedr/constant.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 
 class SearchWidget extends StatefulWidget {
   final TextEditingController? controller;
@@ -23,16 +22,14 @@ class SearchWidget extends StatefulWidget {
 
 class _SearchWidgetState extends State<SearchWidget> {
   List<String> searchHistory = [];
-  List<String> categories = [];
   bool showSuggestions = false;
-  final CategoryRepository _categoryRepository = CategoryRepository();
+  String currentQuery = '';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await loadSearchHistory();
-      await loadCategories();
     });
   }
 
@@ -50,47 +47,42 @@ class _SearchWidgetState extends State<SearchWidget> {
     }
   }
 
-  Future<void> loadCategories() async {
-    try {
-      final fetchedCategories = await _categoryRepository.fetchCategories();
-      if (mounted) {
-        setState(() {
-          categories = fetchedCategories.where((cat) => cat != 'الكل').toList();
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading categories: $e');
-    }
-  }
-
   void _onTap() {
     setState(() {
       showSuggestions = true;
     });
   }
 
-  void _onSubmitted(String query) {
+  void _onChanged(String value) {
     setState(() {
-      showSuggestions = false;
+      currentQuery = value;
+      showSuggestions = true;
     });
-    // If the query is contained in any category name (partial match, case-insensitive), treat it as a category selection
-    final matchedCategory = categories.firstWhere(
-      (cat) => cat.toLowerCase().contains(query.trim().toLowerCase()),
-      orElse: () => '',
-    );
-    if (matchedCategory.isNotEmpty) {
-      widget.onCategorySelected?.call(matchedCategory);
-    } else {
-      widget.onSubmitted?.call(query);
+    if (widget.onChanged != null) {
+      widget.onChanged!(value);
     }
   }
 
-
-  void _onCategorySelected(String category) {
+  void _onSubmitted(String query) async {
     setState(() {
       showSuggestions = false;
+      currentQuery = query;
     });
-    widget.onCategorySelected?.call(category);
+    // Save to search history
+    if (query.trim().isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      List<String> updatedHistory = List.from(searchHistory);
+      updatedHistory.remove(query);
+      updatedHistory.insert(0, query);
+      if (updatedHistory.length > 10) {
+        updatedHistory = updatedHistory.sublist(0, 10);
+      }
+      await prefs.setStringList('search_history', updatedHistory);
+      setState(() {
+        searchHistory = updatedHistory;
+      });
+    }
+    widget.onSubmitted?.call(query);
   }
 
   void _onHistoryItemSelected(String query) {
@@ -102,7 +94,6 @@ class _SearchWidgetState extends State<SearchWidget> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // This GestureDetector covers the whole area and hides suggestions on tap
         if (showSuggestions)
           Positioned.fill(
             child: GestureDetector(
@@ -124,7 +115,7 @@ class _SearchWidgetState extends State<SearchWidget> {
               ),
               child: TextField(
                 controller: widget.controller,
-                onChanged: widget.onChanged,
+                onChanged: _onChanged,
                 onSubmitted: _onSubmitted,
                 onTap: _onTap,
                 textAlign: TextAlign.right,
@@ -136,7 +127,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                   fontSize: 16.sp,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'أبحث عن منتجاتك أو اختر صنف',
+                  hintText: 'أبحث عن منتجاتك',
                   hintStyle: TextStyle(
                     fontFamily: baseFont,
                     color: Colors.grey[600],
@@ -150,8 +141,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                 ),
               ),
             ),
-            if (showSuggestions &&
-                (searchHistory.isNotEmpty || categories.isNotEmpty))
+            if (showSuggestions && (searchHistory.isNotEmpty || currentQuery.trim().isNotEmpty))
               Container(
                 margin: const EdgeInsets.only(top: 4),
                 decoration: BoxDecoration(
@@ -168,6 +158,21 @@ class _SearchWidgetState extends State<SearchWidget> {
                 ),
                 child: Column(
                   children: [
+                    // Show current query as a suggestion
+                    if (currentQuery.trim().isNotEmpty)
+                      ListTile(
+                        dense: true,
+                        title: Text(
+                          currentQuery,
+                          style: TextStyle(
+                            fontFamily: baseFont,
+                            fontSize: 14.sp,
+                            color: Colors.black,
+                          ),
+                        ),
+                        leading: const Icon(Icons.search, size: 16),
+                        onTap: () => _onSubmitted(currentQuery),
+                      ),
                     // Search History Section
                     if (searchHistory.isNotEmpty) ...[
                       Padding(
@@ -204,48 +209,22 @@ class _SearchWidgetState extends State<SearchWidget> {
                           ],
                         ),
                       ),
-                      ...searchHistory.take(3).map((query) => ListTile(
-                            dense: true,
-                            title: Text(
-                              query,
-                              style: TextStyle(
-                                fontFamily: baseFont,
-                                fontSize: 14.sp, // Increased for clarity
-                                color: Colors.black,
-                              ),
-                            ),
-                            leading: const Icon(Icons.history, size: 16),
-                            onTap: () => _onHistoryItemSelected(query),
-                          )),
-                    ],
-                    // Categories Section
-                    if (categories.isNotEmpty) ...[
-                      if (searchHistory.isNotEmpty) const Divider(height: 1),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          'الأصناف',
-                          style: TextStyle(
-                            fontFamily: baseFont,
-                            fontSize: 12.sp,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      ...categories.take(6).map((category) => ListTile(
-                            dense: true,
-                            title: Text(
-                              category,
-                              style: TextStyle(
-                                fontFamily: baseFont,
-                                color: Colors.black,
-                                fontSize: 14.sp, // Increased for clarity
-                              ),
-                            ),
-                            leading: const Icon(Icons.category, size: 16),
-                            onTap: () => _onCategorySelected(category),
-                          )),
+                      ...searchHistory
+                          .where((q) => q != currentQuery)
+                          .take(3)
+                          .map((query) => ListTile(
+                                dense: true,
+                                title: Text(
+                                  query,
+                                  style: TextStyle(
+                                    fontFamily: baseFont,
+                                    fontSize: 14.sp,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                leading: const Icon(Icons.history, size: 16),
+                                onTap: () => _onHistoryItemSelected(query),
+                              )),
                     ],
                   ],
                 ),

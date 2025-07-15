@@ -29,7 +29,6 @@ class ProductSearchController extends ChangeNotifier {
   void initializeWithCategory(String? category) {
     if (category != null && category.isNotEmpty) {
       selectedCategory = category;
-      // This will be applied after the data is loaded
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _applyCategoryFilter(category);
         safeNotifyListeners();
@@ -78,10 +77,9 @@ class ProductSearchController extends ChangeNotifier {
     safeNotifyListeners();
 
     try {
-      await fetchCategories();
-      searchQuery = initialQuery;
+      // Do not load categories or products by default
+      searchQuery = '';
       selectedCategory = '';
-      await fetchInitialProducts();
       isListLoaded = true;
       safeNotifyListeners();
     } catch (e) {
@@ -114,7 +112,6 @@ class ProductSearchController extends ChangeNotifier {
   }
 
   void _updateProductQuantities(List<Product> products) {
-    // Preserve existing quantities for products that are still present
     final Map<String, int> newProductQuantities = {};
     for (var product in products) {
       final String key = product.productId?.toString() ?? product.productName ?? UniqueKey().toString();
@@ -124,6 +121,7 @@ class ProductSearchController extends ChangeNotifier {
     productQuantities.addAll(newProductQuantities);
   }
 
+  /// Fetches products for the current search query and category, and updates pagedProducts.
   Future<void> fetchInitialProducts() async {
     isLoading = true;
     currentPage = 1;
@@ -131,7 +129,7 @@ class ProductSearchController extends ChangeNotifier {
     hasMore = true;
     lastCategory = selectedCategory;
     lastSearch = searchQuery;
-    
+
     if (selectedProduct != null) {
       pagedProducts = [selectedProduct!];
       hasMore = false;
@@ -143,19 +141,28 @@ class ProductSearchController extends ChangeNotifier {
     try {
       log('Fetching initial products - Category: "' + selectedCategory + '", Search: "' + searchQuery + '"');
       List<Product> firstPage;
-      if (selectedCategory.isNotEmpty && selectedCategory != 'الكل') {
-        // Always use the category endpoint if a category is selected
+      if (searchQuery.isNotEmpty) {
+        // If there is a search query, always use the search endpoint
+        firstPage = await _repository.searchProducts(
+          category: selectedCategory.isNotEmpty && selectedCategory != 'الكل' ? selectedCategory : null,
+          productName: searchQuery,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      } else if (selectedCategory.isNotEmpty && selectedCategory != 'الكل') {
+        // If only category is selected, use category endpoint
         firstPage = await _repository.fetchProductsByCategory(
           selectedCategory,
           page: currentPage,
           pageSize: pageSize,
-          search: searchQuery.isNotEmpty ? searchQuery : null,
+          search: null,
         );
       } else {
+        // Otherwise, fetch all products
         firstPage = await _repository.fetchAllProducts(
           page: currentPage,
           pageSize: pageSize,
-          search: searchQuery.isNotEmpty ? searchQuery : null,
+          search: null,
         );
       }
       pagedProducts.addAll(firstPage);
@@ -166,52 +173,102 @@ class ProductSearchController extends ChangeNotifier {
       pagedProducts = [];
       hasMore = false;
     }
-    
+
     isLoading = false;
     safeNotifyListeners();
   }
 
   Future<void> fetchNextPage() async {
     if (!hasMore || isLoading || selectedProduct != null) return;
-    
+
     isLoading = true;
     currentPage++;
-    
+
     try {
       log('Fetching next page - Category: "$selectedCategory", Search: "$searchQuery", Page: $currentPage');
-      
-      List<Product> nextPage = await _repository.searchProducts(
-        category: selectedCategory.isNotEmpty && selectedCategory != 'الكل' ? selectedCategory : null,
-        productName: searchQuery.isNotEmpty ? searchQuery : null,
-        page: currentPage,
-        pageSize: pageSize,
-      );
+      List<Product> nextPage;
+      if (searchQuery.isNotEmpty) {
+        nextPage = await _repository.searchProducts(
+          category: selectedCategory.isNotEmpty && selectedCategory != 'الكل' ? selectedCategory : null,
+          productName: searchQuery,
+          page: currentPage,
+          pageSize: pageSize,
+        );
+      } else if (selectedCategory.isNotEmpty && selectedCategory != 'الكل') {
+        nextPage = await _repository.fetchProductsByCategory(
+          selectedCategory,
+          page: currentPage,
+          pageSize: pageSize,
+          search: null,
+        );
+      } else {
+        nextPage = await _repository.fetchAllProducts(
+          page: currentPage,
+          pageSize: pageSize,
+          search: null,
+        );
+      }
 
       pagedProducts.addAll(nextPage);
       hasMore = nextPage.length == pageSize;
-      
       log('Next page loaded: ${nextPage.length} products, hasMore: $hasMore');
-      
     } catch (e) {
       log('Error fetching next page: $e');
       hasMore = false;
     }
-    
+
     isLoading = false;
     safeNotifyListeners();
   }
 
+  /// This method performs the search and updates the pagedProducts list,
+  /// so that the search result screen displays what the user searched for.
   Future<void> searchProducts(String query) async {
     searchQuery = query.trim();
     selectedProduct = null;
-    
+
     // Save to search history if not empty
     if (searchQuery.isNotEmpty) {
       await saveSearchHistory(searchQuery);
     }
-    
+
     log('Searching products with query: "$searchQuery" in category: "$selectedCategory"');
     await fetchInitialProducts();
+  }
+
+  /// Smart search: if query matches a category, select it; otherwise, search as product
+  Future<void> searchWithSmartLogic(String query) async {
+    searchQuery = query;
+    pagedProducts = [];
+    safeNotifyListeners();
+
+    final trimmedQuery = query.trim();
+    if (trimmedQuery.isEmpty) {
+      // Clear results if query is empty
+      pagedProducts = [];
+      safeNotifyListeners();
+      return;
+    }
+
+    // Only search if query is at least 2 characters
+    if (trimmedQuery.length < 2) {
+      // Optionally show a message to the user
+      pagedProducts = [];
+      safeNotifyListeners();
+      return;
+    }
+
+    final categoryList = await _repository.fetchCategories();
+    if (categoryList.contains(trimmedQuery)) {
+      await selectCategory(trimmedQuery);
+    } else {
+      await searchProducts(trimmedQuery);
+    }
+  }
+
+  void clearResults() {
+    pagedProducts = [];
+    safeNotifyListeners();
   }
 
   void onQuantityChanged(String productKey, int newQuantity) {
@@ -221,7 +278,6 @@ class ProductSearchController extends ChangeNotifier {
 
   void clearCart() {
     cart.clear();
-    // Set all product quantities to zero
     productQuantities.updateAll((key, value) => 0);
     safeNotifyListeners();
   }
@@ -256,7 +312,6 @@ class ProductSearchController extends ChangeNotifier {
     fetchInitialProducts();
   }
 
-  // Debug method to get current filter state
   String getFilterState() {
     return 'Search: "$searchQuery", Category: "$selectedCategory", Results: ${pagedProducts.length}, HasMore: $hasMore';
   }
@@ -276,18 +331,13 @@ class ProductSearchController extends ChangeNotifier {
   Future<void> saveSearchHistory(String query) async {
     try {
       if (query.trim().isEmpty) return;
-      
-      // Remove the query if it already exists
+
       searchHistory.remove(query.trim());
-      
-      // Add to the beginning of the list
       searchHistory.insert(0, query.trim());
-      
-      // Keep only the last 10 searches
       if (searchHistory.length > 10) {
         searchHistory = searchHistory.take(10).toList();
       }
-      
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList('search_history', searchHistory);
       safeNotifyListeners();
@@ -306,4 +356,4 @@ class ProductSearchController extends ChangeNotifier {
       log('Error clearing search history: $e');
     }
   }
-} 
+}
