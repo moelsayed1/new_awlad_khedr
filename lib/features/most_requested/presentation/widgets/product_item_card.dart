@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 import 'package:awlad_khedr/constant.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
 
 class ProductItemCard extends StatelessWidget {
   final Product product;
@@ -125,7 +128,7 @@ class ProductItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAddToCartButton() {
+  Widget _buildAddToCartButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -190,7 +193,7 @@ class ProductItemCard extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   // Add to Cart Button
-                  _buildAddToCartButton(),
+                  _buildAddToCartButton(context),
                 ],
               ),
             ),

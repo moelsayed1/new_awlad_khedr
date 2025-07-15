@@ -76,6 +76,16 @@ class CategoryRepository {
 
   /// Fetch products only from the category name provided in [search].
   /// If [search] is null or empty, returns an empty list.
+  /// Fetch all products with pagination support.
+  /// Returns a paginated list of products for the given [page] and [pageSize].
+  /// Optionally filters by [search] query.
+  ///
+  /// This method will fetch [pageSize] products for the given [page].
+  /// For example, page=1, pageSize=10 will fetch the first 10 products,
+  /// page=2, pageSize=10 will fetch the next 10, and so on.
+  /// Fetches a paginated list of products. 
+  /// Call this method with increasing [page] numbers (starting from 1) to load more products as you scroll.
+  /// Each call returns the next [pageSize] products.
   Future<List<Product>> fetchAllProducts({int page = 1, int pageSize = 10, String? search}) async {
     try {
       if (!await _validateToken()) {
@@ -112,34 +122,44 @@ class CategoryRepository {
       );
 
       log('All products response status: ${response.statusCode}');
-      log('All products response body: ${response.body}');
+      // log('All products response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         List<Product> products = [];
 
+        // The API should return paginated products in a standard structure.
+        // Try to extract the paginated list of products.
         if (jsonResponse is Map<String, dynamic>) {
-          if (jsonResponse['products'] is List) {
-            products = (jsonResponse['products'] as List)
-                .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
-                .toList();
-          } else if (jsonResponse['data'] is Map<String, dynamic> &&
+          // Common paginated structure: { data: { products: [...] } }
+          if (jsonResponse['data'] is Map<String, dynamic> &&
               jsonResponse['data']['products'] is List) {
             products = (jsonResponse['data']['products'] as List)
                 .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
-          } else if (jsonResponse['data'] is List) {
+          }
+          // Sometimes: { products: [...] }
+          else if (jsonResponse['products'] is List) {
+            products = (jsonResponse['products'] as List)
+                .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
+                .toList();
+          }
+          // Sometimes: { data: [...] }
+          else if (jsonResponse['data'] is List) {
             products = (jsonResponse['data'] as List)
                 .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
           }
         } else if (jsonResponse is List) {
+          // Fallback: response is a list of products
           products = jsonResponse
               .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
               .toList();
         }
-        
-        log('Parsed ${products.length} products from all products endpoint');
+
+        // DO NOT trim the result to [pageSize] here, since the API should already paginate.
+        // This allows you to append new products as you scroll (infinite scroll).
+        log('Parsed ${products.length} products from all products endpoint (page $page, pageSize $pageSize)');
         return products;
       } else if (response.statusCode == 401) {
         await _clearInvalidToken();
@@ -328,6 +348,63 @@ class CategoryRepository {
       }
     } catch (e) {
       log('Error fetching products by brand: $e');
+      return [];
+    }
+  }
+
+  // Add product to cart (POST)
+  Future<bool> addProductToCart({required int productId, required int quantity, required dynamic price}) async {
+    log('addProductToCart called for productId: $productId, quantity: $quantity, price: $price');
+    try {
+      if (!await _validateToken()) {
+        await _clearInvalidToken();
+        log('Invalid or expired token in addProductToCart');
+        return false;
+      }
+      final response = await http.post(
+        Uri.parse(APIConstant.STORE_TO_CART),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Accept': 'application/json',
+        },
+        body: {
+          'product_id': productId.toString(),
+          'product_quantity': quantity.toString(),
+          'price': price.toString(),
+        },
+      );
+      log('POST /api/cart response: ${response.statusCode} - ${response.body}');
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      log('Error in addProductToCart: $e');
+      return false;
+    }
+  }
+
+  // Fetch cart from API (POST instead of GET)
+  Future<List<dynamic>> fetchCartFromApi() async {
+    log('fetchCartFromApi called');
+    try {
+      if (!await _validateToken()) {
+        await _clearInvalidToken();
+        log('Invalid or expired token in fetchCartFromApi');
+        return [];
+      }
+      final response = await http.get(
+        Uri.parse(APIConstant.GET_STORED_CART), // Make sure this points to /api/cart
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Accept': 'application/json',
+        },
+      );
+      log('Get /api/cart response:  [33m [1m${response.statusCode} [0m - ${response.body}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['cart'] ?? [];
+      }
+      return [];
+    } catch (e) {
+      log('Error in fetchCartFromApi: $e');
       return [];
     }
   }

@@ -7,6 +7,8 @@ import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.d
 import 'package:awlad_khedr/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 
 import '../../../drawer_slider/presentation/views/side_slider.dart';
 import '../../../home/presentation/views/widgets/search_widget.dart';
@@ -154,13 +156,24 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                     onQuantityChanged: (newQuantity) {
                       _onQuantityChanged(product.productName!, newQuantity);
                     },
-                    onAddToCart: () {
+                    onAddToCart: () async {
+                      final controller = Provider.of<CategoryController>(context, listen: false);
                       final currentQuantity = _productQuantities[product.productName!] ?? 0;
                       final newQuantity = currentQuantity + 1;
-                      setState(() {
-                        _productQuantities[product.productName!] = newQuantity;
-                        _cart[product] = newQuantity;
-                      });
+                      final success = await controller.addProductToCart(product, newQuantity);
+                      if (success) {
+                        setState(() {
+                          _productQuantities[product.productName!] = newQuantity;
+                          _cart[product] = newQuantity;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('تمت إضافة المنتج إلى السلة')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('حدث خطأ أثناء إضافة المنتج للسلة')),
+                        );
+                      }
                     },
                   );
                 },

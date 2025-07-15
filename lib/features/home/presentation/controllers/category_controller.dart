@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
-import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
 import 'dart:developer';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class CategoryController extends ChangeNotifier {
@@ -25,20 +28,20 @@ class CategoryController extends ChangeNotifier {
   }
 
   // State
-  TopRatedModel? topRatedItem;
+  top_rated.TopRatedModel? topRatedItem;
   bool isListLoaded = false;
   List<String> categories = ['الكل'];
   String selectedCategory = 'الكل';
   final Map<String, int> productQuantities = {}; // Key will be product ID or unique identifier
-  final Map<Product, int> cart = {};
-  List<Product> filteredProducts = [];
+  final Map<top_rated.Product, int> cart = {};
+  List<top_rated.Product> filteredProducts = [];
   String _currentSearchQuery = '';
 
   // Pagination state
   int currentPage = 1;
   bool hasMoreProducts = true;
   bool isLoadingProducts = false;
-  final List<Product> _allLoadedProducts = [];
+  final List<top_rated.Product> _allLoadedProducts = [];
 
   // Getters
   double get cartTotal {
@@ -82,7 +85,7 @@ class CategoryController extends ChangeNotifier {
     } catch (e) {
       log('Error initializing data: $e');
       isListLoaded = true;
-      topRatedItem = TopRatedModel(products: []); // Initialize with empty list on error
+      topRatedItem = top_rated.TopRatedModel(products: []); // Initialize with empty list on error
       filteredProducts = [];
       safeNotifyListeners();
     }
@@ -109,7 +112,7 @@ class CategoryController extends ChangeNotifier {
         _allLoadedProducts.clear();
       }
       _allLoadedProducts.addAll(products);
-      topRatedItem = TopRatedModel(products: _allLoadedProducts);
+      topRatedItem = top_rated.TopRatedModel(products: _allLoadedProducts);
       _updateProductQuantities(_allLoadedProducts);
       applySearchFilter(_currentSearchQuery, notify: false);
       if (products.length < 10) {
@@ -118,7 +121,7 @@ class CategoryController extends ChangeNotifier {
     } catch (e) {
       log('Error fetching all products: $e');
       if (reset) {
-        topRatedItem = TopRatedModel(products: []);
+        topRatedItem = top_rated.TopRatedModel(products: []);
         _allLoadedProducts.clear();
       }
       hasMoreProducts = false;
@@ -149,7 +152,7 @@ class CategoryController extends ChangeNotifier {
         _allLoadedProducts.clear();
       }
       _allLoadedProducts.addAll(products);
-      topRatedItem = TopRatedModel(products: _allLoadedProducts);
+      topRatedItem = top_rated.TopRatedModel(products: _allLoadedProducts);
       _updateProductQuantities(_allLoadedProducts);
       filteredProducts = _allLoadedProducts;
       applySearchFilter(_currentSearchQuery, notify: false);
@@ -159,7 +162,7 @@ class CategoryController extends ChangeNotifier {
     } catch (e) {
       log('Error fetching category products: $e');
       if (reset) {
-        topRatedItem = TopRatedModel(products: []);
+        topRatedItem = top_rated.TopRatedModel(products: []);
         _allLoadedProducts.clear();
       }
       hasMoreProducts = false;
@@ -181,7 +184,7 @@ class CategoryController extends ChangeNotifier {
     }
   }
 
-  void _updateProductQuantities(List<Product> products) {
+  void _updateProductQuantities(List<top_rated.Product> products) {
     // Preserve existing quantities for products that are still present
     final Map<String, int> newProductQuantities = {};
     for (var product in products) {
@@ -194,7 +197,7 @@ class CategoryController extends ChangeNotifier {
 
   void applySearchFilter(String query, {bool notify = true}) {
     _currentSearchQuery = query;
-    List<Product> productsToFilter = _allLoadedProducts;
+    List<top_rated.Product> productsToFilter = _allLoadedProducts;
     if (query.isNotEmpty) {
       filteredProducts = productsToFilter.where((product) {
         return (product.productName?.toLowerCase().contains(query.toLowerCase()) ?? false);
@@ -223,7 +226,7 @@ class CategoryController extends ChangeNotifier {
     safeNotifyListeners();
   }
 
-  void addToCart(Product product) {
+  void addToCart(top_rated.Product product) {
     // Use product ID as the key for the cart if available, otherwise product itself
     // Or, better, store a map of product ID to quantity for cart
     // For simplicity, keeping product as key here
@@ -235,6 +238,34 @@ class CategoryController extends ChangeNotifier {
     cart.clear();
     // Set all product quantities to zero
     productQuantities.updateAll((key, value) => 0);
+    safeNotifyListeners();
+  }
+
+  // Cart API endpoints
+  static const String _cartBaseUrl = 'https://erp.khedrsons.com/api/cart';
+
+  // Add product to cart via API
+  Future<bool> addProductToCart(top_rated.Product product, int quantity) async {
+    log('CategoryController.addProductToCart called for productId: ${product.productId}, quantity: ${quantity}');
+    final success = await _repository.addProductToCart(
+      productId: product.productId ?? 0,
+      quantity: quantity,
+      price: product.price,
+    );
+    // Do not call fetchCartFromApi here
+    return success;
+  }
+
+  // Fetch cart from API and update local cart state
+  Future<void> fetchCartFromApi() async {
+    log('CategoryController.fetchCartFromApi called');
+    final cartList = await _repository.fetchCartFromApi();
+    cart.clear();
+    for (var item in cartList) {
+      final product = top_rated.Product.fromJson(item['product']);
+      final quantity = int.tryParse(item['product_quantity'].toString()) ?? 1;
+      cart[product] = quantity;
+    }
     safeNotifyListeners();
   }
 }

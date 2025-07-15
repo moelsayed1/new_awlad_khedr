@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
 import 'package:awlad_khedr/core/theme/app_colors.dart';
+import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 
 class CartSheet extends StatelessWidget {
   final Map<top_rated.Product, int> cart;
@@ -130,14 +132,16 @@ class CartSheet extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: cart.isNotEmpty
-                      ? () {
+                      ? () async {
+                          final controller = Provider.of<CategoryController>(context, listen: false);
+                          await controller.fetchCartFromApi();
                           onClose();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => CartViewPage(
-                                products: cart.keys.toList(),
-                                quantities: cart.values.toList(),
+                                products: controller.cart.keys.toList(),
+                                quantities: controller.cart.values.toList(),
                               ),
                             ),
                           );

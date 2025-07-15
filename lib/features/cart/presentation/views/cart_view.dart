@@ -8,81 +8,64 @@ import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.d
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/core/assets.dart';
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slider.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
+import 'package:provider/provider.dart';
 
 class CartViewPage extends StatefulWidget {
-  final List<top_rated.Product> products;
-  final List<int> quantities;
-
-  const CartViewPage({
-    super.key,
-    required this.products,
-    required this.quantities,
-  });
+  // No need to pass products/quantities; always use controller
+  const CartViewPage({super.key, required List<top_rated.Product> products, required List<int> quantities});
 
   @override
   State<CartViewPage> createState() => _CartViewPageState();
 }
 
 class _CartViewPageState extends State<CartViewPage> {
-  late List<int> _quantities;
-  double _total = 0;
+  late CategoryController controller;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _quantities = List<int>.from(widget.quantities);
-    _calculateTotal();
-  }
-
-  void _onQuantityChanged(int index, int newQuantity) {
-    setState(() {
-      _quantities[index] = newQuantity;
-      _calculateTotal();
+    controller = Provider.of<CategoryController>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await controller.fetchCartFromApi();
+      setState(() {
+        _loading = false;
+      });
     });
   }
 
-  void _calculateTotal() {
-    _total = 0;
-    for (int i = 0; i < widget.products.length; i++) {
-      final price = double.tryParse(widget.products[i].price ?? '0') ?? 0;
-      _total += price * _quantities[i];
-    }
-  }
-
-  List<top_rated.Product> get selectedProducts {
-    List<top_rated.Product> selected = [];
-    for (int i = 0; i < widget.products.length; i++) {
-      if (_quantities[i] > 0) {
-        selected.add(widget.products[i]);
+  void _onQuantityChanged(top_rated.Product product, int newQuantity) {
+    setState(() {
+      if (newQuantity > 0) {
+        controller.cart[product] = newQuantity;
+      } else {
+        controller.cart.remove(product);
       }
-    }
-    return selected;
+    });
   }
 
-  List<int> get selectedQuantities {
-    return [
-      for (int i = 0; i < widget.products.length; i++)
-        if (_quantities[i] > 0) _quantities[i]
-    ];
+  double get _total {
+    double total = 0;
+    controller.cart.forEach((product, qty) {
+      final price = double.tryParse(product.price ?? '0') ?? 0;
+      total += price * qty;
+    });
+    return total;
   }
 
-  List<top_rated.Product> get selectedProductsForPayment {
-    List<top_rated.Product> selected = [];
-    for (int i = 0; i < widget.products.length; i++) {
-      if (_quantities[i] > 0) {
-        final p = widget.products[i];
-        selected.add(p);
-      }
-    }
-    return selected;
-  }
+  List<top_rated.Product> get selectedProducts => controller.cart.keys.toList();
+  List<int> get selectedQuantities => controller.cart.values.toList();
 
   @override
   Widget build(BuildContext context) {
+    controller = Provider.of<CategoryController>(context); // Listen for changes
+    final products = controller.cart.keys.toList();
+    final quantities = controller.cart.values.toList();
     return MainLayout(
       selectedIndex: 1,
       child: Scaffold(
-        backgroundColor: Colors.grey[50], // Light background to match image
+        backgroundColor: Colors.grey[50],
         appBar: AppBar(
           automaticallyImplyLeading: false,
           actions: const [
@@ -96,7 +79,7 @@ class _CartViewPageState extends State<CartViewPage> {
                   fontWeight: FontWeight.bold,
                   fontFamily: baseFont,
                 ),
-                textDirection: TextDirection.rtl, // Right-to-left for Arabic
+                textDirection: TextDirection.rtl,
               ),
             ),
           ],
@@ -119,125 +102,127 @@ class _CartViewPageState extends State<CartViewPage> {
           titleSpacing: 0,
         ),
         drawer: const CustomDrawer(),
-        body: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(16.0.r),
-                child: (widget.products.isEmpty || _quantities.every((q) => q == 0))
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.shopping_bag_outlined,
-                            size: 80.sp,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 16.h),
-                          Text(
-                            'لا توجد منتجات في السلة',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              color: Colors.grey,
-                              fontFamily: baseFont,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.separated(
-                      itemCount: widget.products.length,
-                      separatorBuilder: (context, index) => SizedBox(height: 15.h),
-                      itemBuilder: (context, index) {
-                        final product = widget.products[index];
-                        final quantity = _quantities[index];
-                        return CartItem(
-                          product: product, // Pass single product
-                          quantity: quantity, // Pass single quantity
-                          index: index, // Pass the index
-                          onQuantityChanged: _onQuantityChanged,
-                        );
-                      },
-                    ),
-              ),
-            ),
-            // Bottom Total Section
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.r),
-                  topRight: Radius.circular(20.r),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, -3),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+        body: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
                 children: [
-                  Text(
-                    'الحد الادني الاوردر 3000 جنيه لاستكمال الطلب',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontFamily: baseFont,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16.sp,
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0.r),
+                      child: (products.isEmpty || quantities.every((q) => q == 0))
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.shopping_bag_outlined,
+                                    size: 80.sp,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Text(
+                                    'لا توجد منتجات في السلة',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.grey,
+                                      fontFamily: baseFont,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: products.length,
+                              separatorBuilder: (context, index) => SizedBox(height: 15.h),
+                              itemBuilder: (context, index) {
+                                final product = products[index];
+                                final quantity = quantities[index];
+                                return CartItem(
+                                  product: product,
+                                  quantity: quantity,
+                                  index: index,
+                                  onQuantityChanged: (idx, newQuantity) => _onQuantityChanged(product, newQuantity),
+                                );
+                              },
+                            ),
                     ),
-                    textDirection: TextDirection.rtl,
                   ),
-                  SizedBox(height: 20.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '	${_total.toInt()} ج.م ',
-                        style: TextStyle(
-                          fontSize: 30.sp,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                          fontFamily: baseFont,
-                        ),
-                        textDirection: TextDirection.rtl,
+                  // Bottom Total Section
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.r),
+                        topRight: Radius.circular(20.r),
                       ),
-                      Text(
-                        'الاجمالي',
-                        style: TextStyle(
-                          fontSize: 30.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                          fontFamily: baseFont,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, -3),
                         ),
-                        textDirection: TextDirection.rtl,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20.h),
-                  CustomButtonCart(
-                    count: _total,
-                    onOrderConfirmed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OrdersViewPage(),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'الحد الادني الاوردر 3000 جنيه لاستكمال الطلب',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontFamily: baseFont,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16.sp,
+                          ),
+                          textDirection: TextDirection.rtl,
                         ),
-                      );
-                    },
-                    products: selectedProducts,
-                    quantities: selectedQuantities,
+                        SizedBox(height: 20.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '\t${_total.toInt()} ج.م ',
+                              style: TextStyle(
+                                fontSize: 30.sp,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black,
+                                fontFamily: baseFont,
+                              ),
+                              textDirection: TextDirection.rtl,
+                            ),
+                            Text(
+                              'الاجمالي',
+                              style: TextStyle(
+                                fontSize: 30.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                                fontFamily: baseFont,
+                              ),
+                              textDirection: TextDirection.rtl,
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20.h),
+                        CustomButtonCart(
+                          count: _total,
+                          onOrderConfirmed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => OrdersViewPage(),
+                              ),
+                            );
+                          },
+                          products: selectedProducts,
+                          quantities: selectedQuantities,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

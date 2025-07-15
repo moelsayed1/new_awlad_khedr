@@ -1,4 +1,7 @@
 // For min function
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -46,19 +49,35 @@ class _CategoriesView extends StatefulWidget {
 
 class _CategoriesViewState extends State<_CategoriesView> {
   late final TextEditingController searchController;
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
     searchController = TextEditingController();
+    _scrollController.addListener(_onScroll);
     // No need to manually initialize controller data here; it's done in the controller's constructor.
+  }
+
+  void _onScroll() async {
+    final controller = context.read<CategoryController>();
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100 &&
+        controller.selectedCategory == 'الكل' &&
+        !controller.isLoadingProducts &&
+        controller.hasMoreProducts) {
+      setState(() => _isLoadingMore = true);
+      await controller.loadMoreProducts();
+      setState(() => _isLoadingMore = false);
+    }
   }
 
   @override
   void dispose() {
     searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,11 +148,19 @@ class _CategoriesViewState extends State<_CategoriesView> {
                   },
                   backgroundColor: Colors.white,
                   child: ListView.separated(
-                    itemCount: controller.filteredProducts.length,
+                    controller: _scrollController,
+                    itemCount: controller.filteredProducts.length + (controller.hasMoreProducts ? 1 : 0),
                     separatorBuilder: (context, index) => const SizedBox(height: 15),
                     itemBuilder: (context, index) {
+                      if (index == controller.filteredProducts.length) {
+                        // Show loading indicator at the bottom
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
                       final product = controller.filteredProducts[index];
-                      final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${index}';
+                      final String quantityKey = product.productId != null ? product.productId.toString() : 'product_${index}';
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Column(
@@ -145,6 +172,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
                               // Here, we assume ProductItemCard has a 'productTitle' or similar parameter
                               quantity: controller.productQuantities[quantityKey] ?? 0,
                               onQuantityChanged: (newQuantity) {
+                                log.dev('onQuantityChanged: key=$quantityKey, newQuantity=$newQuantity');
                                 controller.onQuantityChanged(quantityKey, newQuantity);
                                 if (newQuantity > 0) {
                                   controller.cart[product] = newQuantity;
@@ -153,12 +181,16 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                 }
                                 controller.safeNotifyListeners();
                               },
-                              onAddToCart: () {
+                              onAddToCart: () async {
                                 final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
                                 final newQuantity = currentQuantity + 1;
+                                print('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
+                                // Optimistically update UI first
                                 controller.onQuantityChanged(quantityKey, newQuantity);
                                 controller.cart[product] = newQuantity;
                                 controller.safeNotifyListeners();
+                                // Then sync with backend
+                                await controller.addProductToCart(product, newQuantity);
                               },
                               // If ProductItemCard supports a custom title, pass it here:
                               // productTitle: splitAfterTwoWords(product.productName),
@@ -213,4 +245,8 @@ class _CategoriesViewState extends State<_CategoriesView> {
           : null,
     );
   }
+}
+
+extension on void Function(String message, {Object? error, int level, String name, int? sequenceNumber, StackTrace? stackTrace, DateTime? time, Zone? zone}) {
+  void dev(String s) {}
 }
