@@ -33,6 +33,7 @@ class APIConstant {
   static const GET_TRANSACTION_INVOICE = "$BASE_URL/api/transaction-invoice"; // Usage: /api/transaction-invoice/{id}
   static const STORE_TO_CART = "$BASE_URL/api/cart";
   static const GET_STORED_CART = "$BASE_URL/api/cart";
+  static const STORE_ORDER = "$BASE_URL/api/sells/store";
   static const GET_PRODUCTS_BY_BRAND = "$BASE_URL/api/banner-products"; // Usage: /api/banner-products?brand_id=xxx
   
   // static final GET_ALL_SUBCATEGORY = "$BASE_URL/api/category/subcategories/";

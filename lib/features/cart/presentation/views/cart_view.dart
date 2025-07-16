@@ -60,8 +60,7 @@ class _CartViewPageState extends State<CartViewPage> {
   @override
   Widget build(BuildContext context) {
     controller = Provider.of<CategoryController>(context); // Listen for changes
-    final products = controller.cart.keys.toList();
-    final quantities = controller.cart.values.toList();
+    final cartItems = controller.fetchedCartItems.where((item) => item['product'] != null).toList();
     return MainLayout(
       selectedIndex: 1,
       child: Scaffold(
@@ -109,7 +108,7 @@ class _CartViewPageState extends State<CartViewPage> {
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.all(16.0.r),
-                      child: (products.isEmpty || quantities.every((q) => q == 0))
+                      child: (cartItems.isEmpty)
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +120,7 @@ class _CartViewPageState extends State<CartViewPage> {
                                   ),
                                   SizedBox(height: 16.h),
                                   Text(
-                                    'لا توجد منتجات في السلة',
+                                    'لا توجد منتجات صالحة في السلة',
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       color: Colors.grey,
@@ -132,16 +131,149 @@ class _CartViewPageState extends State<CartViewPage> {
                               ),
                             )
                           : ListView.separated(
-                              itemCount: products.length,
+                              itemCount: cartItems.length,
                               separatorBuilder: (context, index) => SizedBox(height: 15.h),
                               itemBuilder: (context, index) {
-                                final product = products[index];
-                                final quantity = quantities[index];
-                                return CartItem(
-                                  product: product,
-                                  quantity: quantity,
-                                  index: index,
-                                  onQuantityChanged: (idx, newQuantity) => _onQuantityChanged(product, newQuantity),
+                                final item = cartItems[index];
+                                final product = item['product'];
+                                final quantity = item['quantity'] as int;
+                                final price = item['price'] as double;
+                                final totalPrice = item['total_price'] as double;
+
+                                return Container(
+                                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.08),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      // Product image on the left
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10.r),
+                                        child: Container(
+                                          color: Colors.grey[100],
+                                          child: (product.imageUrl != null && product.imageUrl != '')
+                                              ? Image.network(
+                                                  product.imageUrl,
+                                                  width: 60.w,
+                                                  height: 60.w,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : Icon(Icons.image, size: 60.w, color: Colors.grey[300]),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      // Product info and details (right to the image)
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              product.productName ?? '',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 16.sp,
+                                                fontFamily: baseFont,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            SizedBox(height: 2.h),
+                                            Text(
+                                              'شرنك = $quantity × ${price.toStringAsFixed(0)}',
+                                              style: TextStyle(
+                                                fontSize: 13.sp,
+                                                color: Colors.black87,
+                                                fontFamily: baseFont,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            SizedBox(height: 2.h),
+                                            Text(
+                                              'سعر EGP ${price.toStringAsFixed(0)}',
+                                              style: TextStyle(
+                                                fontSize: 14.sp,
+                                                color: Colors.black,
+                                                fontFamily: baseFont,
+                                              ),
+                                            ),
+                                            SizedBox(height: 2.h),
+                                            Text(
+                                              'سعر الاجمالي EGP ${totalPrice.toStringAsFixed(0)}',
+                                              style: TextStyle(
+                                                fontSize: 13.sp,
+                                                color: Colors.brown[700],
+                                                fontFamily: baseFont,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      // Quantity control column (vertical +, number, -)
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          // Plus button
+                                          GestureDetector(
+                                            onTap: () {
+                                              // TODO: Implement increment logic
+                                            },
+                                            child: Icon(
+                                              Icons.add,
+                                              color: Color(0xffFC6E2A), // darkOrange
+                                              size: 28.sp,
+                                            ),
+                                          ),
+                                          SizedBox(height: 6.h),
+                                          // Quantity display
+                                          Container(
+                                            width: 40.w,
+                                            height: 40.w,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(color: Colors.grey[300]!),
+                                              borderRadius: BorderRadius.circular(12.r),
+                                              color: Colors.white,
+                                            ),
+                                            child: Text(
+                                              quantity.toString(),
+                                              style: TextStyle(
+                                                fontSize: 20.sp,
+                                                color: Colors.black87,
+                                                fontFamily: baseFont,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 6.h),
+                                          // Minus button
+                                          GestureDetector(
+                                            onTap: () {
+                                              // TODO: Implement decrement logic
+                                            },
+                                            child: Container(
+                                              width: 28.w,
+                                              height: 4.h,
+                                              decoration: BoxDecoration(
+                                                color: Color(0xffC29500), // kBrown
+                                                borderRadius: BorderRadius.circular(2.r),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 );
                               },
                             ),
@@ -183,7 +315,7 @@ class _CartViewPageState extends State<CartViewPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '\t${_total.toInt()} ج.م ',
+                              '\t${controller.fetchedCartTotal.toInt()} ج.م ',
                               style: TextStyle(
                                 fontSize: 30.sp,
                                 fontWeight: FontWeight.w400,
@@ -205,18 +337,16 @@ class _CartViewPageState extends State<CartViewPage> {
                           ],
                         ),
                         SizedBox(height: 20.h),
+                        // Order Now Button
                         CustomButtonCart(
-                          count: _total,
+                          count: controller.fetchedCartTotal,
                           onOrderConfirmed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => OrdersViewPage(),
-                              ),
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Order placed!')),
                             );
                           },
-                          products: selectedProducts,
-                          quantities: selectedQuantities,
+                          products: cartItems.map((item) => item['product']).toList(),
+                          quantities: cartItems.map((item) => item['quantity'] as int).toList(),
                         ),
                       ],
                     ),

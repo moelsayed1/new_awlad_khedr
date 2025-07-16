@@ -19,6 +19,8 @@ import 'package:awlad_khedr/features/home/presentation/views/widgets/categories_
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
+import 'package:awlad_khedr/core/network/api_service.dart';
+import 'package:awlad_khedr/core/services/product_service.dart';
 
 // Helper function to split product name after two words
 String splitAfterTwoWords(String? name) {
@@ -34,7 +36,7 @@ class CategoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => CategoryController(CategoryRepository()),
+      create: (context) => CategoryController(CategoryRepository(ApiService(), ProductService())),
       child: const _CategoriesView(),
     );
   }

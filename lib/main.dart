@@ -1,3 +1,5 @@
+import 'package:awlad_khedr/core/network/api_service.dart';
+import 'package:awlad_khedr/core/services/product_service.dart';
 import 'package:awlad_khedr/features/auth/register/data/provider/register_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,7 +38,9 @@ Future<void> initializeApp() async {
 }
 
 void main() async {
-  await initializeApp();
+  await initializeApp();         // Loads authToken (optional, for legacy)
+  await ApiService().init();     // Loads token into ApiService singleton
+  print('Loaded token: \x1B[32m${ApiService().currentToken}\x1B[0m'); // Debug log for token
 
   runApp(
     MultiProvider(
@@ -50,7 +54,7 @@ void main() async {
         }),
         ChangeNotifierProvider(create: (_) => RegisterProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
-        ChangeNotifierProvider(create: (_) => CategoryController(CategoryRepository())),
+        ChangeNotifierProvider(create: (_) => CategoryController(CategoryRepository(ApiService(), ProductService()))),
       ],
       child: const AwladKhedr(),
     ),

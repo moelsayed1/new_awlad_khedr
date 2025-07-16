@@ -21,10 +21,20 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    int? parsedProductId;
+    if (json['product_id'] is int) {
+      parsedProductId = json['product_id'] as int;
+    } else if (json['product_id'] is String) {
+      parsedProductId = int.tryParse(json['product_id']);
+    }
+    dynamic parsedPrice = json['price'];
+    if (parsedPrice is String) {
+      parsedPrice = double.tryParse(parsedPrice) ?? parsedPrice;
+    }
     return Product(
-      productId: json['product_id'] as int?, // Ensure your API returns 'product_id'
+      productId: parsedProductId,
       productName: json['product_name'] as String?,
-      price: json['price'],
+      price: parsedPrice,
       qtyAvailable: json['qty_available'],
       minimumSoldQuantity: json['minimum_sold_quantity']?.toString(),
       image: json['image'] as String?,

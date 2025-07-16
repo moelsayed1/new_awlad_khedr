@@ -5,9 +5,16 @@ import 'package:awlad_khedr/main.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
+import 'package:awlad_khedr/core/network/api_service.dart';
+import 'package:awlad_khedr/core/services/product_service.dart';
 
 
 class CategoryRepository {
+  final ApiService _apiService;
+  final ProductService _productService;
+
+  CategoryRepository(this._apiService, this._productService);
+
   Future<bool> _validateToken() async {
     if (authToken.isEmpty) {
       return false;
@@ -74,18 +81,6 @@ class CategoryRepository {
     }
   }
 
-  /// Fetch products only from the category name provided in [search].
-  /// If [search] is null or empty, returns an empty list.
-  /// Fetch all products with pagination support.
-  /// Returns a paginated list of products for the given [page] and [pageSize].
-  /// Optionally filters by [search] query.
-  ///
-  /// This method will fetch [pageSize] products for the given [page].
-  /// For example, page=1, pageSize=10 will fetch the first 10 products,
-  /// page=2, pageSize=10 will fetch the next 10, and so on.
-  /// Fetches a paginated list of products. 
-  /// Call this method with increasing [page] numbers (starting from 1) to load more products as you scroll.
-  /// Each call returns the next [pageSize] products.
   Future<List<Product>> fetchAllProducts({int page = 1, int pageSize = 10, String? search}) async {
     try {
       if (!await _validateToken()) {
@@ -98,7 +93,6 @@ class CategoryRepository {
         'page_size': pageSize.toString(),
       };
 
-      // Add search parameter if provided
       if (search != null && search.trim().isNotEmpty) {
         queryParams['search'] = search.trim();
         log('Searching all products with query: "${search.trim()}"');
@@ -121,45 +115,35 @@ class CategoryRepository {
         },
       );
 
-      log('All products response status: ${response.statusCode}');
-      // log('All products response body: ${response.body}');
+      log('All products response status:  [32m [1m${response.statusCode} [0m');
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         List<Product> products = [];
 
-        // The API should return paginated products in a standard structure.
-        // Try to extract the paginated list of products.
         if (jsonResponse is Map<String, dynamic>) {
-          // Common paginated structure: { data: { products: [...] } }
           if (jsonResponse['data'] is Map<String, dynamic> &&
               jsonResponse['data']['products'] is List) {
             products = (jsonResponse['data']['products'] as List)
                 .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
-          }
-          // Sometimes: { products: [...] }
-          else if (jsonResponse['products'] is List) {
+          } else if (jsonResponse['products'] is List) {
             products = (jsonResponse['products'] as List)
                 .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
-          }
-          // Sometimes: { data: [...] }
-          else if (jsonResponse['data'] is List) {
+          } else if (jsonResponse['data'] is List) {
             products = (jsonResponse['data'] as List)
                 .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
           }
         } else if (jsonResponse is List) {
-          // Fallback: response is a list of products
           products = jsonResponse
               .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
               .toList();
         }
 
-        // DO NOT trim the result to [pageSize] here, since the API should already paginate.
-        // This allows you to append new products as you scroll (infinite scroll).
-        log('Parsed ${products.length} products from all products endpoint (page $page, pageSize $pageSize)');
+        _productService.cacheProducts(products);
+        log('Parsed  [32m${products.length} [0m products from all products endpoint (page $page, pageSize $pageSize) and cached.');
         return products;
       } else if (response.statusCode == 401) {
         await _clearInvalidToken();
@@ -188,7 +172,6 @@ class CategoryRepository {
         'page_size': pageSize.toString(),
       };
       
-      // Add search parameter if provided
       if (search != null && search.trim().isNotEmpty) {
         queryParams['search'] = search.trim();
         log('Searching category products with query: "$search"');
@@ -262,7 +245,6 @@ class CategoryRepository {
     }
   }
 
-  // New method to search products with both category and product name
   Future<List<Product>> searchProducts({
     String? category,
     String? productName,
@@ -277,7 +259,6 @@ class CategoryRepository {
 
       log('Searching products - Category: "$category", Product Name: "$productName"');
 
-      // If category is provided, use category endpoint
       if (category != null && category.isNotEmpty && category != 'الكل') {
         return await fetchProductsByCategory(
           category,
@@ -286,7 +267,6 @@ class CategoryRepository {
           search: productName,
         );
       } else {
-        // Otherwise, use all products endpoint
         return await fetchAllProducts(
           page: page,
           pageSize: pageSize,
@@ -352,12 +332,10 @@ class CategoryRepository {
     }
   }
 
-  // Add product to cart (POST)
   Future<bool> addProductToCart({required int productId, required int quantity, required dynamic price}) async {
     log('addProductToCart called for productId: $productId, quantity: $quantity, price: $price');
     try {
       if (!await _validateToken()) {
-        await _clearInvalidToken();
         log('Invalid or expired token in addProductToCart');
         return false;
       }
@@ -381,26 +359,30 @@ class CategoryRepository {
     }
   }
 
-  // Fetch cart from API (POST instead of GET)
   Future<List<dynamic>> fetchCartFromApi() async {
     log('fetchCartFromApi called');
     try {
       if (!await _validateToken()) {
-        await _clearInvalidToken();
         log('Invalid or expired token in fetchCartFromApi');
         return [];
       }
       final response = await http.get(
-        Uri.parse(APIConstant.GET_STORED_CART), // Make sure this points to /api/cart
+        Uri.parse(APIConstant.GET_STORED_CART),
         headers: {
           'Authorization': 'Bearer $authToken',
           'Accept': 'application/json',
         },
       );
-      log('Get /api/cart response:  [33m [1m${response.statusCode} [0m - ${response.body}');
+      log('Get /api/cart response: \x1B[33m\x1B[1m${response.statusCode}\x1B[0m - ${response.body}');
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['cart'] ?? [];
+        final dynamic decodedData = jsonDecode(response.body);
+
+        if (decodedData is List<dynamic>) {
+          return decodedData;
+        } else {
+          log('Unexpected data type from API for cart:  [31m${decodedData.runtimeType} [0m. Expected a List.');
+          return [];
+        }
       }
       return [];
     } catch (e) {
@@ -408,4 +390,4 @@ class CategoryRepository {
       return [];
     }
   }
-} 
+}

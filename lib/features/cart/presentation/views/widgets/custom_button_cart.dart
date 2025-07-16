@@ -6,8 +6,8 @@ import 'package:awlad_khedr/features/invoice/data/invoice_service.dart';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Helper function to extract userId from JWT token
 String? extractUserIdFromToken(String token) {
   try {
     final parts = token.split('.');
@@ -20,9 +20,7 @@ String? extractUserIdFromToken(String token) {
   }
 }
 
-/// Logic class for cart/order operations
 class CartOrderLogic {
-  /// Add a single product to cart
   static Future<bool> addSingleProductToCart({
     required String? token,
     required String? userId,
@@ -33,7 +31,7 @@ class CartOrderLogic {
       final price = product.price.toString();
       final totalPrice = (double.tryParse(price)! * quantity).toString();
       final response = await http.post(
-        Uri.parse(APIConstant.STORE_TO_CART),
+        Uri.parse(APIConstant.STORE_ORDER),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -54,7 +52,6 @@ class CartOrderLogic {
     }
   }
 
-  /// Add all products to cart
   static Future<bool> addAllProductsToCart({
     required String? token,
     required String? userId,
@@ -76,34 +73,9 @@ class CartOrderLogic {
     }
     return true;
   }
-
-  /// Send order
-  static Future<InvoiceServiceResult> sendOrder({
-    required List<dynamic> products,
-    required List<int> quantities,
-    required double count,
-  }) async {
-    try {
-      final result = await InvoiceService.placeOrder(
-        products: products,
-        quantities: quantities,
-        total: count,
-      );
-      return InvoiceServiceResult(
-        success: result.success,
-        invoiceNo: result.invoiceNo,
-        error: result.error,
-      );
-    } catch (e, stack) {
-      log('Exception during order: $e\n$stack');
-      return InvoiceServiceResult(
-        success: false,
-        error: 'حدث خطأ غير متوقع أثناء إرسال الطلب.',
-      );
-    }
-  }
 }
 
+// InvoiceServiceResult class should be in invoice_service.dart
 class InvoiceServiceResult {
   final bool success;
   final String? invoiceNo;
@@ -111,7 +83,75 @@ class InvoiceServiceResult {
   InvoiceServiceResult({required this.success, this.invoiceNo, this.error});
 }
 
-// ignore: must_be_immutable
+class InvoiceService {
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  static Future<InvoiceServiceResult> placeSaleOrder({
+    required String token,
+    required String userId,
+    required List<dynamic> products,
+    required List<int> quantities,
+    required double total,
+  }) async {
+    try {
+      final String? baseUrl = APIConstant.BASE_URL;
+      if (baseUrl == null) {
+        return InvoiceServiceResult(success: false, error: 'Base URL not configured.');
+      }
+      final Uri uri = Uri.parse(APIConstant.STORE_ORDER);
+
+      final List<Map<String, dynamic>> items = [];
+      for (int i = 0; i < products.length; i++) {
+        final product = products[i];
+        final quantity = quantities[i];
+        final price = product.price?.toString() ?? '0.0';
+        items.add({
+          "product_id": product.productId?.toString() ?? '',
+          "product_quantity": quantity.toString(),
+          "price": price,
+        });
+      }
+
+      final payload = {
+        "user_id": userId,
+        "total_price": total.toString(),
+        "items": items,
+        "mobile": true,
+      };
+      log('Order payload: ${json.encode(payload)}');
+      log('Order userId: $userId, total: $total, items: $items');
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode(payload),
+      );
+
+      log('Place sale order response: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseBody = json.decode(response.body);
+        final String? invoiceNo = responseBody['invoice_no']?.toString() ?? responseBody['message']?.toString();
+        return InvoiceServiceResult(success: true, invoiceNo: invoiceNo);
+      } else {
+        final errorBody = json.decode(response.body);
+        final String errorMessage = errorBody['message']?.toString() ?? 'Failed to place order.';
+        return InvoiceServiceResult(success: false, error: 'Error ${response.statusCode}: $errorMessage');
+      }
+    } catch (e, stack) {
+      log('Exception placing sale order: $e\n$stack');
+      return InvoiceServiceResult(success: false, error: 'حدث خطأ غير متوقع أثناء إرسال الطلب: $e');
+    }
+  }
+}
+
 class CustomButtonCart extends StatefulWidget {
   final List<dynamic> products;
   final List<int> quantities;
@@ -197,7 +237,6 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
     );
   }
 
-  /// Main handler for order logic
   Future<void> _handleOrder() async {
     if (widget.count < 3000) {
       _showSnackBar(
@@ -209,7 +248,7 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
     }
 
     setState(() => _isLoading = true);
-     _showLoadingDialog();
+    _showLoadingDialog();
 
     final token = await InvoiceService.getToken();
     final userId = extractUserIdFromToken(token ?? '');
@@ -221,30 +260,12 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
       return;
     }
 
-    // Add products to cart
-    final cartSuccess = await CartOrderLogic.addAllProductsToCart(
+    final orderResult = await InvoiceService.placeSaleOrder(
       token: token,
       userId: userId,
       products: widget.products,
       quantities: widget.quantities,
-    );
-
-    if (!cartSuccess) {
-      await _hideLoadingDialog();
-      setState(() => _isLoading = false);
-      _showSnackBar(
-        'حدث خطأ أثناء إضافة المنتجات للسلة. حاول مرة أخرى.',
-        backgroundColor: darkOrange,
-        textColor: Colors.black,
-      );
-      return;
-    }
-
-    // Send order
-    final orderResult = await CartOrderLogic.sendOrder(
-      products: widget.products,
-      quantities: widget.quantities,
-      count: widget.count,
+      total: widget.count,
     );
 
     await _hideLoadingDialog();
@@ -268,43 +289,7 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(mainColor),
           ),
-          onPressed: () async {
-            log('Order button pressed');
-            if (widget.count < 3000) {
-              _showSnackBar(
-                'الحد الادني للاوردر 3000 جنيه لاستكمال الطلب',
-                backgroundColor: darkOrange,
-                textColor: Colors.black,
-              );
-              return;
-            }
-            log('products:  [34m${widget.products} [0m');
-            log('quantities:  [34m${widget.quantities} [0m');
-            setState(() => _isLoading = true);
-            _showLoadingDialog(); // بدون await
-            try {
-              log('Calling InvoiceService.placeOrder...');
-              final result = await InvoiceService.placeOrder(
-                products: widget.products,
-                quantities: widget.quantities,
-                total: widget.count,
-              );
-              log('Order result: success=\x1B[32m${result.success}\x1B[0m, invoiceNo=${result.invoiceNo}, error=${result.error}');
-              Navigator.of(context, rootNavigator: true).pop(); // Close loading dialog
-              setState(() => _isLoading = false);
-              if (result.success) {
-                await _showOrderSuccessDialog(result.invoiceNo);
-                widget.onOrderConfirmed();
-              } else {
-                _showSnackBar(result.error ?? 'حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.');
-              }
-            } catch (e, stack) {
-              Navigator.of(context, rootNavigator: true).pop(); // Close loading dialog if open
-              setState(() => _isLoading = false);
-              log('Exception during order: $e\n$stack');
-              _showSnackBar('حدث خطأ غير متوقع أثناء إرسال الطلب.');
-            }
-          },
+          onPressed: _isLoading ? null : _handleOrder,
           child: _isLoading
               ? const SizedBox(
                   width: 24,
@@ -327,3 +312,5 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
     );
   }
 }
+
+

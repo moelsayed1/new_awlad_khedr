@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class CategoryController extends ChangeNotifier {
   final CategoryRepository _repository;
 
@@ -23,27 +22,27 @@ class CategoryController extends ChangeNotifier {
   }
 
   CategoryController(this._repository) {
-    // Initialize data immediately when controller is created
     initializeData();
   }
 
-  // State
   top_rated.TopRatedModel? topRatedItem;
   bool isListLoaded = false;
   List<String> categories = ['الكل'];
   String selectedCategory = 'الكل';
-  final Map<String, int> productQuantities = {}; // Key will be product ID or unique identifier
+  final Map<String, int> productQuantities = {};
   final Map<top_rated.Product, int> cart = {};
   List<top_rated.Product> filteredProducts = [];
   String _currentSearchQuery = '';
 
-  // Pagination state
   int currentPage = 1;
   bool hasMoreProducts = true;
   bool isLoadingProducts = false;
   final List<top_rated.Product> _allLoadedProducts = [];
 
-  // Getters
+  // جديد: خريطة لتخزين جميع المنتجات للبحث الفعال (مثل سلة التسوق)
+  final Map<int, top_rated.Product> _allProductsById = {};
+  bool _isAllProductsMapLoaded = false;
+
   double get cartTotal {
     double total = 0;
     cart.forEach((product, qty) {
@@ -59,35 +58,55 @@ class CategoryController extends ChangeNotifier {
     return total;
   }
 
-  // Methods
   Future<void> initializeData() async {
     isListLoaded = false;
     safeNotifyListeners();
 
     try {
-      // Fetch categories first
       await fetchCategories();
+      // التأكد من تحميل جميع المنتجات في خريطة البحث أولاً
+      await _loadAllProductsForLookup();
       
-      // Then fetch products based on selected category
       if (selectedCategory == 'الكل') {
         await fetchAllProducts();
       } else {
         await fetchProductsByCategory();
       }
 
-      // Initialize filtered products
       filteredProducts = topRatedItem?.products ?? [];
       
-      // Mark data as loaded
       isListLoaded = true;
       safeNotifyListeners();
 
     } catch (e) {
       log('Error initializing data: $e');
       isListLoaded = true;
-      topRatedItem = top_rated.TopRatedModel(products: []); // Initialize with empty list on error
+      topRatedItem = top_rated.TopRatedModel(products: []);
       filteredProducts = [];
       safeNotifyListeners();
+    }
+  }
+
+  // دالة جديدة لتحميل جميع المنتجات في خريطة البحث
+  Future<void> _loadAllProductsForLookup() async {
+    if (_isAllProductsMapLoaded && _allProductsById.isNotEmpty) {
+      log('All products lookup map already loaded.');
+      return;
+    }
+    log('Loading all products for lookup map...');
+    try {
+      final allProductsList = await _repository.fetchAllProducts(page: 1, pageSize: 10000); 
+      _allProductsById.clear();
+      for (var p in allProductsList) {
+        if (p.productId != null) {
+          _allProductsById[p.productId!] = p;
+        }
+      }
+      _isAllProductsMapLoaded = true;
+      log('Successfully loaded ${_allProductsById.length} products into lookup map.');
+    } catch (e) {
+      log('Error loading all products for lookup map: $e');
+      _isAllProductsMapLoaded = false;
     }
   }
 
@@ -185,11 +204,10 @@ class CategoryController extends ChangeNotifier {
   }
 
   void _updateProductQuantities(List<top_rated.Product> products) {
-    // Preserve existing quantities for products that are still present
     final Map<String, int> newProductQuantities = {};
     for (var product in products) {
       final String key = product.productId?.toString() ?? product.productName ?? UniqueKey().toString();
-      newProductQuantities[key] = productQuantities[key] ?? 0; // Keep old quantity if exists, else 0
+      newProductQuantities[key] = productQuantities[key] ?? 0;
     }
     productQuantities.clear();
     productQuantities.addAll(newProductQuantities);
@@ -208,17 +226,10 @@ class CategoryController extends ChangeNotifier {
     if (notify) safeNotifyListeners();
   }
 
-  // This internal method is now redundant as applySearchFilter is public and stores the query
-  // void _applySearchFilter() {
-  //   filteredProducts = topRatedItem?.products ?? [];
-  // }
-
   void onCategorySelected(String category) {
     selectedCategory = category;
-    // When category changes, clear search query and re-fetch products
-    _currentSearchQuery = ''; // Clear search when category changes
-    safeNotifyListeners(); // Notify listeners to update UI (e.g., search bar text)
-    // The fetch logic is handled in _CategoriesView's CategoryFilterBar onTap
+    _currentSearchQuery = ''; 
+    safeNotifyListeners(); 
   }
 
   void onQuantityChanged(String productKey, int newQuantity) {
@@ -227,24 +238,18 @@ class CategoryController extends ChangeNotifier {
   }
 
   void addToCart(top_rated.Product product) {
-    // Use product ID as the key for the cart if available, otherwise product itself
-    // Or, better, store a map of product ID to quantity for cart
-    // For simplicity, keeping product as key here
     cart[product] = (cart[product] ?? 0) + 1;
     safeNotifyListeners();
   }
 
   void clearCart() {
     cart.clear();
-    // Set all product quantities to zero
     productQuantities.updateAll((key, value) => 0);
     safeNotifyListeners();
   }
 
-  // Cart API endpoints
   static const String _cartBaseUrl = 'https://erp.khedrsons.com/api/cart';
 
-  // Add product to cart via API
   Future<bool> addProductToCart(top_rated.Product product, int quantity) async {
     log('CategoryController.addProductToCart called for productId: ${product.productId}, quantity: ${quantity}');
     final success = await _repository.addProductToCart(
@@ -252,20 +257,53 @@ class CategoryController extends ChangeNotifier {
       quantity: quantity,
       price: product.price,
     );
-    // Do not call fetchCartFromApi here
     return success;
   }
 
-  // Fetch cart from API and update local cart state
+  List<Map<String, dynamic>> fetchedCartItems = [];
+
   Future<void> fetchCartFromApi() async {
     log('CategoryController.fetchCartFromApi called');
+    // التأكد من تحميل جميع المنتجات في خريطة البحث قبل معالجة سلة التسوق
+    if (!_isAllProductsMapLoaded) {
+      await _loadAllProductsForLookup();
+    }
+    
     final cartList = await _repository.fetchCartFromApi();
+
     cart.clear();
+    fetchedCartItems.clear();
+
+    // استخدام الخريطة الشاملة _allProductsById للبحث
+    final Map<int, top_rated.Product> allProductsMap = _allProductsById;
+
     for (var item in cartList) {
-      final product = top_rated.Product.fromJson(item['product']);
+      final productId = item['product_id'];
+      final product = allProductsMap[productId]; 
+      
       final quantity = int.tryParse(item['product_quantity'].toString()) ?? 1;
-      cart[product] = quantity;
+      final price = double.tryParse(item['price'].toString()) ?? 0.0;
+      
+      if (product != null) {
+        cart[product] = quantity;
+        fetchedCartItems.add({
+          'product': product,
+          'quantity': quantity,
+          'price': price,
+          'total_price': price * quantity,
+        });
+      } else {
+        log('Skipping cart item with product_id $productId because product not found in _allProductsById. This means the product was not loaded into the comprehensive map. Double-check product fetching logic or product IDs.');
+      }
     }
     safeNotifyListeners();
+  }
+
+  double get fetchedCartTotal {
+    double total = 0;
+    for (var item in fetchedCartItems) {
+      total += (item['total_price'] as double? ?? 0.0);
+    }
+    return total;
   }
 }

@@ -1,5 +1,7 @@
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/assets.dart';
+import 'package:awlad_khedr/core/network/api_service.dart';
+import 'package:awlad_khedr/core/services/product_service.dart';
 import 'package:awlad_khedr/features/products_screen/presentation/controllers/banner_products_controller.dart';
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
@@ -45,7 +47,7 @@ class _BannerProductsPageState extends State<BannerProductsPage> {
             : widget.selectedProduct;
     return ChangeNotifierProvider(
       create: (context) => BannerProductsController(
-        CategoryRepository(),
+        CategoryRepository(ApiService(), ProductService()),
         categoryId: widget.categoryId,
         brandId: widget.brandId,
         categoryName: widget.categoryName,

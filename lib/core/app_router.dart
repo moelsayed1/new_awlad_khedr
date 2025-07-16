@@ -1,3 +1,5 @@
+import 'package:awlad_khedr/core/network/api_service.dart';
+import 'package:awlad_khedr/core/services/product_service.dart';
 import 'package:awlad_khedr/features/auth/login/presentation/views/login_view.dart';
 import 'package:awlad_khedr/features/auth/register/presentation/views/register_view.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/category_view.dart';
@@ -129,9 +131,9 @@ abstract class AppRouter {
           },
         ),
         GoRoute(
-          path: kCategoriesPage, // <--- NEW ROUTE
+          path: kCategoriesPage, 
           builder: (context, state) => ChangeNotifierProvider(
-            create: (_) => CategoryController(CategoryRepository()),
+            create: (_) => CategoryController(CategoryRepository(ApiService(), ProductService())),
             child: const CategoriesPage(),
           ),
         ),
