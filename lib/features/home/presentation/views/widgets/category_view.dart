@@ -183,17 +183,19 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                 }
                                 controller.safeNotifyListeners();
                               },
-                              onAddToCart: () async {
-                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
-                                final newQuantity = currentQuantity + 1;
-                                print('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
-                                // Optimistically update UI first
-                                controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.cart[product] = newQuantity;
-                                controller.safeNotifyListeners();
-                                // Then sync with backend
-                                await controller.addProductToCart(product, newQuantity);
-                              },
+                              onAddToCart: controller.cart.containsKey(product)
+                                  ? null
+                                  : () async {
+                                      final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                      final newQuantity = currentQuantity + 1;
+                                      log.dev('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
+                                      // Optimistically update UI first
+                                      controller.onQuantityChanged(quantityKey, newQuantity);
+                                      controller.cart[product] = newQuantity;
+                                      controller.safeNotifyListeners();
+                                      // Then sync with backend
+                                      await controller.addProductToCart(product, newQuantity);
+                                    },
                               // If ProductItemCard supports a custom title, pass it here:
                               // productTitle: splitAfterTwoWords(product.productName),
                             ),

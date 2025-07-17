@@ -205,11 +205,11 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
         title: Image.asset(
           AssetsData.bag,
           width: 100,
-          height: 100,
+          height: 150,
         ),
         content: Text(
+          invoiceNo != null ? "\n${invoiceNo}" : '',
           textAlign: TextAlign.center,
-          'تم تأكيد طلبك بنجاح${invoiceNo != null ? "\nرقم الفاتورة: $invoiceNo" : ""}',
           style: TextStyle(
               fontFamily: baseFont,
               fontSize: 25.sp,

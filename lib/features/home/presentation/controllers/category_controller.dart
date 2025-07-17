@@ -280,13 +280,13 @@ class CategoryController extends ChangeNotifier {
     for (var item in cartList) {
       final productId = item['product_id'];
       final product = allProductsMap[productId]; 
-      
+      final cartItemId = item['id'];
       final quantity = int.tryParse(item['product_quantity'].toString()) ?? 1;
       final price = double.tryParse(item['price'].toString()) ?? 0.0;
-      
       if (product != null) {
         cart[product] = quantity;
         fetchedCartItems.add({
+          'id': cartItemId,
           'product': product,
           'quantity': quantity,
           'price': price,
@@ -305,5 +305,26 @@ class CategoryController extends ChangeNotifier {
       total += (item['total_price'] as double? ?? 0.0);
     }
     return total;
+  }
+
+  Future<bool> updateCartItem({required int cartId, required top_rated.Product product, required int quantity}) async {
+    final success = await _repository.updateCartItem(
+      cartId: cartId,
+      productId: product.productId ?? 0,
+      quantity: quantity,
+      price: product.price,
+    );
+    if (success) {
+      await fetchCartFromApi();
+    }
+    return success;
+  }
+
+  Future<bool> deleteCartItem({required int cartId}) async {
+    final success = await _repository.deleteCartItem(cartId: cartId);
+    if (success) {
+      await fetchCartFromApi();
+    }
+    return success;
   }
 }
