@@ -95,6 +95,16 @@ class ApiService {
     return response;
   }
 
+  Future<http.Response> getOrderDetails(String orderId) async {
+    final url = Uri.parse('${APIConstant.BASE_URL}/api/orders/$orderId');
+    return await get(url);
+  }
+
+  Future<http.Response> getOrderInvoice(String invoiceId) async {
+    final url = Uri.parse('${APIConstant.BASE_URL}${APIConstant.ORDER_INVOICE}$invoiceId');
+    return await get(url);
+  }
+
   Map<String, String> _buildHeaders(Map<String, String>? customHeaders) {
     return {
       'Authorization': 'Bearer $_authToken',

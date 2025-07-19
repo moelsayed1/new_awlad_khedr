@@ -156,6 +156,7 @@ class PaymentView extends StatelessWidget {
                   final orderProvider = Provider.of<OrderProvider>(context, listen: false);
                   final order = Order(
                     id: UniqueKey().toString(),
+                    invoiceId: 0,
                     date: DateTime.now(),
                     products: products,
                     total: total,

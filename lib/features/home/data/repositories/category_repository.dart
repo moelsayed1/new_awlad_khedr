@@ -390,4 +390,53 @@ class CategoryRepository {
       return [];
     }
   }
+
+  Future<bool> updateCartItem({required int cartId, required int productId, required int quantity, required dynamic price}) async {
+    log('updateCartItem called for cartId: $cartId, productId: $productId, quantity: $quantity, price: $price');
+    try {
+      if (!await _validateToken()) {
+        log('Invalid or expired token in updateCartItem');
+        return false;
+      }
+      final response = await http.post(
+        Uri.parse('${APIConstant.UPDATE_CART}/$cartId'),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Accept': 'application/json',
+        },
+        body: {
+          'product_id': productId.toString(),
+          'product_quantity': quantity.toString(),
+          'price': price.toString(),
+        },
+      );
+      log('POST /api/cart/ $cartId response:  [33m [1m${response.statusCode} [0m - ${response.body}');
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      log('Error in updateCartItem: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteCartItem({required int cartId}) async {
+    log('deleteCartItem called for cartId: $cartId');
+    try {
+      if (!await _validateToken()) {
+        log('Invalid or expired token in deleteCartItem');
+        return false;
+      }
+      final response = await http.post(
+        Uri.parse('${APIConstant.DELETE_CART}/$cartId'),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Accept': 'application/json',
+        },
+      );
+      log('POST /api/cart/delete/$cartId response:  [33m [1m${response.statusCode} [0m - ${response.body}');
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      log('Error in deleteCartItem: $e');
+      return false;
+    }
+  }
 }

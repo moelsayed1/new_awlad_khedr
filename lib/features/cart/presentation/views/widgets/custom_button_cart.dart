@@ -2,11 +2,11 @@ import 'package:awlad_khedr/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/assets.dart';
-import 'package:awlad_khedr/features/invoice/data/invoice_service.dart';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:awlad_khedr/features/order/presentation/views/orders_view.dart';
 
 String? extractUserIdFromToken(String token) {
   try {
@@ -205,17 +205,24 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
         title: Image.asset(
           AssetsData.bag,
           width: 100,
-          height: 100,
+          height: 150,
         ),
         content: Text(
+          invoiceNo != null ? "\n${invoiceNo}" : '',
           textAlign: TextAlign.center,
-          'تم تأكيد طلبك بنجاح${invoiceNo != null ? "\nرقم الفاتورة: $invoiceNo" : ""}',
           style: TextStyle(
               fontFamily: baseFont,
               fontSize: 25.sp,
               color: Colors.black,
               fontWeight: FontWeight.w700),
         ),
+      ),
+    );
+
+    // After dialog is dismissed, navigate to OrdersViewPage and highlight the confirmed order
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => OrdersViewPage(highlightInvoiceNo: invoiceNo),
       ),
     );
   }

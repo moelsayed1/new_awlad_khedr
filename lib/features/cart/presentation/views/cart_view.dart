@@ -22,6 +22,8 @@ class CartViewPage extends StatefulWidget {
 class _CartViewPageState extends State<CartViewPage> {
   late CategoryController controller;
   bool _loading = true;
+  final Set<int> _loadingItems = {};
+  final Set<int> _removingItems = {};
 
   @override
   void initState() {
@@ -134,146 +136,213 @@ class _CartViewPageState extends State<CartViewPage> {
                               itemCount: cartItems.length,
                               separatorBuilder: (context, index) => SizedBox(height: 15.h),
                               itemBuilder: (context, index) {
-                                final item = cartItems[index];
+                                // Reverse the index to show the most recently added items at the top
+                                final reversedIndex = cartItems.length - 1 - index;
+                                final item = cartItems[reversedIndex];
                                 final product = item['product'];
                                 final quantity = item['quantity'] as int;
                                 final price = item['price'] as double;
                                 final totalPrice = item['total_price'] as double;
 
-                                return Container(
-                                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12.r),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.08),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      // Product image on the left
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(10.r),
-                                        child: Container(
-                                          color: Colors.grey[100],
-                                          child: (product.imageUrl != null && product.imageUrl != '')
-                                              ? Image.network(
-                                                  product.imageUrl,
-                                                  width: 60.w,
-                                                  height: 60.w,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : Icon(Icons.image, size: 60.w, color: Colors.grey[300]),
+                                return Stack(
+                                  children: [
+                                    Opacity(
+                                      opacity: _removingItems.contains(item['id']) ? 0.5 : 1.0,
+                                      child: Container(
+                                        margin: EdgeInsets.symmetric(vertical: 6.h),
+                                        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(16.r),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.04),
+                                              blurRadius: 8,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      SizedBox(width: 10.w),
-                                      // Product info and details (right to the image)
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
-                                            Text(
-                                              product.productName ?? '',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 16.sp,
-                                                fontFamily: baseFont,
-                                                color: Colors.black,
+                                            // Quantity controls (vertical)
+                                            Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    final cartId = item['id'];
+                                                    final newQuantity = quantity + 1;
+                                                    setState(() {
+                                                      item['quantity'] = newQuantity;
+                                                    });
+                                                    final success = await controller.updateCartItem(
+                                                      cartId: cartId,
+                                                      product: product,
+                                                      quantity: newQuantity,
+                                                    );
+                                                    if (!success) {
+                                                      setState(() { item['quantity'] = quantity; });
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        SnackBar(content: Text('Failed to update item quantity.')),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    color: Color(0xffFC6E2A),
+                                                    size: 24.sp,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 4.h),
+                                                Container(
+                                                  width: 36.w,
+                                                  height: 36.w,
+                                                  alignment: Alignment.center,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(12.r),
+                                                    border: Border.all(color: Color(0xffE0E0E0)),
+                                                  ),
+                                                  child: Text(
+                                                    item['quantity'].toString(),
+                                                    style: TextStyle(
+                                                      fontSize: 18.sp,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.black,
+                                                      fontFamily: baseFont,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 4.h),
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    final cartId = item['id'];
+                                                    final newQuantity = quantity - 1;
+                                                    setState(() {
+                                                      item['quantity'] = newQuantity;
+                                                    });
+                                                    bool success = true;
+                                                    if (newQuantity > 0) {
+                                                      success = await controller.updateCartItem(
+                                                        cartId: cartId,
+                                                        product: product,
+                                                        quantity: newQuantity,
+                                                      );
+                                                    } else {
+                                                      setState(() { _removingItems.add(cartId); });
+                                                      success = await controller.deleteCartItem(cartId: cartId);
+                                                      if (success) {
+                                                        setState(() {
+                                                          _removingItems.remove(cartId);
+                                                          cartItems.removeAt(reversedIndex);
+                                                        });
+                                                      } else {
+                                                        setState(() { _removingItems.remove(cartId); });
+                                                      }
+                                                    }
+                                                    if (!success) {
+                                                      setState(() { item['quantity'] = quantity; });
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        SnackBar(content: Text('Failed to update item quantity.')),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: Icon(
+                                                    Icons.remove, // This matches the image you provided
+                                                    color: Color(0xffC29500),
+                                                    size: 28, // Adjust size to match the visual in the image
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(width: 10.w),
+                                            // Product info
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    product.productName ?? '',
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 16.sp,
+                                                      color: Colors.black,
+                                                      fontFamily: baseFont,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    textDirection: TextDirection.rtl,
+                                                  ),
+                                                  SizedBox(height: 2.h),
+                                                  Text(
+                                                    'شرنك = $quantity × ${price.toStringAsFixed(0)}',
+                                                    style: TextStyle(
+                                                      fontSize: 13.sp,
+                                                      color: Colors.black87,
+                                                      fontFamily: baseFont,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  SizedBox(height: 2.h),
+                                                  Text(
+                                                    'سعر ${price.toStringAsFixed(0)} ج.م',
+                                                    style: TextStyle(
+                                                      fontSize: 14.sp,
+                                                      color: Colors.black,
+                                                      fontFamily: baseFont,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 2.h),
+                                                  Text(
+                                                    'سعر الاجمالي ${totalPrice.toStringAsFixed(0)} ج.م',
+                                                    style: TextStyle(
+                                                      fontSize: 13.sp,
+                                                      color: Colors.brown[700],
+                                                      fontFamily: baseFont,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            SizedBox(height: 2.h),
-                                            Text(
-                                              'شرنك = $quantity × ${price.toStringAsFixed(0)}',
-                                              style: TextStyle(
-                                                fontSize: 13.sp,
-                                                color: Colors.black87,
-                                                fontFamily: baseFont,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            SizedBox(height: 2.h),
-                                            Text(
-                                              'سعر EGP ${price.toStringAsFixed(0)}',
-                                              style: TextStyle(
-                                                fontSize: 14.sp,
-                                                color: Colors.black,
-                                                fontFamily: baseFont,
-                                              ),
-                                            ),
-                                            SizedBox(height: 2.h),
-                                            Text(
-                                              'سعر الاجمالي EGP ${totalPrice.toStringAsFixed(0)}',
-                                              style: TextStyle(
-                                                fontSize: 13.sp,
-                                                color: Colors.brown[700],
-                                                fontFamily: baseFont,
+                                            SizedBox(width: 10.w),
+                                            // Product image (right)
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(10.r),
+                                              child: Container(
+                                                color: Colors.grey[100],
+                                                child: (product.imageUrl != null && product.imageUrl != '')
+                                                    ? Image.network(
+                                                        product.imageUrl,
+                                                        width: 60.w,
+                                                        height: 60.w,
+                                                        fit: BoxFit.cover,
+                                                      )
+                                                    : Icon(Icons.image, size: 60.w, color: Colors.grey[300]),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      SizedBox(width: 10.w),
-                                      // Quantity control column (vertical +, number, -)
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          // Plus button
-                                          GestureDetector(
-                                            onTap: () {
-                                              // TODO: Implement increment logic
-                                            },
-                                            child: Icon(
-                                              Icons.add,
-                                              color: Color(0xffFC6E2A), // darkOrange
-                                              size: 28.sp,
+                                    ),
+                                    if (_removingItems.contains(item['id']))
+                                      Positioned.fill(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.7),
+                                            borderRadius: BorderRadius.circular(16.r),
+                                          ),
+                                          child: Center(
+                                            child: SizedBox(
+                                              width: 32,
+                                              height: 32,
+                                              child: CircularProgressIndicator(strokeWidth: 3),
                                             ),
                                           ),
-                                          SizedBox(height: 6.h),
-                                          // Quantity display
-                                          Container(
-                                            width: 40.w,
-                                            height: 40.w,
-                                            alignment: Alignment.center,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(color: Colors.grey[300]!),
-                                              borderRadius: BorderRadius.circular(12.r),
-                                              color: Colors.white,
-                                            ),
-                                            child: Text(
-                                              quantity.toString(),
-                                              style: TextStyle(
-                                                fontSize: 20.sp,
-                                                color: Colors.black87,
-                                                fontFamily: baseFont,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(height: 6.h),
-                                          // Minus button
-                                          GestureDetector(
-                                            onTap: () {
-                                              // TODO: Implement decrement logic
-                                            },
-                                            child: Container(
-                                              width: 28.w,
-                                              height: 4.h,
-                                              decoration: BoxDecoration(
-                                                color: Color(0xffC29500), // kBrown
-                                                borderRadius: BorderRadius.circular(2.r),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    ],
-                                  ),
+                                  ],
                                 );
                               },
                             ),
