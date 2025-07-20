@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
-  const CustomTextField(
-      {super.key, this.hintText,
-        this.onChanged,
-        this.inputType,
-        this.controller,
-        this.prefixIcon,
-        this.obscureText = false,
-        this.validator,
-        this.radius = 20,
-        this.maxLines = 1,
-        this.minLines = 1,
-        this.suffixIcon,
-        this.outLine = false,
-        this.autofocus = false,
-      });
+  const CustomTextField({
+    super.key,
+    this.hintText,
+    this.onChanged,
+    this.inputType,
+    this.controller,
+    this.prefixIcon,
+    this.obscureText = false,
+    this.validator,
+    this.radius = 20,
+    this.maxLines = 1,
+    this.minLines = 1,
+    this.suffixIcon,
+    this.outLine = false,
+    this.autofocus = false,
+    this.readOnly = false,
+    this.focusNode,
+  });
 
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
@@ -30,12 +33,17 @@ class CustomTextField extends StatelessWidget {
   final double? radius;
   final Widget? suffixIcon;
   final Widget? prefixIcon;
+  final bool readOnly;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       autofocus: autofocus,
-      style: const TextStyle(color: Colors.black , ),
+      focusNode: focusNode,
+      style: const TextStyle(
+        color: Colors.black,
+      ),
       maxLines: maxLines,
       cursorColor: Colors.white,
       minLines: minLines,
@@ -45,6 +53,7 @@ class CustomTextField extends StatelessWidget {
       onChanged: onChanged,
       controller: controller,
       validator: validator,
+      readOnly: readOnly,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
@@ -52,23 +61,25 @@ class CustomTextField extends StatelessWidget {
         suffixIcon: suffixIcon,
         prefixIcon: prefixIcon,
         hintText: hintText,
-        hintStyle:const TextStyle(
+        hintStyle: const TextStyle(
           color: Colors.grey,
         ),
-        enabledBorder: outLine ? OutlineInputBorder(
-          borderSide:const BorderSide(
-            color: Colors.black,
-          ),
-          borderRadius: BorderRadius.circular(radius!),
-        ) :OutlineInputBorder(
-          borderSide:const BorderSide(
-            color: Colors.grey,
-          ),
-          borderRadius: BorderRadius.circular(radius!),
-        ),
+        enabledBorder: outLine
+            ? OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Colors.black,
+                ),
+                borderRadius: BorderRadius.circular(radius!),
+              )
+            : OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Colors.grey,
+                ),
+                borderRadius: BorderRadius.circular(radius!),
+              ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radius!),
-          borderSide:const BorderSide(
+          borderSide: const BorderSide(
             color: Colors.black,
           ),
         ),
