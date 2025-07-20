@@ -135,9 +135,9 @@ class _HomeCategoryState extends State<HomeCategory> {
                                 Text(
                                   productByCategory!
                                       .categories[index].categoryName!,
-                                  style: const TextStyle(
+                                  style:  TextStyle(
                                       color: Colors.black,
-                                      fontSize: 12,
+                                      fontSize: 12.sp,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: baseFont),
                                 ),
