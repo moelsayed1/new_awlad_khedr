@@ -99,7 +99,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
           ),
           SizedBox(height: 15.h),
           SizedBox(
-            height: 180.h,
+            height: 100.h,
             child: ListView.builder(
               reverse: true,
               scrollDirection: Axis.horizontal,

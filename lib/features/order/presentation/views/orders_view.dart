@@ -299,12 +299,12 @@ class OrderCardPaymentColumn extends StatelessWidget {
                             Directionality(
                               textDirection: TextDirection.rtl,
                               child: Text(
-                                '${order.total} ج.م',
-                                style: TextStyle(
-                                  color: Color(0xFFB88A3B),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 20.sp,
-                                  fontFamily: baseFont,
+                              '${order.total} ج.م',
+                              style: TextStyle(
+                                color: Color(0xFFB88A3B),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 20.sp,
+                                fontFamily: baseFont,
                                 ),
                               ),
                             ),
@@ -439,7 +439,7 @@ class OrderInvoiceButton extends StatelessWidget {
                           ),
                         ),
                       ),
-      ),
+                    ),
     );
   }
 }

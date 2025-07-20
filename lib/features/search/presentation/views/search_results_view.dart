@@ -3,7 +3,7 @@ import 'package:awlad_khedr/core/assets.dart';
 import 'package:awlad_khedr/features/search/presentation/controllers/search_controller.dart';
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
-import 'package:awlad_khedr/features/most_requested/presentation/widgets/product_item_card.dart';
+import 'package:awlad_khedr/features/cart/presentation/views/cart_view.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -128,7 +128,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                 },
               ),
             ),
-            const SizedBox(height: 15),
+            //  SizedBox(height: 8.h),
             if (!categoryController.isListLoaded && categoryController.filteredProducts.isEmpty)
               const Expanded(
                 child: Center(child: CircularProgressIndicator()),
@@ -178,24 +178,41 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Column(
                               children: [
-                                ProductItemCard(
-                                  product: product,
-                                  quantity: categoryController.productQuantities[quantityKey] ?? 0,
-                                  onQuantityChanged: (newQuantity) {
-                                    categoryController.onQuantityChanged(quantityKey, newQuantity);
-                                    if (newQuantity > 0) {
-                                      categoryController.cart[product] = newQuantity;
-                                    } else {
-                                      categoryController.cart.remove(product);
-                                    }
-                                    categoryController.safeNotifyListeners();
+                                CartProductCard(
+                                  item: {
+                                    'product': product,
+                                    'quantity': categoryController.productQuantities[quantityKey] ?? 0,
+                                    'price': product.price ?? 0.0,
+                                    'total_price': (product.price ?? 0.0) * (categoryController.productQuantities[quantityKey] ?? 0),
                                   },
-                                  onAddToCart: () {
+                                  isRemoving: false,
+                                  onIncrease: () async {
                                     final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
                                     final newQuantity = currentQuantity + 1;
                                     categoryController.onQuantityChanged(quantityKey, newQuantity);
                                     categoryController.cart[product] = newQuantity;
                                     categoryController.safeNotifyListeners();
+                                    await categoryController.addProductToCart(product, newQuantity);
+                                  },
+                                  onDecrease: () async {
+                                    final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
+                                    final newQuantity = currentQuantity - 1;
+                                    if (newQuantity > 0) {
+                                      categoryController.onQuantityChanged(quantityKey, newQuantity);
+                                      categoryController.cart[product] = newQuantity;
+                                    } else {
+                                      categoryController.onQuantityChanged(quantityKey, 0);
+                                      categoryController.cart.remove(product);
+                                    }
+                                    categoryController.safeNotifyListeners();
+                                  },
+                                  onAddToCart: () async {
+                                    final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
+                                    final newQuantity = currentQuantity + 1;
+                                    categoryController.onQuantityChanged(quantityKey, newQuantity);
+                                    categoryController.cart[product] = newQuantity;
+                                    categoryController.safeNotifyListeners();
+                                    await categoryController.addProductToCart(product, newQuantity);
                                   },
                                 ),
                               ],
@@ -214,7 +231,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       ),
       floatingActionButton: categoryController.cart.isNotEmpty
           ? FloatingActionButton.extended(
-              backgroundColor: Colors.orange,
+              backgroundColor: const Color(0xffFC6E2A),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,

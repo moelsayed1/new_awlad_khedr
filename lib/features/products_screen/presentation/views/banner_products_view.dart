@@ -2,11 +2,12 @@ import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/assets.dart';
 import 'package:awlad_khedr/core/network/api_service.dart';
 import 'package:awlad_khedr/core/services/product_service.dart';
+import 'package:awlad_khedr/features/cart/presentation/views/cart_view.dart';
 import 'package:awlad_khedr/features/products_screen/presentation/controllers/banner_products_controller.dart';
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
 
-import 'package:awlad_khedr/features/most_requested/presentation/widgets/product_item_card.dart';
+
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -151,7 +152,7 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                 onChanged: controller.applySearchFilter,
               ),
             ),
-            const SizedBox(height: 15),
+            //const SizedBox(height: 15),
             if (!controller.isListLoaded)
               const Expanded(
                 child: Center(child: CircularProgressIndicator()),
@@ -230,28 +231,37 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Column(
                             children: [
-                              ProductItemCard(
-                                product: product,
-                                quantity:
-                                    controller.productQuantities[quantityKey] ??
-                                        0,
-                                onQuantityChanged: (newQuantity) {
-                                  controller.onQuantityChanged(
-                                      quantityKey, newQuantity);
+                              CartProductCard(
+                                item: {
+                                  'product': product,
+                                  'quantity': controller.productQuantities[quantityKey] ?? 0,
+                                  'price': product.price ?? 0.0,
+                                  'total_price': (product.price ?? 0.0) * (controller.productQuantities[quantityKey] ?? 0),
+                                },
+                                isRemoving: false,
+                                onIncrease: () async {
+                                  final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                  final newQuantity = currentQuantity + 1;
+                                  controller.onQuantityChanged(quantityKey, newQuantity);
+                                  controller.cart[product] = newQuantity;
+                                  controller.safeNotifyListeners();
+                                },
+                                onDecrease: () async {
+                                  final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                  final newQuantity = currentQuantity - 1;
                                   if (newQuantity > 0) {
+                                    controller.onQuantityChanged(quantityKey, newQuantity);
                                     controller.cart[product] = newQuantity;
                                   } else {
+                                    controller.onQuantityChanged(quantityKey, 0);
                                     controller.cart.remove(product);
                                   }
                                   controller.safeNotifyListeners();
                                 },
-                                onAddToCart: () {
-                                  final currentQuantity = controller
-                                          .productQuantities[quantityKey] ??
-                                      0;
+                                onAddToCart: () async {
+                                  final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
                                   final newQuantity = currentQuantity + 1;
-                                  controller.onQuantityChanged(
-                                      quantityKey, newQuantity);
+                                  controller.onQuantityChanged(quantityKey, newQuantity);
                                   controller.cart[product] = newQuantity;
                                   controller.safeNotifyListeners();
                                 },
@@ -269,7 +279,7 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
       ),
       floatingActionButton: controller.cart.isNotEmpty
           ? FloatingActionButton.extended(
-              backgroundColor: Colors.orange,
+              backgroundColor: Color(0xffFC6E2A),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,

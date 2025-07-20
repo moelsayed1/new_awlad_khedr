@@ -70,16 +70,16 @@ class _HomeScreenViewState extends State<HomeScreenView> {
         return AlertDialog(
           backgroundColor: Colors.transparent,
           contentPadding: EdgeInsets.zero,
-          content: Stack(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Image.asset(
                 'assets/images/ads.png',
                 width: 316,
                 height: 392,
               ),
-              Positioned(
-                top: 8,
-                right: 8,
+              const SizedBox(height: 16),
+              Center(
                 child: GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
@@ -87,6 +87,7 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                       color: Colors.white.withOpacity(0.7),
                       shape: BoxShape.circle,
                     ),
+                    padding: const EdgeInsets.all(4),
                     child: const Icon(
                       Icons.close,
                       color: Colors.black,

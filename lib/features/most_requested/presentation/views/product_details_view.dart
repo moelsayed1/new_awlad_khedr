@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
-import 'package:awlad_khedr/features/most_requested/presentation/widgets/product_item_card.dart';
+import 'package:awlad_khedr/features/cart/presentation/views/cart_view.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/features/most_requested/presentation/widgets/most_requested_app_bar.dart';
 
@@ -18,10 +18,16 @@ class ProductDetailsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ProductItemCard(
-                product: product,
-                quantity: 0, // You can integrate with your cart logic if needed
-                onQuantityChanged: (q) {},
+              CartProductCard(
+                item: {
+                  'product': product,
+                  'quantity': 0,
+                  'price': product.price ?? 0.0,
+                  'total_price': 0.0,
+                },
+                isRemoving: false,
+                onIncrease: () {},
+                onDecrease: () {},
                 onAddToCart: () {},
               ),
               SizedBox(height: 20.h),

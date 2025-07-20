@@ -24,7 +24,7 @@ class CartSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.secondary,
+      color: Colors.white,
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -34,7 +34,7 @@ class CartSheet extends StatelessWidget {
               Text(
                 'السلة',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                   fontFamily: baseFont,
@@ -77,9 +77,9 @@ class CartSheet extends StatelessWidget {
                                 child: Text(
                                   product.productName ?? 'Unknown Product',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontSize: 14.sp,
-                                    fontFamily: 'Tajawal',
+                                    fontFamily: baseFont,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -87,7 +87,7 @@ class CartSheet extends StatelessWidget {
                               Text(
                                 'الكمية: $quantity',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontSize: 14.sp,
                                   fontFamily: baseFont,
                                 ),
@@ -100,7 +100,7 @@ class CartSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const Divider(color: Colors.white54),
+              const Divider(color: Colors.black45),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
@@ -109,7 +109,7 @@ class CartSheet extends StatelessWidget {
                     Text(
                       '${total.toStringAsFixed(2)} ج.م',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                         fontFamily: baseFont,
@@ -118,7 +118,7 @@ class CartSheet extends StatelessWidget {
                     Text(
                       ':الإجمالـي',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                         fontFamily: baseFont,
@@ -148,7 +148,7 @@ class CartSheet extends StatelessWidget {
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: const Color(0xffFC6E2A),
                     padding: EdgeInsets.symmetric(vertical: 8.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),

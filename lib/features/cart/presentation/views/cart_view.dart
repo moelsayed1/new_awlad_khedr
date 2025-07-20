@@ -1,6 +1,5 @@
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/main_layout.dart';
-import 'package:awlad_khedr/features/cart/presentation/views/widgets/cart_item.dart';
 import 'package:awlad_khedr/features/cart/presentation/views/widgets/custom_button_cart.dart';
 import 'package:awlad_khedr/features/order/presentation/views/orders_view.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,305 @@ import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slide
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:provider/provider.dart';
 
+/// Logic class to separate business logic from UI
+class CartViewLogic extends ChangeNotifier {
+  final CategoryController controller;
+  bool loading = true;
+  final Set<int> removingItems = {};
+
+  CartViewLogic(this.controller);
+
+  Future<void> fetchCart() async {
+    await controller.fetchCartFromApi();
+    loading = false;
+    notifyListeners();
+  }
+
+  List<Map<String, dynamic>> get cartItems =>
+      controller.fetchedCartItems.where((item) => item['product'] != null).toList();
+
+  double get total => controller.fetchedCartTotal;
+
+  Future<void> increaseQuantity(
+      BuildContext context, Map<String, dynamic> item, int index) async {
+    final cartId = item['id'];
+    final product = item['product'];
+    final quantity = item['quantity'] as int;
+    final newQuantity = quantity + 1;
+    item['quantity'] = newQuantity;
+    notifyListeners();
+    final success = await controller.updateCartItem(
+      cartId: cartId,
+      product: product,
+      quantity: newQuantity,
+    );
+    if (!success) {
+      item['quantity'] = quantity;
+      notifyListeners();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update item quantity.')),
+      );
+    }
+  }
+
+  Future<void> decreaseQuantity(
+      BuildContext context, Map<String, dynamic> item, int index) async {
+    final cartId = item['id'];
+    final product = item['product'];
+    final quantity = item['quantity'] as int;
+    final newQuantity = quantity - 1;
+    item['quantity'] = newQuantity;
+    notifyListeners();
+    bool success = true;
+    if (newQuantity > 0) {
+      success = await controller.updateCartItem(
+        cartId: cartId,
+        product: product,
+        quantity: newQuantity,
+      );
+    } else {
+      removingItems.add(cartId);
+      notifyListeners();
+      success = await controller.deleteCartItem(cartId: cartId);
+      if (success) {
+        removingItems.remove(cartId);
+        controller.fetchedCartItems.removeAt(index);
+        notifyListeners();
+      } else {
+        removingItems.remove(cartId);
+        notifyListeners();
+      }
+    }
+    if (!success) {
+      item['quantity'] = quantity;
+      notifyListeners();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update item quantity.')),
+      );
+    }
+  }
+
+  bool isRemoving(int cartId) => removingItems.contains(cartId);
+}
+
+/// Reusable Product Card Widget for Cart
+class CartProductCard extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final bool isRemoving;
+  final VoidCallback onIncrease;
+  final VoidCallback onDecrease;
+  final VoidCallback? onAddToCart; // New callback for Add to Cart button
+
+  const CartProductCard({
+    Key? key,
+    required this.item,
+    required this.isRemoving,
+    required this.onIncrease,
+    required this.onDecrease,
+    this.onAddToCart,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final product = item['product'];
+    final quantity = item['quantity'] as int;
+    final price = item['price'] as double;
+    final totalPrice = item['total_price'] as double;
+
+    // Show Add to Cart button if quantity is 0, otherwise show quantity controls
+    final bool showAddToCart = quantity == 0;
+
+    return Stack(
+      children: [
+        Opacity(
+          opacity: isRemoving ? 0.5 : 1.0,
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 6.h),
+            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Left side: Add to Cart button OR Quantity controls
+                showAddToCart
+                    ? _buildAddToCartButton()
+                    : _buildQuantityControls(),
+                SizedBox(width: 10.w),
+                // Product info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        product.productName ?? '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                          color: Colors.black,
+                          fontFamily: baseFont,
+                        ),
+                        // Remove maxLines and overflow to allow full name display
+                        textDirection: TextDirection.rtl,
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'سعر ${price.toStringAsFixed(0)} ج.م',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.black,
+                          fontFamily: baseFont,
+                        ),
+                      ),
+                      if (!showAddToCart) ...[
+                        SizedBox(height: 2.h),
+                        Text(
+                          'شرنك = $quantity × ${price.toStringAsFixed(0)}',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: Colors.black87,
+                            fontFamily: baseFont,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          'سعر الاجمالي ${totalPrice.toStringAsFixed(0)} ج.م',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: Colors.brown[700],
+                            fontFamily: baseFont,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                // Product image (right)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: Container(
+                    color: Colors.grey[100],
+                    child: (product.imageUrl != null && product.imageUrl != '')
+                        ? Image.network(
+                            product.imageUrl,
+                            width: 60.w,
+                            height: 60.w,
+                            fit: BoxFit.cover,
+                          )
+                        : Icon(Icons.image, size: 60.w, color: Colors.grey[300]),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (isRemoving)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Center(
+                child: SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(strokeWidth: 3),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAddToCartButton() {
+    return Container(
+      width: 80.w,
+      height: 36.h,
+      decoration: BoxDecoration(
+        color: Color(0xffFC6E2A),
+        borderRadius: BorderRadius.circular(18.r),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18.r),
+          onTap: onAddToCart,
+          child: Center(
+            child: Text(
+              'اضف للسلة',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.bold,
+                fontFamily: baseFont,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuantityControls() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: onIncrease,
+          child: Icon(
+            Icons.add,
+            color: Color(0xffFC6E2A),
+            size: 24.sp,
+          ),
+        ),
+        SizedBox(height: 4.h),
+        Container(
+          width: 36.w,
+          height: 36.w,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: Color(0xffE0E0E0)),
+          ),
+          child: Text(
+            item['quantity'].toString(),
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontFamily: baseFont,
+            ),
+          ),
+        ),
+        SizedBox(height: 4.h),
+        GestureDetector(
+          onTap: onDecrease,
+          child: Icon(
+            Icons.remove,
+            color: Color(0xffC29500),
+            size: 28,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class CartViewPage extends StatefulWidget {
   // No need to pass products/quantities; always use controller
   const CartViewPage({super.key, required List<top_rated.Product> products, required List<int> quantities});
@@ -20,409 +318,188 @@ class CartViewPage extends StatefulWidget {
 }
 
 class _CartViewPageState extends State<CartViewPage> {
-  late CategoryController controller;
-  bool _loading = true;
-  final Set<int> _loadingItems = {};
-  final Set<int> _removingItems = {};
+  late CartViewLogic logic;
 
   @override
   void initState() {
     super.initState();
-    controller = Provider.of<CategoryController>(context, listen: false);
+    final controller = Provider.of<CategoryController>(context, listen: false);
+    logic = CartViewLogic(controller);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await controller.fetchCartFromApi();
-      setState(() {
-        _loading = false;
-      });
+      await logic.fetchCart();
     });
   }
-
-  void _onQuantityChanged(top_rated.Product product, int newQuantity) {
-    setState(() {
-      if (newQuantity > 0) {
-        controller.cart[product] = newQuantity;
-      } else {
-        controller.cart.remove(product);
-      }
-    });
-  }
-
-  double get _total {
-    double total = 0;
-    controller.cart.forEach((product, qty) {
-      final price = double.tryParse(product.price ?? '0') ?? 0;
-      total += price * qty;
-    });
-    return total;
-  }
-
-  List<top_rated.Product> get selectedProducts => controller.cart.keys.toList();
-  List<int> get selectedQuantities => controller.cart.values.toList();
 
   @override
   Widget build(BuildContext context) {
-    controller = Provider.of<CategoryController>(context); // Listen for changes
-    final cartItems = controller.fetchedCartItems.where((item) => item['product'] != null).toList();
-    return MainLayout(
-      selectedIndex: 1,
-      child: Scaffold(
-        backgroundColor: Colors.grey[50],
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          actions: const [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text(
-                'الاوردر',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: baseFont,
-                ),
-                textDirection: TextDirection.rtl,
-              ),
-            ),
-          ],
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 0),
-            child: Builder(
-              builder: (context) => IconButton(
-                icon: Image.asset(
-                  AssetsData.drawerIcon,
-                  height: 45,
-                  width: 45,
-                ),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
-            ),
-          ),
-          centerTitle: true,
-          titleSpacing: 0,
-        ),
-        drawer: const CustomDrawer(),
-        body: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0.r),
-                      child: (cartItems.isEmpty)
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.shopping_bag_outlined,
-                                    size: 80.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(height: 16.h),
-                                  Text(
-                                    'لا توجد منتجات صالحة في السلة',
-                                    style: TextStyle(
-                                      fontSize: 16.sp,
-                                      color: Colors.grey,
-                                      fontFamily: baseFont,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.separated(
-                              itemCount: cartItems.length,
-                              separatorBuilder: (context, index) => SizedBox(height: 15.h),
-                              itemBuilder: (context, index) {
-                                // Reverse the index to show the most recently added items at the top
-                                final reversedIndex = cartItems.length - 1 - index;
-                                final item = cartItems[reversedIndex];
-                                final product = item['product'];
-                                final quantity = item['quantity'] as int;
-                                final price = item['price'] as double;
-                                final totalPrice = item['total_price'] as double;
-
-                                return Stack(
-                                  children: [
-                                    Opacity(
-                                      opacity: _removingItems.contains(item['id']) ? 0.5 : 1.0,
-                                      child: Container(
-                                        margin: EdgeInsets.symmetric(vertical: 6.h),
-                                        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(16.r),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(0.04),
-                                              blurRadius: 8,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            // Quantity controls (vertical)
-                                            Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () async {
-                                                    final cartId = item['id'];
-                                                    final newQuantity = quantity + 1;
-                                                    setState(() {
-                                                      item['quantity'] = newQuantity;
-                                                    });
-                                                    final success = await controller.updateCartItem(
-                                                      cartId: cartId,
-                                                      product: product,
-                                                      quantity: newQuantity,
-                                                    );
-                                                    if (!success) {
-                                                      setState(() { item['quantity'] = quantity; });
-                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                        SnackBar(content: Text('Failed to update item quantity.')),
-                                                      );
-                                                    }
-                                                  },
-                                                  child: Icon(
-                                                    Icons.add,
-                                                    color: Color(0xffFC6E2A),
-                                                    size: 24.sp,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 4.h),
-                                                Container(
-                                                  width: 36.w,
-                                                  height: 36.w,
-                                                  alignment: Alignment.center,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(12.r),
-                                                    border: Border.all(color: Color(0xffE0E0E0)),
-                                                  ),
-                                                  child: Text(
-                                                    item['quantity'].toString(),
-                                                    style: TextStyle(
-                                                      fontSize: 18.sp,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.black,
-                                                      fontFamily: baseFont,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 4.h),
-                                                GestureDetector(
-                                                  onTap: () async {
-                                                    final cartId = item['id'];
-                                                    final newQuantity = quantity - 1;
-                                                    setState(() {
-                                                      item['quantity'] = newQuantity;
-                                                    });
-                                                    bool success = true;
-                                                    if (newQuantity > 0) {
-                                                      success = await controller.updateCartItem(
-                                                        cartId: cartId,
-                                                        product: product,
-                                                        quantity: newQuantity,
-                                                      );
-                                                    } else {
-                                                      setState(() { _removingItems.add(cartId); });
-                                                      success = await controller.deleteCartItem(cartId: cartId);
-                                                      if (success) {
-                                                        setState(() {
-                                                          _removingItems.remove(cartId);
-                                                          cartItems.removeAt(reversedIndex);
-                                                        });
-                                                      } else {
-                                                        setState(() { _removingItems.remove(cartId); });
-                                                      }
-                                                    }
-                                                    if (!success) {
-                                                      setState(() { item['quantity'] = quantity; });
-                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                        SnackBar(content: Text('Failed to update item quantity.')),
-                                                      );
-                                                    }
-                                                  },
-                                                  child: Icon(
-                                                    Icons.remove, // This matches the image you provided
-                                                    color: Color(0xffC29500),
-                                                    size: 28, // Adjust size to match the visual in the image
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(width: 10.w),
-                                            // Product info
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    product.productName ?? '',
-                                                    style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 16.sp,
-                                                      color: Colors.black,
-                                                      fontFamily: baseFont,
-                                                    ),
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    textDirection: TextDirection.rtl,
-                                                  ),
-                                                  SizedBox(height: 2.h),
-                                                  Text(
-                                                    'شرنك = $quantity × ${price.toStringAsFixed(0)}',
-                                                    style: TextStyle(
-                                                      fontSize: 13.sp,
-                                                      color: Colors.black87,
-                                                      fontFamily: baseFont,
-                                                    ),
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
-                                                  SizedBox(height: 2.h),
-                                                  Text(
-                                                    'سعر ${price.toStringAsFixed(0)} ج.م',
-                                                    style: TextStyle(
-                                                      fontSize: 14.sp,
-                                                      color: Colors.black,
-                                                      fontFamily: baseFont,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 2.h),
-                                                  Text(
-                                                    'سعر الاجمالي ${totalPrice.toStringAsFixed(0)} ج.م',
-                                                    style: TextStyle(
-                                                      fontSize: 13.sp,
-                                                      color: Colors.brown[700],
-                                                      fontFamily: baseFont,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(width: 10.w),
-                                            // Product image (right)
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(10.r),
-                                              child: Container(
-                                                color: Colors.grey[100],
-                                                child: (product.imageUrl != null && product.imageUrl != '')
-                                                    ? Image.network(
-                                                        product.imageUrl,
-                                                        width: 60.w,
-                                                        height: 60.w,
-                                                        fit: BoxFit.cover,
-                                                      )
-                                                    : Icon(Icons.image, size: 60.w, color: Colors.grey[300]),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    if (_removingItems.contains(item['id']))
-                                      Positioned.fill(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.white.withOpacity(0.7),
-                                            borderRadius: BorderRadius.circular(16.r),
-                                          ),
-                                          child: Center(
-                                            child: SizedBox(
-                                              width: 32,
-                                              height: 32,
-                                              child: CircularProgressIndicator(strokeWidth: 3),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                );
-                              },
-                            ),
+    // Listen for changes in logic
+    return AnimatedBuilder(
+      animation: logic,
+      builder: (context, _) {
+        final cartItems = logic.cartItems;
+        return MainLayout(
+          selectedIndex: 1,
+          child: Scaffold(
+            backgroundColor: Colors.grey[50],
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              actions: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    'الاوردر',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: baseFont,
                     ),
+                    textDirection: TextDirection.rtl,
                   ),
-                  // Bottom Total Section
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.r),
-                        topRight: Radius.circular(20.r),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, -3),
-                        ),
-                      ],
+                ),
+              ],
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: Builder(
+                  builder: (context) => IconButton(
+                    icon: Image.asset(
+                      AssetsData.drawerIcon,
+                      height: 45,
+                      width: 45,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'الحد الادني الاوردر 3000 جنيه لاستكمال الطلب',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontFamily: baseFont,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16.sp,
-                          ),
-                          textDirection: TextDirection.rtl,
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
+                ),
+              ),
+              centerTitle: true,
+              titleSpacing: 0,
+            ),
+            drawer: const CustomDrawer(),
+            body: logic.loading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0.r),
+                          child: (cartItems.isEmpty)
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.shopping_bag_outlined,
+                                        size: 80.sp,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(height: 16.h),
+                                      Text(
+                                        'لا توجد منتجات صالحة في السلة',
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: Colors.grey,
+                                          fontFamily: baseFont,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.separated(
+                                  itemCount: cartItems.length,
+                                  separatorBuilder: (context, index) => SizedBox(height: 15.h),
+                                  itemBuilder: (context, index) {
+                                    // Reverse the index to show the most recently added items at the top
+                                    final reversedIndex = cartItems.length - 1 - index;
+                                    final item = cartItems[reversedIndex];
+                                    return CartProductCard(
+                                      item: item,
+                                      isRemoving: logic.isRemoving(item['id']),
+                                      onIncrease: () => logic.increaseQuantity(context, item, reversedIndex),
+                                      onDecrease: () => logic.decreaseQuantity(context, item, reversedIndex),
+                                    );
+                                  },
+                                ),
                         ),
-                        SizedBox(height: 20.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '\t${controller.fetchedCartTotal.toInt()} ج.م ',
-                              style: TextStyle(
-                                fontSize: 30.sp,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black,
-                                fontFamily: baseFont,
-                              ),
-                              textDirection: TextDirection.rtl,
-                            ),
-                            Text(
-                              'الاجمالي',
-                              style: TextStyle(
-                                fontSize: 30.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                                fontFamily: baseFont,
-                              ),
-                              textDirection: TextDirection.rtl,
+                      ),
+                      // Bottom Total Section
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(16.w),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20.r),
+                            topRight: Radius.circular(20.r),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, -3),
                             ),
                           ],
                         ),
-                        SizedBox(height: 20.h),
-                        // Order Now Button
-                        CustomButtonCart(
-                          count: controller.fetchedCartTotal,
-                          onOrderConfirmed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Order placed!')),
-                            );
-                          },
-                          products: cartItems.map((item) => item['product']).toList(),
-                          quantities: cartItems.map((item) => item['quantity'] as int).toList(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'الحد الادني الاوردر 3000 جنيه لاستكمال الطلب',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontFamily: baseFont,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16.sp,
+                              ),
+                              textDirection: TextDirection.rtl,
+                            ),
+                            SizedBox(height: 20.h),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '\t${logic.total.toInt()} ج.م ',
+                                  style: TextStyle(
+                                    fontSize: 30.sp,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black,
+                                    fontFamily: baseFont,
+                                  ),
+                                  textDirection: TextDirection.rtl,
+                                ),
+                                Text(
+                                  'الاجمالي',
+                                  style: TextStyle(
+                                    fontSize: 30.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black,
+                                    fontFamily: baseFont,
+                                  ),
+                                  textDirection: TextDirection.rtl,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20.h),
+                            // Order Now Button
+                            CustomButtonCart(
+                              count: logic.total,
+                              onOrderConfirmed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Order placed!')),
+                                );
+                              },
+                              products: cartItems.map((item) => item['product']).toList(),
+                              quantities: cartItems.map((item) => item['quantity'] as int).toList(),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

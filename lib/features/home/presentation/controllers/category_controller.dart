@@ -64,8 +64,8 @@ class CategoryController extends ChangeNotifier {
 
     try {
       await fetchCategories();
-      // التأكد من تحميل جميع المنتجات في خريطة البحث أولاً
-      await _loadAllProductsForLookup();
+      // Temporarily disabled to prevent heavy initial loading
+      // await _loadAllProductsForLookup();
       
       if (selectedCategory == 'الكل') {
         await fetchAllProducts();
@@ -95,13 +95,29 @@ class CategoryController extends ChangeNotifier {
     }
     log('Loading all products for lookup map...');
     try {
-      final allProductsList = await _repository.fetchAllProducts(page: 1, pageSize: 10000); 
+      // Use pagination to load products in batches of 10
+      int page = 1;
+      bool hasMore = true;
       _allProductsById.clear();
-      for (var p in allProductsList) {
-        if (p.productId != null) {
-          _allProductsById[p.productId!] = p;
+      
+      while (hasMore) {
+        final productsBatch = await _repository.fetchAllProducts(page: page, pageSize: 10);
+        for (var p in productsBatch) {
+          if (p.productId != null) {
+            _allProductsById[p.productId!] = p;
+          }
+        }
+        
+        // Check if we have more products to load
+        hasMore = productsBatch.length == 10;
+        page++;
+        
+        // Add a small delay to prevent overwhelming the server
+        if (hasMore) {
+          await Future.delayed(Duration(milliseconds: 100));
         }
       }
+      
       _isAllProductsMapLoaded = true;
       log('Successfully loaded ${_allProductsById.length} products into lookup map.');
     } catch (e) {
@@ -264,22 +280,32 @@ class CategoryController extends ChangeNotifier {
 
   Future<void> fetchCartFromApi() async {
     log('CategoryController.fetchCartFromApi called');
-    // التأكد من تحميل جميع المنتجات في خريطة البحث قبل معالجة سلة التسوق
-    if (!_isAllProductsMapLoaded) {
-      await _loadAllProductsForLookup();
-    }
     
     final cartList = await _repository.fetchCartFromApi();
 
     cart.clear();
     fetchedCartItems.clear();
 
-    // استخدام الخريطة الشاملة _allProductsById للبحث
-    final Map<int, top_rated.Product> allProductsMap = _allProductsById;
-
     for (var item in cartList) {
       final productId = item['product_id'];
-      final product = allProductsMap[productId]; 
+      // Fetch individual product if not in lookup map
+      top_rated.Product? product = _allProductsById[productId];
+      if (product == null) {
+        try {
+          final products = await _repository.fetchAllProducts(page: 1, pageSize: 1000, search: null);
+          product = products.firstWhere((p) => p.productId == productId, orElse: () => throw StateError('Product not found'));
+        } catch (e) {
+          if (e is StateError) {
+            log('Product $productId not found in fetched products');
+          } else {
+            log('Error fetching product $productId: $e');
+          }
+        }
+          if (product != null) {
+            _allProductsById[productId] = product;
+          }
+      }
+      
       final cartItemId = item['id'];
       final quantity = int.tryParse(item['product_quantity'].toString()) ?? 1;
       final price = double.tryParse(item['price'].toString()) ?? 0.0;
@@ -293,7 +319,7 @@ class CategoryController extends ChangeNotifier {
           'total_price': price * quantity,
         });
       } else {
-        log('Skipping cart item with product_id $productId because product not found in _allProductsById. This means the product was not loaded into the comprehensive map. Double-check product fetching logic or product IDs.');
+        log('Skipping cart item with product_id $productId because product not found.');
       }
     }
     safeNotifyListeners();
