@@ -4,9 +4,27 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../constant.dart';
 import '../../../../../core/assets.dart';
+import 'package:provider/provider.dart';
+import '../../../../invoice/data/invoice_provider.dart';
 
 class MyAccounts extends StatelessWidget {
   const MyAccounts({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) {
+        final provider = InvoiceProvider();
+        provider.fetchTransactions();
+        return provider;
+      },
+      child: const _MyAccountsBody(),
+    );
+  }
+}
+
+class _MyAccountsBody extends StatelessWidget {
+  const _MyAccountsBody();
 
   @override
   Widget build(BuildContext context) {
