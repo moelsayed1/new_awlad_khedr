@@ -2,8 +2,6 @@ import 'package:awlad_khedr/core/custom_text_field.dart';
 import 'package:awlad_khedr/core/main_layout.dart';
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../constant.dart';
 import '../../../../core/assets.dart';
 import '../../../../core/custom_button.dart';

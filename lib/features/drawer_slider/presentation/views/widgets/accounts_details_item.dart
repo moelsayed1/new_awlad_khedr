@@ -1,5 +1,9 @@
+import 'dart:ui' as ui;
+
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/widgets/popup_account_details.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import '../../../../../constant.dart';
 import 'package:provider/provider.dart';
 import '../../../../invoice/data/invoice_provider.dart';
@@ -41,10 +45,21 @@ class CustomAccountItem extends StatelessWidget {
                 final amount = tx['final_total']?.toString() ?? '-';
                 final due = tx['rest_of_dues']?.toString() ?? '-';
                 final date = tx['create_date_cus']?.toString() ?? '-';
+                final timeString = tx['create_date']?.toString() ?? '';
+                String formattedTime = '-';
+                if (timeString.isNotEmpty) {
+                  try {
+                    final dateTime = DateTime.parse(timeString);
+                    formattedTime = DateFormat.jm().format(dateTime); // Format to time only (e.g., 5:08 PM)
+                  } catch (e) {
+                    // Handle parsing error if the date format is unexpected
+                    formattedTime = '-';
+                  }
+                }
                 // You can further parse/format date/time as needed
                 return Container(
-                  width: 326,
-                  height: 164,
+                  width: 326.w,
+                  height: 150.h,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(20)),
                     color: Colors.white,
@@ -62,22 +77,25 @@ class CustomAccountItem extends StatelessWidget {
                     child: Column(
                       children: [
                         Directionality(
-                          textDirection: TextDirection.rtl,
+                          textDirection: ui.TextDirection.rtl,
                           child: Row(
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                   Text(
                                     'الدفع بكرة ',
                                     style: TextStyle(
                                         color: deepRed,
-                                        fontSize: 14,
+                                        fontSize: 12.sp,
                                         fontWeight: FontWeight.w500,
                                         fontFamily: baseFont),
                                   ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
                                   Text(
-                                    'رقم الطلب $invoiceNumber',
+                                    'رقم الطلب $invoiceNumber#',
                                     style: const TextStyle(
                                       color: deepRed,
                                       fontSize: 18,
@@ -89,16 +107,19 @@ class CustomAccountItem extends StatelessWidget {
                               const Spacer(),
                               Column(
                                 children: [
-                                  const Text(
+                                   Text(
                                     'مطلوب دفعة ',
                                     style: TextStyle(
                                         color: kBrown,
-                                        fontSize: 14,
+                                        fontSize: 12.sp,
                                         fontWeight: FontWeight.w500,
                                         fontFamily: baseFont),
                                   ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
                                   Text(
-                                    'EGP$due',
+                                    'EGP $due',
                                     style: const TextStyle(
                                       color: kBrown,
                                       fontSize: 18,
@@ -117,7 +138,7 @@ class CustomAccountItem extends StatelessWidget {
                           indent: 20,
                         ),
                         Directionality(
-                          textDirection: TextDirection.rtl,
+                          textDirection: ui.TextDirection.rtl,
                           child: Row(
                             children: [
                               const Icon(
@@ -140,17 +161,15 @@ class CustomAccountItem extends StatelessWidget {
                                 width: 8,
                               ),
                               // You can extract and format time if available in tx
-                              const Text(
-                                '-',
-                                style: TextStyle(color: Colors.grey),
+                              Text(
+                                formattedTime,
+                                style: const TextStyle(color: Colors.grey),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(
-                          height: 6,
-                        ),
-                        const OrderDetailsButton(),
+                         const Spacer(),
+                        OrderDetailsButton(transaction: tx),
                       ],
                     ),
                   ),
@@ -163,4 +182,3 @@ class CustomAccountItem extends StatelessWidget {
     );
   }
 }
-

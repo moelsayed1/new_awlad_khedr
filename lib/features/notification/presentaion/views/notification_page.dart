@@ -179,10 +179,17 @@ class NotificationCard extends StatelessWidget {
                       width: 120.w,
                       height: 28.h,
                       onTap: () {
+                        final transactionId = int.tryParse(notification.orderNumber.replaceAll('#', ''));
+                        if (transactionId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Invalid order number')),
+                          );
+                          return;
+                        }
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return const OrderDetailsPopup();
+                            return  OrderDetailsPopup(transactionId: transactionId);
                           },
                         );
                       },
