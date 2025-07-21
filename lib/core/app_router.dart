@@ -28,6 +28,8 @@ import 'package:awlad_khedr/features/home/presentation/controllers/category_cont
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/most_requested/presentation/views/product_details_view.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
+import 'package:awlad_khedr/features/auth/forget_password/data/forget_password_provider.dart';
+
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -157,7 +159,14 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: kUpdatePasswordScreen,
-          builder: (context, state) => const UpdatePasswordScreen(),
+          builder: (context, state) {
+            final args = state.extra as Map<String, dynamic>;
+            final forgetPasswordProvider = Provider.of<ForgetPasswordProvider>(context, listen: false);
+            return UpdatePasswordScreen(
+              otp: args['otp'],
+              userEmail: forgetPasswordProvider.userEmail!,
+            );
+          },
         ),
         GoRoute(
           path: kConfirmationPage,

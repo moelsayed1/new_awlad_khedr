@@ -12,6 +12,7 @@ import 'dart:developer';
 import 'features/order/presentation/controllers/order_provider.dart';
 import 'features/home/presentation/controllers/category_controller.dart';
 import 'features/home/data/repositories/category_repository.dart';
+import 'features/auth/forget_password/data/forget_password_provider.dart';
 
 String authToken = "";
 
@@ -55,6 +56,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RegisterProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => CategoryController(CategoryRepository(ApiService(), ProductService()))),
+        ChangeNotifierProvider(create: (_) => ForgetPasswordProvider()),
       ],
       child: const AwladKhedr(),
     ),

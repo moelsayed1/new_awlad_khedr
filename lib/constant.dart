@@ -39,5 +39,6 @@ class APIConstant {
   static const DELETE_CART = "$BASE_URL/api/cart/delete"; // Usage: /api/cart/delete/{id} for delete
   static const String ORDER_INVOICE = '/api/order-invoice/';
   static const GET_CUSTOMER_MAIN_DATA = "$BASE_URL/api/customer";
+  static const UPDATE_USER_DATA = "$BASE_URL/api/update/user";
 
 }
