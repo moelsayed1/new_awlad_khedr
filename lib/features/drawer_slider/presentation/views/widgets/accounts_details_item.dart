@@ -59,7 +59,7 @@ class CustomAccountItem extends StatelessWidget {
                 // You can further parse/format date/time as needed
                 return Container(
                   width: 326.w,
-                  height: 150.h,
+                  height: 140.h,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(20)),
                     color: Colors.white,

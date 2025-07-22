@@ -112,111 +112,119 @@ class _MyAccountsBody extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: cardWidth,
-                    // height: cardHeight, // Let the card size itself
-                    padding: EdgeInsets.all(12.w),
-                    decoration: BoxDecoration(
-                      color: darkOrange,
-                      borderRadius: BorderRadius.all(Radius.circular(cardRadius)),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min, // Use min size
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              'رصيد الاجل المتبقي',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: baseFont,
-                              ),
-                            ),
-                            SizedBox(width: 12.w),
-                            Image.asset(
-                              AssetsData.account,
-                              color: Colors.white,
-                              width: 15.w,
-                              height: 15.w,
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Consumer<InvoiceProvider>(
-                          builder: (context, provider, _) {
-                            return FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                'EGP  ${provider.allRestOfDues ?? 0}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 25.sp,
-                                  fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Container(
+                      // width: cardWidth, // Removed fixed width
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        color: darkOrange,
+                        borderRadius: BorderRadius.all(Radius.circular(cardRadius)),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min, // Use min size
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'رصيد الاجل المتبقي',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: baseFont,
+                                  ),
+                                  maxLines: 2,
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ],
+                              SizedBox(width: 3.w),
+                              Image.asset(
+                                AssetsData.account,
+                                color: Colors.white,
+                                width: 15.w,
+                                height: 15.w,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          Consumer<InvoiceProvider>(
+                            builder: (context, provider, _) {
+                              return FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  'EGP ${provider.allRestOfDues ?? 0}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(width: betweenCards),
-                  Container(
-                    width: cardWidth,
-                    // height: cardHeight,
-                    padding: EdgeInsets.all(12.w),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.all(Radius.circular(cardRadius)),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              'اجمالي المستحقات',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: baseFont,
-                              ),
-                            ),
-                            SizedBox(width: 12.w),
-                            Image.asset(
-                              AssetsData.account,
-                              color: Colors.white,
-                              width: 15.w,
-                              height: 15.w,
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Consumer<InvoiceProvider>(
-                          builder: (context, provider, _) {
-                            return FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                'EGP  ${provider.totalReceivables ?? 0}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24.sp,
-                                  fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Container(
+                      // width: cardWidth, // Removed fixed width
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.all(Radius.circular(cardRadius)),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'اجمالي المستحقات',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: baseFont,
+                                  ),
+                                  maxLines: 2,
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ],
+                              SizedBox(width: 3.w),
+                              Image.asset(
+                                AssetsData.account,
+                                color: Colors.white,
+                                width: 15.w,
+                                height: 15.w,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          Consumer<InvoiceProvider>(
+                            builder: (context, provider, _) {
+                              return FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  'EGP  ${provider.totalReceivables ?? 0}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

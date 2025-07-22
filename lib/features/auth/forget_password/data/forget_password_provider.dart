@@ -62,7 +62,7 @@ class ForgetPasswordProvider extends ChangeNotifier {
           'password_confirmation': password,
         },
       );
-      print('Reset password response: \n${response.body}'); // Debug print
+      log('Reset password response: \n${response.body}'); // Debug print
       if (response.statusCode == 200) {
         _successMessage = 'تم تحديث كلمة المرور بنجاح';
         _isLoading = false;

@@ -4,6 +4,7 @@ import 'package:awlad_khedr/features/invoice/data/invoice_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/order/presentation/views/orders_view.dart';
 
 class OrderDetailsButton extends StatelessWidget {
   const OrderDetailsButton({super.key, required this.transaction});
@@ -91,6 +92,14 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
   }
 
   Widget _buildOrderItem(String name, String price, String quantity, String imageUrl) {
+    // Format quantity: remove .0 if integer
+    String formattedQuantity;
+    final doubleQty = double.tryParse(quantity);
+    if (doubleQty != null && doubleQty == doubleQty.truncateToDouble()) {
+      formattedQuantity = doubleQty.toInt().toString();
+    } else {
+      formattedQuantity = quantity;
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Directionality(
@@ -133,9 +142,9 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
                   ),
                  SizedBox(height: 4.h),
                   Text(
-                    'العدد : $quantity',
+                    'الكمية : $formattedQuantity',
                     style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         color: Colors.black,
                         fontFamily: baseFont),
                   ),
@@ -206,6 +215,23 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
         invoiceDetails['invoice_number']?.toString() ??
         '-';
     final items = (invoiceDetails['sell_lines'] as List<dynamic>?) ?? [];
+
+    // Group items by product id (fallback to name if id not available)
+    final Map<String, Map<String, dynamic>> grouped = {};
+    for (var item in items) {
+      final product = item['product'] ?? {};
+      final productId = product['id']?.toString() ?? product['name']?.toString() ?? 'unknown';
+      if (grouped.containsKey(productId)) {
+        // Sum the quantity
+        final prevQty = double.tryParse(grouped[productId]!['quantity'].toString()) ?? 0;
+        final newQty = double.tryParse(item['quantity']?.toString() ?? '0') ?? 0;
+        grouped[productId]!['quantity'] = (prevQty + newQty).toString();
+      } else {
+        // Clone the item for grouping
+        grouped[productId] = Map<String, dynamic>.from(item);
+      }
+    }
+    final groupedItems = grouped.values.toList();
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -313,28 +339,7 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
                                 fontFamily: baseFont)),
                         const SizedBox(height: 8),
                         // Item list
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final item = items[index];
-                            final productName =
-                                item['product']?['name']?.toString() ??
-                                    'Unknown';
-                            final quantity =
-                                item['quantity']?.toString() ?? '0';
-                            final price =
-                                item['unit_price_inc_tax']?.toString() ??
-                                    item['unit_price']?.toString() ??
-                                    '0';
-                            final imageUrl = item['product']?['image']?.toString() ?? '';
-
-                            return _buildOrderItem(
-                                productName, 'EGP ${_formatPrice(price)}', '$quantity', imageUrl);
-                          },
-                          separatorBuilder: (context, index) => const Divider(),
-                        ),
+                        GroupedProductList(products: items),
                       ],
                     ),
                   ),

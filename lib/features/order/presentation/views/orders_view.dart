@@ -568,6 +568,43 @@ class OrderProductsEmpty extends StatelessWidget {
   }
 }
 
+// Common widget for grouped and scrollable product list
+class GroupedProductList extends StatelessWidget {
+  final List<dynamic> products;
+  const GroupedProductList({super.key, required this.products});
+
+  @override
+  Widget build(BuildContext context) {
+    // Group products by id (fallback to name)
+    final Map<String, Map<String, dynamic>> grouped = {};
+    for (var item in products) {
+      final product = item['product'] ?? {};
+      final productId = product['id']?.toString() ?? product['name']?.toString() ?? 'unknown';
+      if (grouped.containsKey(productId)) {
+        // Sum the quantity
+        final prevQty = double.tryParse(grouped[productId]!['quantity'].toString()) ?? 0;
+        final newQty = double.tryParse(item['quantity']?.toString() ?? '0') ?? 0;
+        grouped[productId]!['quantity'] = (prevQty + newQty).toString();
+      } else {
+        grouped[productId] = Map<String, dynamic>.from(item);
+      }
+    }
+    final groupedItems = grouped.values.toList();
+
+    return SizedBox(
+      height: 300, // or MediaQuery.of(context).size.height * 0.4 for dynamic height
+      child: ListView.separated(
+        shrinkWrap: true,
+        itemCount: groupedItems.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 8),
+        itemBuilder: (context, index) {
+          return OrderProductRow(item: groupedItems[index]);
+        },
+      ),
+    );
+  }
+}
+
 class OrderProductsList extends StatelessWidget {
   final List<dynamic> products;
   final dynamic orderId;
@@ -630,8 +667,8 @@ class OrderProductsList extends StatelessWidget {
         const SizedBox(height: 16),
         const OrderProductsHeaderRow(),
         const SizedBox(height: 6),
-        // Products List
-        ...products.map((item) => OrderProductRow(item: item)).toList(),
+        // Products List (grouped and scrollable)
+        GroupedProductList(products: products),
         const SizedBox(height: 8),
         // إجمالي السعر
         OrderProductsTotalRow(totalPrice: totalPrice),
@@ -711,7 +748,15 @@ class OrderProductRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = item['product'] ?? {};
     final name = product['name']?.toString() ?? '';
-    final quantity = item['quantity']?.toString() ?? '';
+    final quantityRaw = item['quantity']?.toString() ?? '';
+    // Format quantity: remove .0 if integer
+    String quantity;
+    final doubleQty = double.tryParse(quantityRaw);
+    if (doubleQty != null && doubleQty == doubleQty.truncateToDouble()) {
+      quantity = doubleQty.toInt().toString();
+    } else {
+      quantity = quantityRaw;
+    }
     final price = item['unit_price']?.toString() ?? '';
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -760,7 +805,7 @@ class OrderProductRow extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              '$price ج.م',
+              ' $price ج.م',
               style: TextStyle(
                 fontFamily: baseFont,
                 fontWeight: FontWeight.w500,

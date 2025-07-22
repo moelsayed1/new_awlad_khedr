@@ -131,96 +131,92 @@ class _ReceiptOrderDetailsState extends State<ReceiptOrderDetails> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: _loading
-            ? const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()))
-            : _error != null
-                ? SizedBox(height: 120, child: Center(child: Text(_error!, style: TextStyle(color: Colors.red))))
-                : _invoiceData == null
-                    ? const SizedBox(height: 120, child: Center(child: Text('لا توجد بيانات فاتورة')))
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Close icon and title row
-                          Row(
-                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: _loading
+                ? const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()))
+                : _error != null
+                    ? SizedBox(height: 120, child: Center(child: Text(_error!, style: TextStyle(color: Colors.red))))
+                    : _invoiceData == null
+                        ? const SizedBox(height: 120, child: Center(child: Text('لا توجد بيانات فاتورة')))
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Close icon
-                              IconButton(
-                                icon: const Icon(Icons.close, size: 24, color: Colors.black),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
+                              const SizedBox(height: 16),
+                              // Title and underline
+                              const Text(
+                                'فاتورة الطلب',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontFamily: baseFont,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    const Text(
-                                      'فاتورة الطلب',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontFamily: baseFont,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Align(
-                                      alignment: Alignment.center,
-                                      child: Container(
-                                        margin: const EdgeInsets.only(top: 2),
-                                        height: 3,
-                                        width: 40,
-                                        color: darkOrange,
-                                      ),
-                                    ),
-                                  ],
+                              const SizedBox(height: 2),
+                              Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  margin: const EdgeInsets.only(top: 2),
+                                  height: 3,
+                                  width: 40,
+                                  color: darkOrange,
                                 ),
                               ),
-                              // To balance the Row, add a SizedBox with same width as IconButton
-                              const SizedBox(width: 40),
+                              const SizedBox(height: 16),
+                              // Invoice details
+                              _buildOrderItem(
+                                'اجمالي الفاتورة',
+                                '${formatPrice(_invoiceData?['final_total'])} ج.م',
+                                nameWeight: FontWeight.bold,
+                                nameColor: Colors.black,
+                                priceColor: Colors.black,
+                              ),
+                              _buildOrderItem(
+                                'خصم',
+                                '${formatPrice(_invoiceData?['discount'])} ج.م',
+                                nameWeight: FontWeight.bold,
+                                nameColor: Colors.black,
+                                priceColor: Colors.black54,
+                              ),
+                              _buildOrderItem(
+                                'مجموع السعر',
+                                '${formatPrice(_invoiceData?['total_price'] ?? _invoiceData?['final_total'])} ج.م',
+                                nameWeight: FontWeight.bold,
+                                nameColor: Colors.black,
+                                priceColor: Colors.black87,
+                              ),
+                              _buildOrderItem(
+                                'طريقة الدفع',
+                                '${_invoiceData?['payment_method']?.toString() ?? 'دفع الاجل'}',
+                                nameWeight: FontWeight.bold,
+                                nameColor: Colors.black,
+                                priceColor: Colors.blue,
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          // Invoice details
-                          _buildOrderItem(
-                            'اجمالي الفاتورة',
-                            '${formatPrice(_invoiceData?['final_total'])} ج.م',
-                            nameWeight: FontWeight.bold,
-                            nameColor: Colors.black,
-                            priceColor: Colors.black,
-                          ),
-                          _buildOrderItem(
-                            'خصم',
-                            '${formatPrice(_invoiceData?['discount'])} ج.م',
-                            nameWeight: FontWeight.bold,
-                            nameColor: Colors.black,
-                            priceColor: Colors.black54,
-                          ),
-                          _buildOrderItem(
-                            'مجموع السعر',
-                            '${formatPrice(_invoiceData?['total_price'] ?? _invoiceData?['final_total'])} ج.م',
-                            nameWeight: FontWeight.bold,
-                            nameColor: Colors.black,
-                            priceColor: Colors.black87,
-                          ),
-                          _buildOrderItem(
-                            'طريقة الدفع',
-                            '${_invoiceData?['payment_method']?.toString() ?? 'دفع الاجل'}',
-                            nameWeight: FontWeight.bold,
-                            nameColor: Colors.black,
-                            priceColor: Colors.blue,
-                          ),
-                        ],
-                      ),
+          ),
+          // Close button at top left
+          Positioned(
+            top: 0,
+            left: 0,
+            child: IconButton(
+              icon: const Icon(Icons.close, size: 24, color: Colors.black),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
