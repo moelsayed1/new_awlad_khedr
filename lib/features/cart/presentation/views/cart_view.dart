@@ -72,7 +72,9 @@ class CartViewLogic extends ChangeNotifier {
       success = await controller.deleteCartItem(cartId: cartId);
       if (success) {
         removingItems.remove(cartId);
-        controller.fetchedCartItems.removeAt(index);
+        if (index >= 0 && index < controller.fetchedCartItems.length) {
+          controller.fetchedCartItems.removeAt(index);
+        }
         notifyListeners();
       } else {
         removingItems.remove(cartId);

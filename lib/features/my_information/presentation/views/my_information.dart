@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:awlad_khedr/core/custom_text_field.dart';
 import 'package:awlad_khedr/core/main_layout.dart';
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slider.dart';
@@ -7,6 +9,9 @@ import '../../../../core/assets.dart';
 import '../../../../core/custom_button.dart';
 import 'my_information_logic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class MyInformation extends StatefulWidget {
   const MyInformation({super.key});
@@ -18,6 +23,7 @@ class MyInformation extends StatefulWidget {
 class _MyInformationState extends State<MyInformation> {
   CustomerInfo? _customerInfo;
   bool _loading = true;
+  File? _localProfileImage;
 
   // Controllers for each field
   final TextEditingController _nameController = TextEditingController();
@@ -86,13 +92,15 @@ class _MyInformationState extends State<MyInformation> {
     setState(() {
       _loading = true;
     });
-    final success = await MyInformationLogic.updateCustomerInfo(
+
+    final success = await MyInformationLogic.updateUserDataWithPhoto(
       token,
       name: _nameController.text,
       phone: _phoneController.text,
       email: _emailController.text,
       addressLine1: _addressController.text,
       supplierBusinessName: _supplierNameController.text,
+      profilePhoto: _localProfileImage,
     );
     if (success) {
       await _fetchCustomerInfo();
@@ -102,9 +110,35 @@ class _MyInformationState extends State<MyInformation> {
         _isEditingEmail = false;
         _isEditingAddress = false;
         _isEditingSupplierName = false;
+        _localProfileImage = null;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حفظ التعديلات بنجاح')),
+        SnackBar(
+          backgroundColor: Colors.white,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 28),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'تم حفظ التعديلات بنجاح',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: baseFont,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          duration: Duration(seconds: 2),
+          elevation: 4,
+        ),
       );
     } else {
       setState(() {
@@ -141,6 +175,21 @@ class _MyInformationState extends State<MyInformation> {
       }
     }
     Navigator.of(context).pop();
+  }
+
+  void _onEditProfilePhoto() async {
+    log('Edit icon tapped'); // Debug print
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _localProfileImage = File(pickedFile.path);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Selected image: \'${pickedFile.path}\'')),
+      );
+      // TODO: Upload image to backend and update profilePhoto URL
+    }
   }
 
   @override
@@ -188,6 +237,57 @@ class _MyInformationState extends State<MyInformation> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
+                          Center(
+                            child: SizedBox(
+                              width: 100.w, // diameter of CircleAvatar
+                              height: 100.w,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  _loading
+                                      ? CircleAvatar(
+                                          radius: 50.w,
+                                          backgroundColor: Colors.grey,
+                                          child: CircularProgressIndicator(color: Colors.white),
+                                        )
+                                      : (_localProfileImage != null)
+                                          ? CircleAvatar(
+                                              radius: 50.w,
+                                              backgroundColor: Colors.grey.shade300,
+                                              backgroundImage: FileImage(_localProfileImage!),
+                                            )
+                                          : (_customerInfo?.profilePhoto != null && _customerInfo!.profilePhoto!.isNotEmpty)
+                                              ? CircleAvatar(
+                                                  radius: 50.w,
+                                                  backgroundColor: Colors.grey.shade300,
+                                                  backgroundImage: NetworkImage(_customerInfo!.profilePhoto!),
+                                                )
+                                              : CircleAvatar(
+                                                  radius: 50.w,
+                                                  backgroundColor: Colors.grey,
+                                                  child: Icon(Icons.person, size: 50.w, color: Colors.white),
+                                                ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: GestureDetector(
+                                      onTap: _onEditProfilePhoto,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: darkOrange,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.white, width: 2.w),
+                                        ),
+                                        padding: EdgeInsets.all(6.w),
+                                        child: Icon(Icons.edit, color: Colors.white, size: 20.w),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
                           const Text(
                             'الاسم',
                             style: TextStyle(

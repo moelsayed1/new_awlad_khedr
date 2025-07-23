@@ -154,7 +154,7 @@ class _MyAccountsBody extends StatelessWidget {
                               return FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
-                                  'EGP ${provider.allRestOfDues ?? 0}',
+                                  'EGP ${(provider.allRestOfDues ?? 0).toStringAsFixed(2)}',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.white,
@@ -212,7 +212,7 @@ class _MyAccountsBody extends StatelessWidget {
                               return FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
-                                  'EGP  ${provider.totalReceivables ?? 0}',
+                                  'EGP  ${(provider.totalReceivables ?? 0).toStringAsFixed(2)}',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.white,

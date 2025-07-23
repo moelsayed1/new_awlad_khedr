@@ -91,11 +91,27 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       CircleAvatar(
                         radius: 30.w,
                         backgroundColor: mainColor,
-                        child: Image.asset(
-                          AssetsData.profile,
-                          width: 40.w,
-                          height: 40.w,
-                        ),
+                        child: isLoadingInfo
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : (customerInfo?.profilePhoto != null && customerInfo!.profilePhoto!.isNotEmpty)
+                                ? ClipOval(
+                                    child: Image.network(
+                                      customerInfo!.profilePhoto!,
+                                      width: 50.w,
+                                      height: 50.w,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => Image.asset(
+                                        AssetsData.profile,
+                                        width: 40.w,
+                                        height: 40.w,
+                                      ),
+                                    ),
+                                  )
+                                : Image.asset(
+                                    AssetsData.profile,
+                                    width: 40.w,
+                                    height: 40.w,
+                                  ),
                       ),
                     ],
                   ),
