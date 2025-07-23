@@ -29,6 +29,7 @@ import 'package:awlad_khedr/features/home/data/repositories/category_repository.
 import 'package:awlad_khedr/features/most_requested/presentation/views/product_details_view.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 import 'package:awlad_khedr/features/auth/forget_password/data/forget_password_provider.dart';
+import 'package:awlad_khedr/features/home/presentation/views/widgets/category_products_screen.dart';
 
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -195,5 +196,14 @@ abstract class AppRouter {
             return ProductDetailsPage(product: product);
           },
         ),
+        GoRoute(
+          path: '/categoryProducts',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final categoryName = extra?['categoryName'] ?? '';
+            return CategoryProductsScreen(categoryName: categoryName);
+          },
+        ),
       ]);
 }
+

@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 import 'package:awlad_khedr/core/app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
+import 'package:provider/provider.dart';
 
 class HomeCategory extends StatefulWidget {
   const HomeCategory({
@@ -79,12 +81,8 @@ class _HomeCategoryState extends State<HomeCategory> {
                       onTap: () {
                         final category = productByCategory!.categories[index];
                         GoRouter.of(context).push(
-                          AppRouter.kBannerProductsPage,
-                          extra: {
-                            'bannerTitle': category.categoryName,
-                            'categoryName': category.categoryName,
-                            'categoryId': category.categoryId,
-                          },
+                          '/categoryProducts',
+                          extra: {'categoryName': category.categoryName},
                         );
                       },
                       child: Container(

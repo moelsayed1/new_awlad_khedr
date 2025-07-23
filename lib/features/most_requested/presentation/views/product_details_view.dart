@@ -202,7 +202,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       return CartSheet(
                         cart: _cart,
                         total: cartTotal,
-                        onClose: () => Navigator.pop(context),
+                        onClose: () {
+                          if (mounted) Navigator.pop(context);
+                        },
                       );
                     },
                   ),

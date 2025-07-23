@@ -222,7 +222,7 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                           );
                         }
 
-                        final product = controller.displayedProducts[index];
+                        final product = controller.filteredProducts[index];
                         final String quantityKey =
                             product.productId?.toString() ??
                                 product.productName ??
