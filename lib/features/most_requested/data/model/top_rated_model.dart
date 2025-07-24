@@ -27,10 +27,20 @@ class Product {
     } else if (json['product_id'] is String) {
       parsedProductId = int.tryParse(json['product_id']);
     }
-    dynamic parsedPrice = json['price'];
-    if (parsedPrice is String) {
-      parsedPrice = double.tryParse(parsedPrice) ?? parsedPrice;
+
+    dynamic parsedPrice = json['product_price'] ?? json['price'] ?? 0.0;
+    // Defensive: If price is null, set to 0.0
+    if (parsedPrice == null) {
+      parsedPrice = 0.0;
+    } else if (parsedPrice is String) {
+      // Try to parse string to double, fallback to original string if fails
+      final tryDouble = double.tryParse(parsedPrice);
+      if (tryDouble != null) {
+        parsedPrice = tryDouble;
+      }
+      // else leave as string (could be "N/A" or similar)
     }
+
     return Product(
       productId: parsedProductId,
       productName: json['product_name'] as String?,
@@ -60,9 +70,9 @@ class Product {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is Product &&
-              runtimeType == other.runtimeType &&
-              productId == other.productId; // Compare by unique ID
+      other is Product &&
+          runtimeType == other.runtimeType &&
+          productId == other.productId; // Compare by unique ID
 
   @override
   int get hashCode => productId.hashCode;

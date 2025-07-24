@@ -3,7 +3,8 @@ import 'package:awlad_khedr/core/main_layout.dart';
 import 'package:awlad_khedr/features/cart/presentation/views/widgets/custom_button_cart.dart';
 import 'package:awlad_khedr/features/order/presentation/views/orders_view.dart';
 import 'package:flutter/material.dart';
-import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart'
+    as top_rated;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/core/assets.dart';
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slider.dart';
@@ -24,10 +25,34 @@ class CartViewLogic extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Map<String, dynamic>> get cartItems =>
-      controller.fetchedCartItems.where((item) => item['product'] != null).toList();
+  List<Map<String, dynamic>> get cartItems => controller.fetchedCartItems
+      .where((item) => item['product'] != null)
+      .toList();
 
   double get total => controller.fetchedCartTotal;
+
+  // Debounce logic implementation for increase/decrease quantity actions
+
+  final Map<int, Future<void> Function()> _debounceTimers = {};
+
+  void _debounceAction(int cartId, Future<void> Function() action,
+      {Duration duration = const Duration(milliseconds: 400)}) {
+    // Cancel any existing debounce for this cartId
+    _debounceTimers[cartId]?.call();
+    // Create a new debounce
+    bool isCancelled = false;
+    Future<void> cancel() async {
+      isCancelled = true;
+    }
+
+    _debounceTimers[cartId] = cancel;
+    Future.delayed(duration, () async {
+      if (!isCancelled) {
+        await action();
+        _debounceTimers.remove(cartId);
+      }
+    });
+  }
 
   Future<void> increaseQuantity(
       BuildContext context, Map<String, dynamic> item, int index) async {
@@ -37,18 +62,21 @@ class CartViewLogic extends ChangeNotifier {
     final newQuantity = quantity + 1;
     item['quantity'] = newQuantity;
     notifyListeners();
-    final success = await controller.updateCartItem(
-      cartId: cartId,
-      product: product,
-      quantity: newQuantity,
-    );
-    if (!success) {
-      item['quantity'] = quantity;
-      notifyListeners();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update item quantity.')),
+
+    _debounceAction(cartId, () async {
+      final success = await controller.updateCartItem(
+        cartId: cartId,
+        product: product,
+        quantity: newQuantity,
       );
-    }
+      if (!success) {
+        item['quantity'] = quantity;
+        notifyListeners();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update item quantity.')),
+        );
+      }
+    });
   }
 
   Future<void> decreaseQuantity(
@@ -59,35 +87,38 @@ class CartViewLogic extends ChangeNotifier {
     final newQuantity = quantity - 1;
     item['quantity'] = newQuantity;
     notifyListeners();
-    bool success = true;
-    if (newQuantity > 0) {
-      success = await controller.updateCartItem(
-        cartId: cartId,
-        product: product,
-        quantity: newQuantity,
-      );
-    } else {
-      removingItems.add(cartId);
-      notifyListeners();
-      success = await controller.deleteCartItem(cartId: cartId);
-      if (success) {
-        removingItems.remove(cartId);
-        if (index >= 0 && index < controller.fetchedCartItems.length) {
-          controller.fetchedCartItems.removeAt(index);
-        }
-        notifyListeners();
+
+    _debounceAction(cartId, () async {
+      bool success = true;
+      if (newQuantity > 0) {
+        success = await controller.updateCartItem(
+          cartId: cartId,
+          product: product,
+          quantity: newQuantity,
+        );
       } else {
-        removingItems.remove(cartId);
+        removingItems.add(cartId);
         notifyListeners();
+        success = await controller.deleteCartItem(cartId: cartId);
+        if (success) {
+          removingItems.remove(cartId);
+          if (index >= 0 && index < controller.fetchedCartItems.length) {
+            controller.fetchedCartItems.removeAt(index);
+          }
+          notifyListeners();
+        } else {
+          removingItems.remove(cartId);
+          notifyListeners();
+        }
       }
-    }
-    if (!success) {
-      item['quantity'] = quantity;
-      notifyListeners();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update item quantity.')),
-      );
-    }
+      if (!success) {
+        item['quantity'] = quantity;
+        notifyListeners();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update item quantity.')),
+        );
+      }
+    });
   }
 
   bool isRemoving(int cartId) => removingItems.contains(cartId);
@@ -209,7 +240,8 @@ class CartProductCard extends StatelessWidget {
                             height: 60.w,
                             fit: BoxFit.cover,
                           )
-                        : Icon(Icons.image, size: 60.w, color: Colors.grey[300]),
+                        : Icon(Icons.image,
+                            size: 60.w, color: Colors.grey[300]),
                   ),
                 ),
               ],
@@ -313,7 +345,10 @@ class CartProductCard extends StatelessWidget {
 
 class CartViewPage extends StatefulWidget {
   // No need to pass products/quantities; always use controller
-  const CartViewPage({super.key, required List<top_rated.Product> products, required List<int> quantities});
+  const CartViewPage(
+      {super.key,
+      required List<top_rated.Product> products,
+      required List<int> quantities});
 
   @override
   State<CartViewPage> createState() => _CartViewPageState();
@@ -410,16 +445,20 @@ class _CartViewPageState extends State<CartViewPage> {
                                 )
                               : ListView.separated(
                                   itemCount: cartItems.length,
-                                  separatorBuilder: (context, index) => SizedBox(height: 15.h),
+                                  separatorBuilder: (context, index) =>
+                                      SizedBox(height: 15.h),
                                   itemBuilder: (context, index) {
                                     // Reverse the index to show the most recently added items at the top
-                                    final reversedIndex = cartItems.length - 1 - index;
+                                    final reversedIndex =
+                                        cartItems.length - 1 - index;
                                     final item = cartItems[reversedIndex];
                                     return CartProductCard(
                                       item: item,
                                       isRemoving: logic.isRemoving(item['id']),
-                                      onIncrease: () => logic.increaseQuantity(context, item, reversedIndex),
-                                      onDecrease: () => logic.decreaseQuantity(context, item, reversedIndex),
+                                      onIncrease: () => logic.increaseQuantity(
+                                          context, item, reversedIndex),
+                                      onDecrease: () => logic.decreaseQuantity(
+                                          context, item, reversedIndex),
                                     );
                                   },
                                 ),
@@ -491,8 +530,12 @@ class _CartViewPageState extends State<CartViewPage> {
                                   SnackBar(content: Text('Order placed!')),
                                 );
                               },
-                              products: cartItems.map((item) => item['product']).toList(),
-                              quantities: cartItems.map((item) => item['quantity'] as int).toList(),
+                              products: cartItems
+                                  .map((item) => item['product'])
+                                  .toList(),
+                              quantities: cartItems
+                                  .map((item) => item['quantity'] as int)
+                                  .toList(),
                             ),
                           ],
                         ),

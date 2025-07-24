@@ -7,7 +7,6 @@ import 'package:awlad_khedr/features/products_screen/presentation/controllers/ba
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
 
-
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -234,34 +233,49 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                               CartProductCard(
                                 item: {
                                   'product': product,
-                                  'quantity': controller.productQuantities[quantityKey] ?? 0,
+                                  'quantity': controller
+                                          .productQuantities[quantityKey] ??
+                                      0,
                                   'price': product.price ?? 0.0,
-                                  'total_price': (product.price ?? 0.0) * (controller.productQuantities[quantityKey] ?? 0),
+                                  'total_price': (product.price ?? 0.0) *
+                                      (controller
+                                              .productQuantities[quantityKey] ??
+                                          0),
                                 },
                                 isRemoving: false,
                                 onIncrease: () async {
-                                  final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                  final currentQuantity = controller
+                                          .productQuantities[quantityKey] ??
+                                      0;
                                   final newQuantity = currentQuantity + 1;
-                                  controller.onQuantityChanged(quantityKey, newQuantity);
+                                  controller.onQuantityChanged(
+                                      quantityKey, newQuantity);
                                   controller.cart[product] = newQuantity;
                                   controller.safeNotifyListeners();
                                 },
                                 onDecrease: () async {
-                                  final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                  final currentQuantity = controller
+                                          .productQuantities[quantityKey] ??
+                                      0;
                                   final newQuantity = currentQuantity - 1;
                                   if (newQuantity > 0) {
-                                    controller.onQuantityChanged(quantityKey, newQuantity);
+                                    controller.onQuantityChanged(
+                                        quantityKey, newQuantity);
                                     controller.cart[product] = newQuantity;
                                   } else {
-                                    controller.onQuantityChanged(quantityKey, 0);
+                                    controller.onQuantityChanged(
+                                        quantityKey, 0);
                                     controller.cart.remove(product);
                                   }
                                   controller.safeNotifyListeners();
                                 },
                                 onAddToCart: () async {
-                                  final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                  final currentQuantity = controller
+                                          .productQuantities[quantityKey] ??
+                                      0;
                                   final newQuantity = currentQuantity + 1;
-                                  controller.onQuantityChanged(quantityKey, newQuantity);
+                                  controller.onQuantityChanged(
+                                      quantityKey, newQuantity);
                                   controller.cart[product] = newQuantity;
                                   controller.safeNotifyListeners();
                                 },
