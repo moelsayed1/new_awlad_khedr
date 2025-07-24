@@ -226,4 +226,14 @@ class BannerProductsController extends ChangeNotifier {
     productQuantities.updateAll((key, value) => 0);
     safeNotifyListeners();
   }
+
+  Future<bool> addProductToCart(Product product, int quantity) async {
+    // يمكنك تخصيص المنطق حسب الحاجة
+    final success = await _repository.addProductToCart(
+      productId: product.productId ?? 0,
+      quantity: quantity,
+      price: product.price,
+    );
+    return success;
+  }
 } 

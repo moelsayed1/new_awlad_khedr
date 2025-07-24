@@ -34,16 +34,11 @@ class CategoryRepository {
     }
   }
 
-  Future<void> _clearInvalidToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    authToken = '';
-  }
 
   Future<List<String>> fetchCategories() async {
     try {
       if (!await _validateToken()) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Invalid or expired token');
       }
 
@@ -70,7 +65,7 @@ class CategoryRepository {
         }
         return ['الكل', ...fetchedCategories.toSet()];
       } else if (response.statusCode == 401) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Unauthorized access');
       } else {
         throw Exception('Failed to fetch categories: ${response.statusCode}');
@@ -84,7 +79,7 @@ class CategoryRepository {
   Future<List<Product>> fetchAllProducts({int page = 1, int pageSize = 10, String? search}) async {
     try {
       if (!await _validateToken()) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Invalid or expired token');
       }
 
@@ -146,7 +141,7 @@ class CategoryRepository {
         log('Parsed  [32m${products.length} [0m products from all products endpoint (page $page, pageSize $pageSize) and cached.');
         return products;
       } else if (response.statusCode == 401) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Unauthorized access');
       } else {
         throw Exception('Failed to fetch products: ${response.statusCode}');
@@ -160,7 +155,7 @@ class CategoryRepository {
   Future<List<Product>> fetchProductsByCategory(String category, {int page = 1, int pageSize = 10, String? search}) async {
     try {
       if (!await _validateToken()) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Invalid or expired token');
       }
 
@@ -234,7 +229,7 @@ class CategoryRepository {
         log('Total products found for category "$category": ${productsForSelectedCategory.length}');
         return productsForSelectedCategory;
       } else if (response.statusCode == 401) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Unauthorized access');
       } else {
         throw Exception('Failed to fetch category products: ${response.statusCode}');
@@ -253,7 +248,7 @@ class CategoryRepository {
   }) async {
     try {
       if (!await _validateToken()) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Invalid or expired token');
       }
 
@@ -282,7 +277,7 @@ class CategoryRepository {
   Future<List<Product>> fetchProductsByBrand(int brandId) async {
     try {
       if (!await _validateToken()) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Invalid or expired token');
       }
 
@@ -321,7 +316,7 @@ class CategoryRepository {
         log('Parsed ${products.length} products from brand id $brandId');
         return products;
       } else if (response.statusCode == 401) {
-        await _clearInvalidToken();
+        // Don't clear the token, just throw
         throw Exception('Unauthorized access');
       } else {
         throw Exception('Failed to fetch products by brand: ${response.statusCode}');

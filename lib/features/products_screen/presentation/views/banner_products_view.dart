@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/assets.dart';
 import 'package:awlad_khedr/core/network/api_service.dart';
@@ -231,55 +233,44 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                           child: Column(
                             children: [
                               CartProductCard(
-                                item: {
-                                  'product': product,
-                                  'quantity': controller
-                                          .productQuantities[quantityKey] ??
-                                      0,
-                                  'price': product.price ?? 0.0,
-                                  'total_price': (product.price ?? 0.0) *
-                                      (controller
-                                              .productQuantities[quantityKey] ??
-                                          0),
-                                },
-                                isRemoving: false,
-                                onIncrease: () async {
-                                  final currentQuantity = controller
-                                          .productQuantities[quantityKey] ??
-                                      0;
-                                  final newQuantity = currentQuantity + 1;
-                                  controller.onQuantityChanged(
-                                      quantityKey, newQuantity);
-                                  controller.cart[product] = newQuantity;
+                              item: {
+                                'product': product,
+                                'quantity': controller.productQuantities[quantityKey] ?? 0,
+                                'price': product.price ?? 0.0,
+                                'total_price': (product.price ?? 0.0) * (controller.productQuantities[quantityKey] ?? 0),
+                              },
+                              isRemoving: false,
+                              onAddToCart: () async {
+                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                final newQuantity = currentQuantity + 1;
+                                log('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
+                                controller.onQuantityChanged(quantityKey, newQuantity);
+                                controller.safeNotifyListeners();
+                                await controller.addProductToCart(product, newQuantity);
+                              },
+                              onIncrease: () async {
+                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                final newQuantity = currentQuantity + 1;
+                                log('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
+                                controller.onQuantityChanged(quantityKey, newQuantity);
+                                controller.safeNotifyListeners();
+                                await controller.addProductToCart(product, newQuantity);
+                              },
+                              onDecrease: () async {
+                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                final newQuantity = currentQuantity - 1;
+                                log('onDecrease: key=$quantityKey, newQuantity=$newQuantity');
+                                if (newQuantity > 0) {
+                                  controller.onQuantityChanged(quantityKey, newQuantity);
                                   controller.safeNotifyListeners();
-                                },
-                                onDecrease: () async {
-                                  final currentQuantity = controller
-                                          .productQuantities[quantityKey] ??
-                                      0;
-                                  final newQuantity = currentQuantity - 1;
-                                  if (newQuantity > 0) {
-                                    controller.onQuantityChanged(
-                                        quantityKey, newQuantity);
-                                    controller.cart[product] = newQuantity;
-                                  } else {
-                                    controller.onQuantityChanged(
-                                        quantityKey, 0);
-                                    controller.cart.remove(product);
-                                  }
+                                  await controller.addProductToCart(product, newQuantity);
+                                } else {
+                                  controller.onQuantityChanged(quantityKey, 0);
                                   controller.safeNotifyListeners();
-                                },
-                                onAddToCart: () async {
-                                  final currentQuantity = controller
-                                          .productQuantities[quantityKey] ??
-                                      0;
-                                  final newQuantity = currentQuantity + 1;
-                                  controller.onQuantityChanged(
-                                      quantityKey, newQuantity);
-                                  controller.cart[product] = newQuantity;
-                                  controller.safeNotifyListeners();
-                                },
-                              ),
+                                  // Remove from local cart only - API call removed
+                                }
+                              },
+                            ),
                             ],
                           ),
                         );

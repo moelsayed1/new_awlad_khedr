@@ -1,7 +1,6 @@
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/main_layout.dart';
 import 'package:awlad_khedr/features/cart/presentation/views/widgets/custom_button_cart.dart';
-import 'package:awlad_khedr/features/order/presentation/views/orders_view.dart';
 import 'package:flutter/material.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart'
     as top_rated;
@@ -25,9 +24,28 @@ class CartViewLogic extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Map<String, dynamic>> get cartItems => controller.fetchedCartItems
-      .where((item) => item['product'] != null)
-      .toList();
+  List<Map<String, dynamic>> get cartItems {
+    final Map<int?, List<Map<String, dynamic>>> grouped = {};
+    for (var item in controller.fetchedCartItems) {
+      final product = item['product'];
+      if (product == null) continue;
+      final productId = product.productId;
+      grouped.putIfAbsent(productId, () => []).add(item);
+    }
+    // For display, sum quantities and total_price, but keep a reference to all cart entries
+    return grouped.entries.map((entry) {
+      final items = entry.value;
+      final first = items.first;
+      final totalQuantity = items.fold<int>(0, (sum, i) => sum + (i['quantity'] as int));
+      final totalPrice = items.fold<double>(0, (sum, i) => sum + (i['total_price'] as double));
+      return {
+        ...first,
+        'quantity': totalQuantity,
+        'total_price': totalPrice,
+        'cart_entries': items, // keep all original cart entries
+      };
+    }).toList();
+  }
 
   double get total => controller.fetchedCartTotal;
 
@@ -36,7 +54,7 @@ class CartViewLogic extends ChangeNotifier {
   final Map<int, Future<void> Function()> _debounceTimers = {};
 
   void _debounceAction(int cartId, Future<void> Function() action,
-      {Duration duration = const Duration(milliseconds: 400)}) {
+      {Duration duration = const Duration(seconds: 1)}) {
     // Cancel any existing debounce for this cartId
     _debounceTimers[cartId]?.call();
     // Create a new debounce
@@ -56,11 +74,15 @@ class CartViewLogic extends ChangeNotifier {
 
   Future<void> increaseQuantity(
       BuildContext context, Map<String, dynamic> item, int index) async {
-    final cartId = item['id'];
-    final product = item['product'];
-    final quantity = item['quantity'] as int;
+    final cartEntries = item['cart_entries'] as List<Map<String, dynamic>>?;
+    if (cartEntries == null || cartEntries.isEmpty) return;
+    // Find the entry with the largest quantity (or just use the first)
+    final cartEntry = cartEntries.reduce((a, b) => (a['quantity'] as int) >= (b['quantity'] as int) ? a : b);
+    final cartId = cartEntry['id'];
+    final product = cartEntry['product'];
+    final quantity = cartEntry['quantity'] as int;
     final newQuantity = quantity + 1;
-    item['quantity'] = newQuantity;
+    cartEntry['quantity'] = newQuantity;
     notifyListeners();
 
     _debounceAction(cartId, () async {
@@ -69,23 +91,32 @@ class CartViewLogic extends ChangeNotifier {
         product: product,
         quantity: newQuantity,
       );
-      if (!success) {
-        item['quantity'] = quantity;
+      if (success) {
+        await fetchCart(); // Always refresh after update
+      } else {
+        cartEntry['quantity'] = quantity;
         notifyListeners();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update item quantity.')),
-        );
+        // Only show SnackBar if context is still mounted
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update item quantity.')),
+          );
+        }
       }
     });
   }
 
   Future<void> decreaseQuantity(
       BuildContext context, Map<String, dynamic> item, int index) async {
-    final cartId = item['id'];
-    final product = item['product'];
-    final quantity = item['quantity'] as int;
+    final cartEntries = item['cart_entries'] as List<Map<String, dynamic>>?;
+    if (cartEntries == null || cartEntries.isEmpty) return;
+    // Find the entry with the largest quantity (or just use the first)
+    final cartEntry = cartEntries.reduce((a, b) => (a['quantity'] as int) >= (b['quantity'] as int) ? a : b);
+    final cartId = cartEntry['id'];
+    final product = cartEntry['product'];
+    final quantity = cartEntry['quantity'] as int;
     final newQuantity = quantity - 1;
-    item['quantity'] = newQuantity;
+    cartEntry['quantity'] = newQuantity;
     notifyListeners();
 
     _debounceAction(cartId, () async {
@@ -111,12 +142,18 @@ class CartViewLogic extends ChangeNotifier {
           notifyListeners();
         }
       }
-      if (!success) {
-        item['quantity'] = quantity;
+      if (success) {
+        await fetchCart(); // Always refresh after update
+      } else {
+        cartEntry['quantity'] = quantity;
         notifyListeners();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update item quantity.')),
-        );
+        // Only show SnackBar if context is still mounted and the item is still present in the cart
+        final stillInCart = controller.fetchedCartItems.any((item) => item['id'] == cartId);
+        if (context.mounted && stillInCart) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update item quantity.')),
+          );
+        }
       }
     });
   }
@@ -339,6 +376,94 @@ class CartProductCard extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class CartProductList extends StatelessWidget {
+  final List<dynamic> products;
+  final ScrollController? scrollController;
+  final Map<String, int> productQuantities;
+  final bool hasMoreProducts;
+  final Function(dynamic product, int newQuantity) onQuantityChanged;
+  final Future<bool> Function(dynamic product, int quantity) addProductToCart;
+
+  const CartProductList({
+    Key? key,
+    required this.products,
+    required this.productQuantities,
+    required this.hasMoreProducts,
+    required this.onQuantityChanged,
+    required this.addProductToCart,
+    this.scrollController,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Get the controller from context if available
+    final controller = context.findAncestorStateOfType<_CartViewPageState>()?.logic.controller;
+    return ListView.separated(
+      controller: scrollController,
+      itemCount: products.length + (hasMoreProducts ? 1 : 0),
+      separatorBuilder: (context, index) => const SizedBox(height: 15),
+      itemBuilder: (context, index) {
+        if (index == products.length) {
+          // Show loading indicator at the bottom
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final product = products[index];
+        final String quantityKey = product.productId != null ? product.productId.toString() : 'product_${index}';
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: CartProductCard(
+            item: {
+              'product': product,
+              'quantity': productQuantities[quantityKey] ?? 0,
+              'price': product.price ?? 0.0,
+              'total_price': (product.price ?? 0.0) * (productQuantities[quantityKey] ?? 0),
+            },
+            isRemoving: false,
+            onAddToCart: () async {
+              final currentQuantity = productQuantities[quantityKey] ?? 0;
+              final newQuantity = currentQuantity + 1;
+              onQuantityChanged(product, newQuantity);
+              final success = await addProductToCart(product, newQuantity);
+              debugPrint('addProductToCart success: $success');
+              if (success && controller != null) {
+                await controller.fetchCartFromApi();
+              }
+            },
+            onIncrease: () async {
+              final currentQuantity = productQuantities[quantityKey] ?? 0;
+              final newQuantity = currentQuantity + 1;
+              onQuantityChanged(product, newQuantity);
+              final success = await addProductToCart(product, newQuantity);
+              debugPrint('addProductToCart success: $success');
+              if (success && controller != null) {
+                await controller.fetchCartFromApi();
+              }
+            },
+            onDecrease: () async {
+              final currentQuantity = productQuantities[quantityKey] ?? 0;
+              final newQuantity = currentQuantity - 1;
+              if (newQuantity > 0) {
+                onQuantityChanged(product, newQuantity);
+                final success = await addProductToCart(product, newQuantity);
+                debugPrint('addProductToCart success: $success');
+                if (success && controller != null) {
+                  await controller.fetchCartFromApi();
+                }
+              } else {
+                onQuantityChanged(product, 0);
+                // Remove from local cart only - API call removed
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }

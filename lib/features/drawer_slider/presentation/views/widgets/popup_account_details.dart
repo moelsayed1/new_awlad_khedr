@@ -24,10 +24,14 @@ class OrderDetailsButton extends StatelessWidget {
           onPressed: () {
             showDialog(
               context: context,
-              builder: (BuildContext context) {
-                // Pass the whole transaction object directly
-                return OrderDetailsPopup(transaction: transaction);
-              },
+              builder: (BuildContext context) => ChangeNotifierProvider(
+                create: (_) => InvoiceProvider(),
+                builder: (providerContext, child) => Consumer<InvoiceProvider>(
+                  builder: (context, invoiceProvider, _) {
+                    return OrderDetailsPopup(transaction: transaction);
+                  },
+                ),
+              ),
             );
           },
           child: const Text(
