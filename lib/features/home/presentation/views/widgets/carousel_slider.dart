@@ -41,12 +41,14 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
         log('Banners API Response: ${response.body}');
 
         if (bannersModel != null && bannersModel!.data.isNotEmpty) {
+          if (!mounted) return;
           setState(() {
             isBannerLoaded = true;
             hasError = false;
           });
         } else {
           log('Banners data is empty or null.');
+          if (!mounted) return;
           setState(() {
             isBannerLoaded = true;
             hasError = true;
@@ -54,6 +56,7 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
         }
       } else {
         log('Failed to load banners: ${response.statusCode}, Body: ${response.body}');
+        if (!mounted) return;
         setState(() {
           isBannerLoaded = true;
           hasError = true;
@@ -61,6 +64,7 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
       }
     } catch (e) {
       log('Error fetching banners: $e');
+      if (!mounted) return;
       setState(() {
         isBannerLoaded = true;
         hasError = true;

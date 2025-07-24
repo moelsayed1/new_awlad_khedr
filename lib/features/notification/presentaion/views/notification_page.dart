@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../../drawer_slider/controller/notification_provider.dart';
 import '../../../drawer_slider/model/notification_model.dart';
+import 'package:awlad_khedr/features/invoice/data/invoice_provider.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -188,9 +189,14 @@ class NotificationCard extends StatelessWidget {
                         }
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) {
-                            return  OrderDetailsPopup(transactionId: transactionId);
-                          },
+                          builder: (BuildContext context) => ChangeNotifierProvider<InvoiceProvider>(
+                            create: (_) => InvoiceProvider(),
+                            builder: (providerContext, child) => Consumer<InvoiceProvider>(
+                              builder: (context, invoiceProvider, _) {
+                                return OrderDetailsPopup(transactionId: transactionId);
+                              },
+                            ),
+                          ),
                         );
                       },
                     ),
