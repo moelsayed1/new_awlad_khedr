@@ -25,15 +25,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ForgetPasswordProvider(),
-      child: Consumer<ForgetPasswordProvider>(
-        builder: (context, provider, child) {
-          return SafeArea(
-            child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                leading: Padding(
+    return Consumer<ForgetPasswordProvider>(
+      builder: (context, provider, child) {
+        return SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              leading: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     width: 40.11,
@@ -122,19 +120,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         filled: true,
                         fillColor: Colors.grey[200],
-                        errorText: _errorText,
+                        errorText: _errorText ?? provider.errorMessage,
                         errorStyle: const TextStyle(color: Colors.red,fontSize: 14, fontFamily: baseFont),
                       ),
                     ),
                     const SizedBox(height: 24),
-                    if (provider.errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          provider.errorMessage!,
-                          style: const TextStyle(color: Colors.red, fontFamily: baseFont),
-                        ),
-                      ),
                     if (provider.successMessage != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
@@ -202,7 +192,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             ),
           );
         },
-      ),
-    );
+      );
   }
 }

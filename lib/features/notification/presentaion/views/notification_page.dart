@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../../drawer_slider/controller/notification_provider.dart';
 import '../../../drawer_slider/model/notification_model.dart';
+import 'package:awlad_khedr/features/invoice/data/invoice_provider.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -179,11 +180,23 @@ class NotificationCard extends StatelessWidget {
                       width: 120.w,
                       height: 28.h,
                       onTap: () {
+                        final transactionId = int.tryParse(notification.orderNumber.replaceAll('#', ''));
+                        if (transactionId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Invalid order number')),
+                          );
+                          return;
+                        }
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) {
-                            return const OrderDetailsPopup();
-                          },
+                          builder: (BuildContext context) => ChangeNotifierProvider<InvoiceProvider>(
+                            create: (_) => InvoiceProvider(),
+                            builder: (providerContext, child) => Consumer<InvoiceProvider>(
+                              builder: (context, invoiceProvider, _) {
+                                return OrderDetailsPopup(transactionId: transactionId);
+                              },
+                            ),
+                          ),
                         );
                       },
                     ),

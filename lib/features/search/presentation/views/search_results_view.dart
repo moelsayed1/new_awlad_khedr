@@ -3,13 +3,14 @@ import 'package:awlad_khedr/core/assets.dart';
 import 'package:awlad_khedr/features/search/presentation/controllers/search_controller.dart';
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
-import 'package:awlad_khedr/features/most_requested/presentation/widgets/product_item_card.dart';
+import 'package:awlad_khedr/features/cart/presentation/views/cart_view.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../drawer_slider/presentation/views/side_slider.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 
 class SearchResultsPage extends StatefulWidget {
   final String searchQuery;
@@ -26,84 +27,44 @@ class SearchResultsPage extends StatefulWidget {
 }
 
 class _SearchResultsPageState extends State<SearchResultsPage> {
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ProductSearchController(
-        CategoryRepository(),
-        initialQuery: widget.searchQuery,
-      )..initializeWithCategory(widget.selectedCategory),
-      child: const _SearchResultsView(),
-    );
-  }
-}
-
-class _SearchResultsView extends StatefulWidget {
-  const _SearchResultsView();
-
-  @override
-  State<_SearchResultsView> createState() => _SearchResultsViewState();
-}
-
-class _SearchResultsViewState extends State<_SearchResultsView> {
   late final TextEditingController searchController;
   late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    searchController = TextEditingController();
+    final categoryController = Provider.of<CategoryController>(context, listen: false);
+    searchController = TextEditingController(text: widget.searchQuery);
     _scrollController = ScrollController();
+    // Set initial search query and apply filter
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = context.read<ProductSearchController>();
-      searchController.text = controller.searchQuery;
-      searchController.addListener(_onSearchChanged);
-      _scrollController.addListener(_onScroll);
+      categoryController.applySearchFilter(widget.searchQuery);
     });
-  }
-
-  void _onSearchChanged() {
-    final controller = context.read<ProductSearchController>();
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        controller.searchProducts(searchController.text);
+    _scrollController.addListener(() {
+      final controller = Provider.of<CategoryController>(context, listen: false);
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
+        if (controller.hasMoreProducts && !controller.isLoadingProducts) {
+          controller.loadMoreProducts();
+        }
       }
     });
-  }
-
-  void _onScroll() {
-    final controller = context.read<ProductSearchController>();
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
-      if (controller.hasMore) {
-        controller.fetchNextPage();
-      }
-    }
-  }
-
-  void _onCategorySelected(String category) {
-    final controller = context.read<ProductSearchController>();
-    controller.selectCategory(category);
   }
 
   @override
   void dispose() {
-    searchController.removeListener(_onSearchChanged);
     searchController.dispose();
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<ProductSearchController>();
-
+    final categoryController = Provider.of<CategoryController>(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Stack(
           children: [
-            // Title on the right
             Positioned(
               right: 20,
               top: 16,
@@ -121,7 +82,6 @@ class _SearchResultsViewState extends State<_SearchResultsView> {
                 ),
               ),
             ),
-            // Back button and text on the left
             Positioned(
               left: 0,
               top: 16,
@@ -160,172 +120,118 @@ class _SearchResultsViewState extends State<_SearchResultsView> {
               padding: const EdgeInsets.all(16.0),
               child: SearchWidget(
                 controller: searchController,
-                onChanged: controller.searchProducts,
-                onCategorySelected: _onCategorySelected,
+                onChanged: (query) {
+                  categoryController.applySearchFilter(query);
+                },
+                onSubmitted: (query) {
+                  categoryController.applySearchFilter(query);
+                },
               ),
             ),
-            const SizedBox(height: 15),
-            // Show current filter info
-            if (controller.selectedCategory.isNotEmpty || controller.searchQuery.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.filter_list, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _buildFilterText(controller),
-                        style: TextStyle(
-                          fontFamily: baseFont,
-                          fontSize: 14.sp,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ),
-                    if (controller.selectedCategory.isNotEmpty || controller.searchQuery.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          controller.clearCategoryFilter();
-                          searchController.clear();
-                        },
-                        child: Icon(Icons.clear, size: 16, color: Colors.grey[600]),
-                      ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 15),
-            if (!controller.isListLoaded)
+            //  SizedBox(height: 8.h),
+            if (!categoryController.isListLoaded && categoryController.filteredProducts.isEmpty)
               const Expanded(
                 child: Center(child: CircularProgressIndicator()),
               )
-            else if (controller.pagedProducts.isEmpty)
+            else if (categoryController.filteredProducts.isEmpty)
               Expanded(
                 child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        controller.selectedCategory.isNotEmpty ? Icons.category_outlined : Icons.search_off,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        controller.selectedCategory.isNotEmpty 
-                            ? 'لا توجد منتجات في هذا الصنف'
-                            : 'لا توجد نتائج للبحث',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 18.sp,
-                          fontFamily: baseFont,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        controller.selectedCategory.isNotEmpty
-                            ? 'جرب اختيار صنف آخر'
-                            : 'جرب البحث بكلمات مختلفة',
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                          fontSize: 14.sp,
-                          fontFamily: baseFont,
-                        ),
-                      ),
-                      if (controller.selectedCategory.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            controller.clearCategoryFilter();
-                            searchController.clear();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: darkOrange,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: Text(
-                            'عرض جميع المنتجات',
-                            style: TextStyle(
-                              fontFamily: baseFont,
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
+                  child: Text(
+                    'لا توجد نتائج للبحث',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 18,
+                      fontFamily: baseFont,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               )
             else
               Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await controller.searchProducts(controller.searchQuery);
-                  },
-                  backgroundColor: Colors.white,
-                  child: ListView.separated(
-                    controller: _scrollController,
-                    itemCount: controller.pagedProducts.length + (controller.hasMore ? 1 : 0),
-                    separatorBuilder: (context, index) => const SizedBox(height: 15),
-                    itemBuilder: (context, index) {
-                      if (index == controller.pagedProducts.length) {
-                        // Show loading indicator at the end
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Center(
-                            child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                child: Stack(
+                  children: [
+                    RefreshIndicator(
+                      onRefresh: () async {
+                        if (categoryController.selectedCategory == 'الكل') {
+                          await categoryController.fetchAllProducts();
+                        } else {
+                          await categoryController.fetchProductsByCategory();
+                        }
+                        categoryController.applySearchFilter(searchController.text);
+                      },
+                      backgroundColor: Colors.white,
+                      child: ListView.separated(
+                        controller: _scrollController,
+                        itemCount: categoryController.filteredProducts.length + (categoryController.isLoadingProducts && categoryController.hasMoreProducts ? 1 : 0),
+                        separatorBuilder: (context, index) => const SizedBox(height: 15),
+                        itemBuilder: (context, index) {
+                          if (index == categoryController.filteredProducts.length && categoryController.isLoadingProducts && categoryController.hasMoreProducts) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                          final product = categoryController.filteredProducts[index];
+                          final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${index}';
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Column(
+                              children: [
+                                CartProductCard(
+                                  item: {
+                                    'product': product,
+                                    'quantity': categoryController.productQuantities[quantityKey] ?? 0,
+                                    'price': product.price ?? 0.0,
+                                    'total_price': (product.price ?? 0.0) * (categoryController.productQuantities[quantityKey] ?? 0),
+                                  },
+                                  isRemoving: false,
+                                  onIncrease: () async {
+                                    final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
+                                    final newQuantity = currentQuantity + 1;
+                                    categoryController.onQuantityChanged(quantityKey, newQuantity);
+                                    categoryController.cart[product] = newQuantity;
+                                    categoryController.safeNotifyListeners();
+                                    await categoryController.addProductToCart(product, newQuantity);
+                                  },
+                                  onDecrease: () async {
+                                    final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
+                                    final newQuantity = currentQuantity - 1;
+                                    if (newQuantity > 0) {
+                                      categoryController.onQuantityChanged(quantityKey, newQuantity);
+                                      categoryController.cart[product] = newQuantity;
+                                    } else {
+                                      categoryController.onQuantityChanged(quantityKey, 0);
+                                      categoryController.cart.remove(product);
+                                    }
+                                    categoryController.safeNotifyListeners();
+                                  },
+                                  onAddToCart: () async {
+                                    final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
+                                    final newQuantity = currentQuantity + 1;
+                                    categoryController.onQuantityChanged(quantityKey, newQuantity);
+                                    categoryController.cart[product] = newQuantity;
+                                    categoryController.safeNotifyListeners();
+                                    await categoryController.addProductToCart(product, newQuantity);
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
-                        );
-                      }
-                      final product = controller.pagedProducts[index];
-                      final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${index}';
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Column(
-                          children: [
-                            ProductItemCard(
-                              product: product,
-                              quantity: controller.productQuantities[quantityKey] ?? 0,
-                              onQuantityChanged: (newQuantity) {
-                                controller.onQuantityChanged(quantityKey, newQuantity);
-                                if (newQuantity > 0) {
-                                  controller.cart[product] = newQuantity;
-                                } else {
-                                  controller.cart.remove(product);
-                                }
-                                controller.safeNotifyListeners();
-                              },
-                              onAddToCart: () {
-                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
-                                final newQuantity = currentQuantity + 1;
-                                controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.cart[product] = newQuantity;
-                                controller.safeNotifyListeners();
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                          );
+                        },
+                      ),
+                    ),
+                    if (categoryController.isLoadingProducts && categoryController.filteredProducts.isEmpty)
+                      const Center(child: CircularProgressIndicator()),
+                  ],
                 ),
               ),
           ],
         ),
       ),
-      floatingActionButton: controller.cart.isNotEmpty
+      floatingActionButton: categoryController.cart.isNotEmpty
           ? FloatingActionButton.extended(
-              backgroundColor: Colors.orange,
+              backgroundColor: const Color(0xffFC6E2A),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
@@ -338,11 +244,11 @@ class _SearchResultsViewState extends State<_SearchResultsView> {
                     expand: false,
                     builder: (context, scrollController) {
                       return CartSheet(
-                        cart: controller.cart,
-                        total: controller.cartTotal,
+                        cart: categoryController.cart,
+                        total: categoryController.cartTotal,
                         onClose: () => Navigator.pop(context),
                         onPaymentSuccess: () {
-                          controller.clearCart();
+                          categoryController.clearCart();
                         },
                       );
                     },
@@ -350,7 +256,7 @@ class _SearchResultsViewState extends State<_SearchResultsView> {
                 );
               },
               label: Text(
-                'السلة (${controller.cart.length})',
+                'السلة (${categoryController.cart.length})',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -362,16 +268,5 @@ class _SearchResultsViewState extends State<_SearchResultsView> {
             )
           : null,
     );
-  }
-
-  String _buildFilterText(ProductSearchController controller) {
-    List<String> filters = [];
-    if (controller.selectedCategory.isNotEmpty) {
-      filters.add('الصنف: ${controller.selectedCategory}');
-    }
-    if (controller.searchQuery.isNotEmpty) {
-      filters.add('البحث: ${controller.searchQuery}');
-    }
-    return filters.join(' • ');
   }
 } 

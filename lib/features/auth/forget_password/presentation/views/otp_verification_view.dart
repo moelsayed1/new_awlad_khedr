@@ -1,12 +1,33 @@
 import 'package:awlad_khedr/constant.dart';
+import 'package:awlad_khedr/features/auth/forget_password/data/forget_password_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../core/app_router.dart';
 
 
-class VerificationScreen extends StatelessWidget {
+class VerificationScreen extends StatefulWidget {
   const VerificationScreen({super.key});
+
+  @override
+  State<VerificationScreen> createState() => _VerificationScreenState();
+}
+
+class _VerificationScreenState extends State<VerificationScreen> {
+  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+
+  @override
+  void dispose() {
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +105,8 @@ class VerificationScreen extends StatelessWidget {
                   return SizedBox(
                     width: 50,
                     child: TextField(
+                      controller: _controllers[index],
+                      focusNode: _focusNodes[index],
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
                       style: const TextStyle(
@@ -96,9 +119,19 @@ class VerificationScreen extends StatelessWidget {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: Colors.grey),
-
                         ),
                       ),
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          if (index < 5) {
+                            FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+                          } else {
+                            FocusScope.of(context).unfocus();
+                          }
+                        } else if (value.isEmpty && index > 0) {
+                          FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+                        }
+                      },
                     ),
                   );
                 }),
@@ -109,7 +142,19 @@ class VerificationScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                   GoRouter.of(context).push(AppRouter.kUpdatePasswordScreen);
+                    final otp = _controllers.map((e) => e.text).join();
+                    if (otp.length == 6) {
+                      GoRouter.of(context).push(
+                        AppRouter.kUpdatePasswordScreen,
+                        extra: {'otp': otp},
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter the complete 6-digit OTP.'),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brownDark, // Button color

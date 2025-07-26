@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'invoice_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:awlad_khedr/constant.dart';
+import 'dart:convert';
 
 class InvoiceProvider extends ChangeNotifier {
   final InvoiceService _invoiceService = InvoiceService();
@@ -37,6 +40,12 @@ class InvoiceProvider extends ChangeNotifier {
   bool _isLoadingTransactionInvoice = false;
   bool get isLoadingTransactionInvoice => _isLoadingTransactionInvoice;
 
+  num? _allRestOfDues;
+  num? get allRestOfDues => _allRestOfDues;
+
+  num? _totalReceivables;
+  num? get totalReceivables => _totalReceivables;
+
   Future<void> fetchOrders() async {
     _isLoadingOrders = true;
     _error = null;
@@ -56,10 +65,30 @@ class InvoiceProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _transactions = await _invoiceService.getAllTransactions();
+      // Fetch the full response, not just transactions list
+      final token = await InvoiceService.getToken();
+      final response = await http.get(
+        Uri.parse(APIConstant.GET_ALL_TRANSACTIONS),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        _transactions = data['transactions'] ?? [];
+        _allRestOfDues = data['all_rest_of_dues'];
+        _totalReceivables = data['total_receivables'];
+      } else {
+        _transactions = [];
+        _allRestOfDues = null;
+        _totalReceivables = null;
+      }
     } catch (e) {
       _error = e.toString();
       _transactions = [];
+      _allRestOfDues = null;
+      _totalReceivables = null;
     }
     _isLoadingTransactions = false;
     notifyListeners();

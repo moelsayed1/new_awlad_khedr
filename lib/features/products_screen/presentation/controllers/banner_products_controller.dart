@@ -1,3 +1,5 @@
+// DEPRECATED: This controller is no longer used. Cart and product logic are now handled by the global CategoryController.
+// This file can be deleted after verifying all references are removed.
 import 'package:flutter/material.dart';
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
@@ -46,7 +48,7 @@ class BannerProductsController extends ChangeNotifier {
   List<Product> displayedProducts = [];
   List<Product> filteredProducts = [];
   String _currentSearchQuery = '';
-  
+
   // Pagination variables
   int currentPage = 0;
   static const int productsPerPage = 10;
@@ -91,11 +93,10 @@ class BannerProductsController extends ChangeNotifier {
 
       // Initialize filtered products
       filteredProducts = topRatedItem?.products ?? [];
-      
+
       // Mark data as loaded
       isListLoaded = true;
       safeNotifyListeners();
-
     } catch (e) {
       log('Error initializing data: $e');
       isListLoaded = true;
@@ -108,28 +109,28 @@ class BannerProductsController extends ChangeNotifier {
   Future<void> fetchBannerProducts() async {
     isListLoaded = false;
     safeNotifyListeners();
-    
+
     try {
       List<Product> products = [];
-      
+
       // If brand ID is provided, fetch products by brand
       if (brandId != null) {
         products = await _repository.fetchProductsByBrand(brandId!);
-      } 
+      }
       // If category name is provided, fetch products by category
       else if (categoryName != null) {
         products = await _repository.fetchProductsByCategory(categoryName!);
-      } 
+      }
       // Fallback to all products
       else {
         products = await _repository.fetchAllProducts();
       }
-      
+
       topRatedItem = TopRatedModel(products: products);
       allProducts = products;
       _updateProductQuantities(products);
       applySearchFilter(_currentSearchQuery);
-      
+
       // Reset pagination and load first page
       resetPagination();
       loadNextPage();
@@ -154,7 +155,7 @@ class BannerProductsController extends ChangeNotifier {
 
   void loadNextPage() {
     if (isLoadingMore || !hasMoreProducts) return;
-    
+
     isLoadingMore = true;
     safeNotifyListeners();
 
@@ -162,13 +163,14 @@ class BannerProductsController extends ChangeNotifier {
     Future.delayed(const Duration(milliseconds: 500), () {
       final startIndex = currentPage * productsPerPage;
       final endIndex = startIndex + productsPerPage;
-      
+
       if (startIndex < filteredProducts.length) {
         final newProducts = filteredProducts.sublist(
-          startIndex, 
-          endIndex > filteredProducts.length ? filteredProducts.length : endIndex
-        );
-        
+            startIndex,
+            endIndex > filteredProducts.length
+                ? filteredProducts.length
+                : endIndex);
+
         displayedProducts.addAll(newProducts);
         currentPage++;
         isLoadingMore = false;
@@ -181,12 +183,12 @@ class BannerProductsController extends ChangeNotifier {
     });
   }
 
-
-
   void _updateProductQuantities(List<Product> products) {
     final Map<String, int> newProductQuantities = {};
     for (var product in products) {
-      final String key = product.productId?.toString() ?? product.productName ?? UniqueKey().toString();
+      final String key = product.productId?.toString() ??
+          product.productName ??
+          UniqueKey().toString();
       newProductQuantities[key] = productQuantities[key] ?? 0;
     }
     productQuantities.clear();
@@ -198,18 +200,19 @@ class BannerProductsController extends ChangeNotifier {
     List<Product> productsToFilter = allProducts;
     if (query.isNotEmpty) {
       filteredProducts = productsToFilter.where((product) {
-        return (product.productName?.toLowerCase().contains(query.toLowerCase()) ?? false);
+        return (product.productName
+                ?.toLowerCase()
+                .contains(query.toLowerCase()) ??
+            false);
       }).toList();
     } else {
       filteredProducts = productsToFilter;
     }
-    
+
     // Reset pagination when search changes
     resetPagination();
     loadNextPage();
   }
-
-
 
   void onQuantityChanged(String productKey, int newQuantity) {
     productQuantities[productKey] = newQuantity;
@@ -226,4 +229,14 @@ class BannerProductsController extends ChangeNotifier {
     productQuantities.updateAll((key, value) => 0);
     safeNotifyListeners();
   }
-} 
+
+  Future<bool> addProductToCart(Product product, int quantity) async {
+    // يمكنك تخصيص المنطق حسب الحاجة
+    final success = await _repository.addProductToCart(
+      productId: product.productId ?? 0,
+      quantity: quantity,
+      price: product.price,
+    );
+    return success;
+  }
+}

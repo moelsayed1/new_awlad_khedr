@@ -8,7 +8,8 @@ class MainLayout extends StatelessWidget {
   final int selectedIndex;
   final Widget child;
 
-  const MainLayout({super.key, required this.selectedIndex, required this.child});
+  const MainLayout(
+      {super.key, required this.selectedIndex, required this.child});
 
   void _onItemTapped(BuildContext context, int index) {
     switch (index) {
@@ -32,33 +33,40 @@ class MainLayout extends StatelessWidget {
     return Scaffold(
         backgroundColor: Colors.transparent,
         body: child,
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor:  darkOrange,
-          unselectedItemColor: Colors.black,
-          currentIndex: selectedIndex,
-          onTap: (index) => _onItemTapped(context, index),
-          items:  [
-            BottomNavigationBarItem(
-              icon: Icon(selectedIndex  == 0 ? Icons.home : Icons.home_outlined ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(selectedIndex == 1 ? Icons.shopping_cart : Icons.shopping_cart_outlined),
-              label: 'Cart',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(selectedIndex == 2 ? Icons.notifications_active : Icons.notifications_active_outlined),
-              label: 'Alert',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(selectedIndex == 4 ? Icons.person : Icons.person_outline
+        bottomNavigationBar: Directionality(
+          textDirection: TextDirection.rtl,
+          child: BottomNavigationBar(
+            backgroundColor: Colors.white,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: darkOrange,
+            unselectedItemColor: Colors.black,
+            currentIndex: selectedIndex,
+            onTap: (index) => _onItemTapped(context, index),
+            items: [
+              BottomNavigationBarItem(
+                icon:
+                    Icon(selectedIndex == 0 ? Icons.home : Icons.home_outlined),
+                label: 'الرئيسية',
               ),
-              label: 'Person',
-            ),
-          ],
-        )
-    );
+              BottomNavigationBarItem(
+                icon: Icon(selectedIndex == 1
+                    ? Icons.shopping_cart
+                    : Icons.shopping_cart_outlined),
+                label: 'السلة',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(selectedIndex == 2
+                    ? Icons.notifications_active
+                    : Icons.notifications_active_outlined),
+                label: 'اشعارات',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                    selectedIndex == 4 ? Icons.person : Icons.person_outline),
+                label: 'حسابي',
+              ),
+            ],
+          ),
+        ));
   }
 }

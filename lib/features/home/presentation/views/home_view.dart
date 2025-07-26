@@ -69,10 +69,34 @@ class _HomeScreenViewState extends State<HomeScreenView> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.transparent,
-          content: Image.asset(
-            'assets/images/ads.png',
-            width: 316,
-            height: 392,
+          contentPadding: EdgeInsets.zero,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                'assets/images/ads.png',
+                width: 316,
+                height: 392,
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.7),
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.black,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -94,7 +118,9 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                   Text(
                     '🎉  اهلا مرحبا بك',
                     style: TextStyle(
-                        color: Colors.black, fontSize: 14, fontFamily: baseFont),
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: baseFont),
                   ),
                   Text(
                     'أبدأ التسوق',
@@ -170,8 +196,8 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                 const SizedBox(height: 10),
                 const Row(
                   children: [
-                    Expanded(
-                        child: HomeCategory()),],
+                    Expanded(child: HomeCategory()),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -203,11 +229,10 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                 const SizedBox(height: 10),
                 const Row(
                   children: [
-                    Expanded(
-                        child: TopRatedItem()),],
+                    Expanded(child: TopRatedItem()),
+                  ],
                 ),
                 const SizedBox(height: 20),
-
               ],
             ),
           ),

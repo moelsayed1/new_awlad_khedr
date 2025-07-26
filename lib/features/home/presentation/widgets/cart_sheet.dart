@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
 import 'package:awlad_khedr/core/theme/app_colors.dart';
+import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 
 class CartSheet extends StatelessWidget {
   final Map<top_rated.Product, int> cart;
@@ -22,7 +24,7 @@ class CartSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.secondary,
+      color: Colors.white,
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -32,7 +34,7 @@ class CartSheet extends StatelessWidget {
               Text(
                 'السلة',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                   fontFamily: baseFont,
@@ -75,9 +77,9 @@ class CartSheet extends StatelessWidget {
                                 child: Text(
                                   product.productName ?? 'Unknown Product',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontSize: 14.sp,
-                                    fontFamily: 'Tajawal',
+                                    fontFamily: baseFont,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -85,7 +87,7 @@ class CartSheet extends StatelessWidget {
                               Text(
                                 'الكمية: $quantity',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontSize: 14.sp,
                                   fontFamily: baseFont,
                                 ),
@@ -98,7 +100,7 @@ class CartSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const Divider(color: Colors.white54),
+              const Divider(color: Colors.black45),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
@@ -107,7 +109,7 @@ class CartSheet extends StatelessWidget {
                     Text(
                       '${total.toStringAsFixed(2)} ج.م',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                         fontFamily: baseFont,
@@ -116,7 +118,7 @@ class CartSheet extends StatelessWidget {
                     Text(
                       ':الإجمالـي',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                         fontFamily: baseFont,
@@ -130,21 +132,23 @@ class CartSheet extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: cart.isNotEmpty
-                      ? () {
+                      ? () async {
+                          final controller = Provider.of<CategoryController>(context, listen: false);
+                          await controller.fetchCartFromApi();
                           onClose();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => CartViewPage(
-                                products: cart.keys.toList(),
-                                quantities: cart.values.toList(),
+                                products: controller.cart.keys.toList(),
+                                quantities: controller.cart.values.toList(),
                               ),
                             ),
                           );
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: const Color(0xffFC6E2A),
                     padding: EdgeInsets.symmetric(vertical: 8.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),

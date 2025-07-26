@@ -188,3 +188,106 @@ class CartItem extends StatelessWidget {
     );
   }
 }
+
+class CartProductItem extends StatelessWidget {
+  final String productName;
+  final int quantity;
+  final double price;
+  final double total;
+
+  const CartProductItem({
+    Key? key,
+    required this.productName,
+    required this.quantity,
+    required this.price,
+    required this.total,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            // You can add a product image here if available
+            // CircleAvatar(backgroundImage: NetworkImage(imageUrl), radius: 24),
+            // SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    productName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.black,
+                      letterSpacing: 0.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    child: Row(
+                      children: [
+                        Icon(Icons.confirmation_number, size: 18, color: Colors.orange[700]),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Qty: $quantity',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                        Icon(Icons.attach_money, size: 18, color: Colors.green[700]),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Price: ${price.toStringAsFixed(2)} EGP',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'الإجمالي',
+                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                ),
+                Text(
+                  '${total.toStringAsFixed(2)} ج.م',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

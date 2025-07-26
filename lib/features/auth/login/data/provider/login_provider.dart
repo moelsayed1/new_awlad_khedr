@@ -61,11 +61,11 @@
 //   }
 // }
 
+import 'package:awlad_khedr/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/login_service.dart';
 import 'dart:developer';
-
 
 class LoginProvider extends ChangeNotifier {
   String? _token;
@@ -88,7 +88,9 @@ class LoginProvider extends ChangeNotifier {
       final fetchedToken = await _loginService.login(userName, password);
       if (fetchedToken != null) {
         _token = fetchedToken;
+        authToken = fetchedToken;
         await saveToken(fetchedToken);
+
         log('Token saved successfully: $_token');
       } else {
         log('Failed to log in. Token is null.');
@@ -109,6 +111,7 @@ class LoginProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
+      authToken = token;
       log('Token saved to SharedPreferences: $token');
     } catch (e) {
       log('Error saving token: $e');
@@ -119,6 +122,7 @@ class LoginProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       _token = prefs.getString('token');
+      authToken = _token!;
       log('Token loaded from SharedPreferences: $_token');
       notifyListeners();
     } catch (e) {
@@ -147,6 +151,7 @@ class LoginProvider extends ChangeNotifier {
   Future<bool> isLoggedIn() async {
     if (_token == null) {
       await loadToken();
+      authToken = _token!;
     }
     return _token != null && _token!.isNotEmpty;
   }

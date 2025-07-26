@@ -45,10 +45,12 @@ dependencies:
   shared_preferences: ^2.3.2
   flutter_rating_stars: ^1.1.0
   http: ^1.2.2
-  intl: ^0.20.1
+  intl: ^0.20.2
   lottie: ^2.2.0
   flutter_screenutil: ^5.9.3
 #  flutter_secure_storage: ^4.2.1
+  shimmer: ^3.0.0
+  image_picker: ^1.0.4
 
 dev_dependencies:
   flutter_test:

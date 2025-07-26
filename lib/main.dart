@@ -1,3 +1,5 @@
+import 'package:awlad_khedr/core/network/api_service.dart';
+import 'package:awlad_khedr/core/services/product_service.dart';
 import 'package:awlad_khedr/features/auth/register/data/provider/register_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,7 +10,9 @@ import 'features/auth/login/data/provider/login_provider.dart';
 import 'features/drawer_slider/controller/notification_provider.dart';
 import 'dart:developer';
 import 'features/order/presentation/controllers/order_provider.dart';
-
+import 'features/home/presentation/controllers/category_controller.dart';
+import 'features/home/data/repositories/category_repository.dart';
+import 'features/auth/forget_password/data/forget_password_provider.dart';
 
 String authToken = "";
 
@@ -16,7 +20,7 @@ Future<void> initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences pref = await SharedPreferences.getInstance();
   authToken = pref.getString('token') ?? '';
-  
+
   // Validate token if it exists
   if (authToken.isNotEmpty) {
     try {
@@ -35,8 +39,10 @@ Future<void> initializeApp() async {
 }
 
 void main() async {
-  await initializeApp();
-  
+  await initializeApp();         // Loads authToken (optional, for legacy)
+  await ApiService().init();     // Loads token into ApiService singleton
+  print('Loaded token: \x1B[32m${ApiService().currentToken}\x1B[0m'); // Debug log for token
+
   runApp(
     MultiProvider(
       providers: [
@@ -44,10 +50,13 @@ void main() async {
         ChangeNotifierProvider(create: (_) {
           final loginProvider = LoginProvider();
           loginProvider.loadToken();
+          
           return loginProvider;
         }),
         ChangeNotifierProvider(create: (_) => RegisterProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryController(CategoryRepository(ApiService(), ProductService()))),
+        ChangeNotifierProvider(create: (_) => ForgetPasswordProvider()),
       ],
       child: const AwladKhedr(),
     ),

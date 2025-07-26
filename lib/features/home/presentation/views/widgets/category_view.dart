@@ -1,4 +1,8 @@
 // For min function
+import 'dart:async';
+import 'dart:developer';
+
+import 'package:awlad_khedr/features/cart/presentation/views/cart_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -10,12 +14,14 @@ import 'package:awlad_khedr/constant.dart'; // For APIConstant, baseFont
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slider.dart'; // For CustomDrawer
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart'; // For SearchWidget
 import 'package:awlad_khedr/features/most_requested/presentation/widgets/category_filter_bar.dart';
-import 'package:awlad_khedr/features/most_requested/presentation/widgets/product_item_card.dart'; // For ProductItemCard
+// For ProductItemCard
 import 'package:awlad_khedr/features/home/presentation/views/widgets/categories_app_bar.dart'; // For CategoriesAppBar
 // For AppColors.primary
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
+import 'package:awlad_khedr/core/network/api_service.dart';
+import 'package:awlad_khedr/core/services/product_service.dart';
 
 // Helper function to split product name after two words
 String splitAfterTwoWords(String? name) {
@@ -31,7 +37,7 @@ class CategoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => CategoryController(CategoryRepository()),
+      create: (context) => CategoryController(CategoryRepository(ApiService(), ProductService())),
       child: const _CategoriesView(),
     );
   }
@@ -46,19 +52,34 @@ class _CategoriesView extends StatefulWidget {
 
 class _CategoriesViewState extends State<_CategoriesView> {
   late final TextEditingController searchController;
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
     searchController = TextEditingController();
+    _scrollController.addListener(_onScroll);
     // No need to manually initialize controller data here; it's done in the controller's constructor.
+  }
+
+  void _onScroll() async {
+    final controller = context.read<CategoryController>();
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 10 &&
+        !controller.isLoadingProducts &&
+        controller.hasMoreProducts) {
+      setState(() => _isLoadingMore = true);
+      await controller.loadMoreProducts();
+      setState(() => _isLoadingMore = false);
+    }
   }
 
   @override
   void dispose() {
     searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,22 +105,25 @@ class _CategoriesViewState extends State<_CategoriesView> {
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: SizedBox(
                 height: 50.h,
-                child: CategoryFilterBar(
-                  categories: controller.categories,
-                  selectedCategory: controller.selectedCategory,
-                  onCategorySelected: (category) {
-                    controller.onCategorySelected(category);
-                    searchController.clear();
-                    if (category == 'الكل') {
-                      controller.fetchAllProducts();
-                    } else {
-                      controller.fetchProductsByCategory();
-                    }
-                  },
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: CategoryFilterBar(
+                    categories: controller.categories,
+                    selectedCategory: controller.selectedCategory,
+                    onCategorySelected: (category) {
+                      controller.onCategorySelected(category);
+                      searchController.clear();
+                      if (category == 'الكل') {
+                        controller.fetchAllProducts();
+                      } else {
+                        controller.fetchProductsByCategory();
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 12),
             if (!controller.isListLoaded)
               const Expanded( // Use Expanded to allow CircularProgressIndicator to take available space
                 child: Center(child: CircularProgressIndicator()),
@@ -129,39 +153,61 @@ class _CategoriesViewState extends State<_CategoriesView> {
                   },
                   backgroundColor: Colors.white,
                   child: ListView.separated(
-                    itemCount: controller.filteredProducts.length,
+                    controller: _scrollController,
+                    itemCount: controller.filteredProducts.length + (controller.hasMoreProducts ? 1 : 0),
                     separatorBuilder: (context, index) => const SizedBox(height: 15),
                     itemBuilder: (context, index) {
+                      if (index == controller.filteredProducts.length) {
+                        // Show loading indicator at the bottom
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
                       final product = controller.filteredProducts[index];
-                      final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${index}';
+                      final String quantityKey = product.productId != null ? product.productId.toString() : 'product_${index}';
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Column(
                           children: [
-                            ProductItemCard(
-                              product: product,
-                              // Pass a custom productTitleBuilder to ProductItemCard if supported
-                              // Otherwise, you may need to modify ProductItemCard to accept a title string
-                              // Here, we assume ProductItemCard has a 'productTitle' or similar parameter
-                              quantity: controller.productQuantities[quantityKey] ?? 0,
-                              onQuantityChanged: (newQuantity) {
-                                controller.onQuantityChanged(quantityKey, newQuantity);
-                                if (newQuantity > 0) {
-                                  controller.cart[product] = newQuantity;
-                                } else {
-                                  controller.cart.remove(product);
-                                }
-                                controller.safeNotifyListeners();
+                            CartProductCard(
+                              item: {
+                                'product': product,
+                                'quantity': controller.productQuantities[quantityKey] ?? 0,
+                                'price': product.price ?? 0.0,
+                                'total_price': (product.price ?? 0.0) * (controller.productQuantities[quantityKey] ?? 0),
                               },
-                              onAddToCart: () {
+                              isRemoving: false,
+                              onAddToCart: () async {
                                 final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
                                 final newQuantity = currentQuantity + 1;
+                                log.dev('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
                                 controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.cart[product] = newQuantity;
-                                controller.safeNotifyListeners();
+                                controller.updateCartItemQuantity(product, newQuantity);
+                                await controller.addProductToCart(product, newQuantity);
                               },
-                              // If ProductItemCard supports a custom title, pass it here:
-                              // productTitle: splitAfterTwoWords(product.productName),
+                              onIncrease: () async {
+                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                final newQuantity = currentQuantity + 1;
+                                log.dev('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
+                                controller.onQuantityChanged(quantityKey, newQuantity);
+                                controller.updateCartItemQuantity(product, newQuantity);
+                                await controller.addProductToCart(product, newQuantity);
+                              },
+                              onDecrease: () async {
+                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                final newQuantity = currentQuantity - 1;
+                                log.dev('onDecrease: key=$quantityKey, newQuantity=$newQuantity');
+                                if (newQuantity > 0) {
+                                  controller.onQuantityChanged(quantityKey, newQuantity);
+                                  controller.updateCartItemQuantity(product, newQuantity);
+                                  await controller.addProductToCart(product, newQuantity);
+                                } else {
+                                  controller.onQuantityChanged(quantityKey, 0);
+                                  controller.removeFromCart(product);
+                                  await controller.removeProductFromCart(product);
+                                }
+                              },
                             ),
                           ],
                         ),
@@ -175,7 +221,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
       ),
       floatingActionButton: controller.cart.isNotEmpty
           ? FloatingActionButton.extended(
-        backgroundColor: Colors.orange,
+        backgroundColor: Color(0xffFC6E2A),
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -213,4 +259,8 @@ class _CategoriesViewState extends State<_CategoriesView> {
           : null,
     );
   }
+}
+
+extension on void Function(String message, {Object? error, int level, String name, int? sequenceNumber, StackTrace? stackTrace, DateTime? time, Zone? zone}) {
+  void dev(String s) {}
 }

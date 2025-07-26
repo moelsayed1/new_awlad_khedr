@@ -58,7 +58,7 @@ class MostRequestedProductsSection extends StatelessWidget {
         ),
         SizedBox(height: 15.h),
         SizedBox(
-          height: 190.h,
+          height: 150.h,
           child: ListView.builder(
             reverse: true,
             scrollDirection: Axis.horizontal,

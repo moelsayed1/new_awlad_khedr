@@ -32,7 +32,13 @@ class APIConstant {
   static const GET_ORDER_INVOICE = "$BASE_URL/api/order-invoice"; // Usage: /api/order-invoice/{id}
   static const GET_TRANSACTION_INVOICE = "$BASE_URL/api/transaction-invoice"; // Usage: /api/transaction-invoice/{id}
   static const STORE_TO_CART = "$BASE_URL/api/cart";
+  static const GET_STORED_CART = "$BASE_URL/api/cart";
+  static const STORE_ORDER = "$BASE_URL/api/sells/store";
   static const GET_PRODUCTS_BY_BRAND = "$BASE_URL/api/banner-products"; // Usage: /api/banner-products?brand_id=xxx
-  
-  // static final GET_ALL_SUBCATEGORY = "$BASE_URL/api/category/subcategories/";
+  static const UPDATE_CART = "$BASE_URL/api/cart"; // Usage: /api/cart/{id} for update
+  static const DELETE_CART = "$BASE_URL/api/cart/delete"; // Usage: /api/cart/delete/{id} for delete
+  static const String ORDER_INVOICE = '/api/order-invoice/';
+  static const GET_CUSTOMER_MAIN_DATA = "$BASE_URL/api/customer";
+  static const UPDATE_USER_DATA = "$BASE_URL/api/update/user";
+
 }
