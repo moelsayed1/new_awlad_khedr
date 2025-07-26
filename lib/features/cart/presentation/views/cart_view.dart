@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/main_layout.dart';
 import 'package:awlad_khedr/features/cart/presentation/views/widgets/custom_button_cart.dart';
@@ -36,8 +37,10 @@ class CartViewLogic extends ChangeNotifier {
     return grouped.entries.map((entry) {
       final items = entry.value;
       final first = items.first;
-      final totalQuantity = items.fold<int>(0, (sum, i) => sum + (i['quantity'] as int));
-      final totalPrice = items.fold<double>(0, (sum, i) => sum + (i['total_price'] as double));
+      final totalQuantity =
+          items.fold<int>(0, (sum, i) => sum + (i['quantity'] as int));
+      final totalPrice =
+          items.fold<double>(0, (sum, i) => sum + (i['total_price'] as double));
       return {
         ...first,
         'quantity': totalQuantity,
@@ -49,25 +52,23 @@ class CartViewLogic extends ChangeNotifier {
 
   double get total => controller.fetchedCartTotal;
 
-  // Debounce logic implementation for increase/decrease quantity actions
-
-  final Map<int, Future<void> Function()> _debounceTimers = {};
+  // Improved debounce logic with better cancellation handling
+  final Map<int, bool> _debounceCancelled = {};
+  final Map<int, Timer> _debounceTimers = {};
 
   void _debounceAction(int cartId, Future<void> Function() action,
-      {Duration duration = const Duration(seconds: 1)}) {
+      {Duration duration = const Duration(milliseconds: 500)}) {
     // Cancel any existing debounce for this cartId
-    _debounceTimers[cartId]?.call();
-    // Create a new debounce
-    bool isCancelled = false;
-    Future<void> cancel() async {
-      isCancelled = true;
-    }
+    _debounceCancelled[cartId] = true;
+    _debounceTimers[cartId]?.cancel();
 
-    _debounceTimers[cartId] = cancel;
-    Future.delayed(duration, () async {
-      if (!isCancelled) {
+    // Create a new debounce
+    _debounceCancelled[cartId] = false;
+    _debounceTimers[cartId] = Timer(duration, () async {
+      if (!(_debounceCancelled[cartId] ?? false)) {
         await action();
         _debounceTimers.remove(cartId);
+        _debounceCancelled.remove(cartId);
       }
     });
   }
@@ -76,30 +77,43 @@ class CartViewLogic extends ChangeNotifier {
       BuildContext context, Map<String, dynamic> item, int index) async {
     final cartEntries = item['cart_entries'] as List<Map<String, dynamic>>?;
     if (cartEntries == null || cartEntries.isEmpty) return;
+
     // Find the entry with the largest quantity (or just use the first)
-    final cartEntry = cartEntries.reduce((a, b) => (a['quantity'] as int) >= (b['quantity'] as int) ? a : b);
+    final cartEntry = cartEntries.reduce(
+        (a, b) => (a['quantity'] as int) >= (b['quantity'] as int) ? a : b);
     final cartId = cartEntry['id'];
     final product = cartEntry['product'];
     final quantity = cartEntry['quantity'] as int;
     final newQuantity = quantity + 1;
+
+    // Optimistic update
     cartEntry['quantity'] = newQuantity;
     notifyListeners();
 
     _debounceAction(cartId, () async {
-      final success = await controller.updateCartItem(
-        cartId: cartId,
-        product: product,
-        quantity: newQuantity,
-      );
-      if (success) {
-        await fetchCart(); // Always refresh after update
-      } else {
+      try {
+        final success = await controller.updateCartItem(
+          cartId: cartId,
+          product: product,
+          quantity: newQuantity,
+        );
+        if (!success) {
+          // Revert on failure
+          cartEntry['quantity'] = quantity;
+          notifyListeners();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to update item quantity.')),
+            );
+          }
+        }
+      } catch (e) {
+        // Revert on error
         cartEntry['quantity'] = quantity;
         notifyListeners();
-        // Only show SnackBar if context is still mounted
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update item quantity.')),
+            const SnackBar(content: Text('Error updating item quantity.')),
           );
         }
       }
@@ -110,48 +124,78 @@ class CartViewLogic extends ChangeNotifier {
       BuildContext context, Map<String, dynamic> item, int index) async {
     final cartEntries = item['cart_entries'] as List<Map<String, dynamic>>?;
     if (cartEntries == null || cartEntries.isEmpty) return;
+
     // Find the entry with the largest quantity (or just use the first)
-    final cartEntry = cartEntries.reduce((a, b) => (a['quantity'] as int) >= (b['quantity'] as int) ? a : b);
+    final cartEntry = cartEntries.reduce(
+        (a, b) => (a['quantity'] as int) >= (b['quantity'] as int) ? a : b);
     final cartId = cartEntry['id'];
     final product = cartEntry['product'];
     final quantity = cartEntry['quantity'] as int;
     final newQuantity = quantity - 1;
+
+    // Check if already deleting this item
+    if (controller.isCartItemDeleting(cartId)) {
+      return;
+    }
+
+    // Optimistic update
     cartEntry['quantity'] = newQuantity;
     notifyListeners();
 
     _debounceAction(cartId, () async {
-      bool success = true;
-      if (newQuantity > 0) {
-        success = await controller.updateCartItem(
-          cartId: cartId,
-          product: product,
-          quantity: newQuantity,
-        );
-      } else {
-        removingItems.add(cartId);
-        notifyListeners();
-        success = await controller.deleteCartItem(cartId: cartId);
-        if (success) {
-          removingItems.remove(cartId);
-          if (index >= 0 && index < controller.fetchedCartItems.length) {
-            controller.fetchedCartItems.removeAt(index);
-          }
-          notifyListeners();
+      try {
+        bool success = true;
+        if (newQuantity > 0) {
+          success = await controller.updateCartItem(
+            cartId: cartId,
+            product: product,
+            quantity: newQuantity,
+          );
         } else {
-          removingItems.remove(cartId);
+          // Mark as removing to prevent overlapping operations
+          removingItems.add(cartId);
           notifyListeners();
+
+          success = await controller.deleteCartItem(cartId: cartId);
+
+          if (success) {
+            removingItems.remove(cartId);
+            // Remove from local data immediately to prevent UI issues
+            controller.fetchedCartItems
+                .removeWhere((item) => item['id'] == cartId);
+            notifyListeners();
+          } else {
+            removingItems.remove(cartId);
+            // Revert on failure
+            cartEntry['quantity'] = quantity;
+            notifyListeners();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Failed to remove item from cart.')),
+              );
+            }
+          }
         }
-      }
-      if (success) {
-        await fetchCart(); // Always refresh after update
-      } else {
+
+        if (!success && newQuantity > 0) {
+          // Revert on failure for quantity updates
+          cartEntry['quantity'] = quantity;
+          notifyListeners();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to update item quantity.')),
+            );
+          }
+        }
+      } catch (e) {
+        // Revert on error
         cartEntry['quantity'] = quantity;
+        removingItems.remove(cartId);
         notifyListeners();
-        // Only show SnackBar if context is still mounted and the item is still present in the cart
-        final stillInCart = controller.fetchedCartItems.any((item) => item['id'] == cartId);
-        if (context.mounted && stillInCart) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update item quantity.')),
+            const SnackBar(content: Text('Error updating cart.')),
           );
         }
       }
@@ -159,6 +203,17 @@ class CartViewLogic extends ChangeNotifier {
   }
 
   bool isRemoving(int cartId) => removingItems.contains(cartId);
+
+  @override
+  void dispose() {
+    // Cancel all pending debounce timers
+    for (var timer in _debounceTimers.values) {
+      timer.cancel();
+    }
+    _debounceTimers.clear();
+    _debounceCancelled.clear();
+    super.dispose();
+  }
 }
 
 /// Reusable Product Card Widget for Cart
@@ -401,7 +456,8 @@ class CartProductList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get the controller from context if available
-    final controller = context.findAncestorStateOfType<_CartViewPageState>()?.logic.controller;
+    final controller =
+        context.findAncestorStateOfType<_CartViewPageState>()?.logic.controller;
     return ListView.separated(
       controller: scrollController,
       itemCount: products.length + (hasMoreProducts ? 1 : 0),
@@ -415,7 +471,9 @@ class CartProductList extends StatelessWidget {
           );
         }
         final product = products[index];
-        final String quantityKey = product.productId != null ? product.productId.toString() : 'product_${index}';
+        final String quantityKey = product.productId != null
+            ? product.productId.toString()
+            : 'product_${index}';
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: CartProductCard(
@@ -423,7 +481,8 @@ class CartProductList extends StatelessWidget {
               'product': product,
               'quantity': productQuantities[quantityKey] ?? 0,
               'price': product.price ?? 0.0,
-              'total_price': (product.price ?? 0.0) * (productQuantities[quantityKey] ?? 0),
+              'total_price': (product.price ?? 0.0) *
+                  (productQuantities[quantityKey] ?? 0),
             },
             isRemoving: false,
             onAddToCart: () async {

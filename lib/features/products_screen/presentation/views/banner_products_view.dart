@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import '../../../drawer_slider/presentation/views/side_slider.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 
@@ -85,22 +86,24 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<BannerProductsController>();
+    final bannerController = context.watch<BannerProductsController>();
+    final cartController = context.watch<CategoryController>();
 
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Stack(
           children: [
-            // Title on the right
             Positioned(
-              right: 20, // Padding from the right edge
+              right: 20,
               top: 16,
               bottom: 0,
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  controller.categoryName ?? controller.brandName ?? 'المنتجات',
+                  bannerController.categoryName ??
+                      bannerController.brandName ??
+                      'المنتجات',
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 25,
@@ -110,7 +113,6 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                 ),
               ),
             ),
-            // Back button and text on the left
             Positioned(
               left: 0,
               top: 16,
@@ -125,7 +127,6 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                     ),
                     onPressed: () => GoRouter.of(context).pop(),
                   ),
-                  //const SizedBox(width: 4),
                   const Text(
                     'للرجوع',
                     style: TextStyle(
@@ -150,21 +151,18 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
               padding: const EdgeInsets.all(16.0),
               child: SearchWidget(
                 controller: searchController,
-                onChanged: controller.applySearchFilter,
+                onChanged: bannerController.applySearchFilter,
               ),
             ),
-            //const SizedBox(height: 15),
-            if (!controller.isListLoaded)
+            if (!bannerController.isListLoaded)
               const Expanded(
                 child: Center(child: CircularProgressIndicator()),
               )
-            else if (controller.displayedProducts.isEmpty)
+            else if (bannerController.displayedProducts.isEmpty)
               Expanded(
                 child: Center(
                   child: Text(
-                    !controller.isListLoaded
-                        ? 'لا توجد منتجات متاحة لهذا البانر.'
-                        : "جاري التحميل",
+                    'لا توجد منتجات متاحة لهذا البانر.',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 16.sp,
@@ -177,24 +175,25 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    await controller.fetchBannerProducts();
+                    await bannerController.fetchBannerProducts();
                   },
                   backgroundColor: Colors.white,
                   child: NotificationListener<ScrollNotification>(
                     onNotification: (ScrollNotification scrollInfo) {
                       if (scrollInfo.metrics.pixels ==
                           scrollInfo.metrics.maxScrollExtent) {
-                        controller.loadNextPage();
+                        bannerController.loadNextPage();
                       }
                       return true;
                     },
                     child: ListView.separated(
-                      itemCount: controller.displayedProducts.length +
-                          (controller.hasMoreProducts ? 1 : 0),
+                      itemCount: bannerController.displayedProducts.length +
+                          (bannerController.hasMoreProducts ? 1 : 0),
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 15),
                       itemBuilder: (context, index) {
-                        if (index == controller.displayedProducts.length) {
+                        if (index ==
+                            bannerController.displayedProducts.length) {
                           return Container(
                             padding: const EdgeInsets.all(16.0),
                             child: const Row(
@@ -223,54 +222,78 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                           );
                         }
 
-                        final product = controller.displayedProducts[index];
-                        final String quantityKey =
-                            product.productId?.toString() ??
-                                product.productName ??
-                                'product_${index}';
+                        final product =
+                            bannerController.displayedProducts[index];
+                        // Use productId as the key if available, for consistency
+                        final String quantityKey = product.productId != null
+                            ? product.productId.toString()
+                            : 'product_${index}';
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Column(
                             children: [
                               CartProductCard(
-                              item: {
-                                'product': product,
-                                'quantity': controller.productQuantities[quantityKey] ?? 0,
-                                'price': product.price ?? 0.0,
-                                'total_price': (product.price ?? 0.0) * (controller.productQuantities[quantityKey] ?? 0),
-                              },
-                              isRemoving: false,
-                              onAddToCart: () async {
-                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
-                                final newQuantity = currentQuantity + 1;
-                                log('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
-                                controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.safeNotifyListeners();
-                                await controller.addProductToCart(product, newQuantity);
-                              },
-                              onIncrease: () async {
-                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
-                                final newQuantity = currentQuantity + 1;
-                                log('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
-                                controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.safeNotifyListeners();
-                                await controller.addProductToCart(product, newQuantity);
-                              },
-                              onDecrease: () async {
-                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
-                                final newQuantity = currentQuantity - 1;
-                                log('onDecrease: key=$quantityKey, newQuantity=$newQuantity');
-                                if (newQuantity > 0) {
-                                  controller.onQuantityChanged(quantityKey, newQuantity);
-                                  controller.safeNotifyListeners();
-                                  await controller.addProductToCart(product, newQuantity);
-                                } else {
-                                  controller.onQuantityChanged(quantityKey, 0);
-                                  controller.safeNotifyListeners();
-                                  // Remove from local cart only - API call removed
-                                }
-                              },
-                            ),
+                                item: {
+                                  'product': product,
+                                  'quantity': cartController
+                                          .productQuantities[quantityKey] ??
+                                      0,
+                                  'price': product.price ?? 0.0,
+                                  'total_price': (product.price ?? 0.0) *
+                                      (cartController
+                                              .productQuantities[quantityKey] ??
+                                          0),
+                                },
+                                isRemoving: false,
+                                onAddToCart: () async {
+                                  final currentQuantity = cartController
+                                          .productQuantities[quantityKey] ??
+                                      0;
+                                  final newQuantity = currentQuantity + 1;
+                                  log('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
+                                  cartController.onQuantityChanged(
+                                      quantityKey, newQuantity);
+                                  cartController.updateCartItemQuantity(
+                                      product, newQuantity);
+                                  await cartController.addProductToCart(
+                                      product, newQuantity);
+                                },
+                                onIncrease: () async {
+                                  final currentQuantity = cartController
+                                          .productQuantities[quantityKey] ??
+                                      0;
+                                  final newQuantity = currentQuantity + 1;
+                                  log('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
+                                  cartController.onQuantityChanged(
+                                      quantityKey, newQuantity);
+                                  cartController.updateCartItemQuantity(
+                                      product, newQuantity);
+                                  await cartController.addProductToCart(
+                                      product, newQuantity);
+                                },
+                                onDecrease: () async {
+                                  final currentQuantity = cartController
+                                          .productQuantities[quantityKey] ??
+                                      0;
+                                  final newQuantity = currentQuantity - 1;
+                                  log('onDecrease: key=$quantityKey, newQuantity=$newQuantity');
+                                  if (newQuantity > 0) {
+                                    cartController.onQuantityChanged(
+                                        quantityKey, newQuantity);
+                                    cartController.updateCartItemQuantity(
+                                        product, newQuantity);
+                                    await cartController.addProductToCart(
+                                        product, newQuantity);
+                                  } else {
+                                    cartController.onQuantityChanged(
+                                        quantityKey, 0);
+                                    cartController.removeFromCart(product);
+                                    // Use the improved removeProductFromCart method
+                                    await cartController
+                                        .removeProductFromCart(product);
+                                  }
+                                },
+                              ),
                             ],
                           ),
                         );
@@ -282,44 +305,48 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
           ],
         ),
       ),
-      floatingActionButton: controller.cart.isNotEmpty
-          ? FloatingActionButton.extended(
-              backgroundColor: Color(0xffFC6E2A),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => DraggableScrollableSheet(
-                    initialChildSize: 0.33,
-                    minChildSize: 0.33,
-                    maxChildSize: 0.33,
-                    expand: false,
-                    builder: (context, scrollController) {
-                      return CartSheet(
-                        cart: controller.cart,
-                        total: controller.cartTotal,
-                        onClose: () => Navigator.pop(context),
-                        onPaymentSuccess: () {
-                          controller.clearCart();
+      floatingActionButton: Consumer<CategoryController>(
+        builder: (context, cartController, _) {
+          return cartController.cart.isNotEmpty
+              ? FloatingActionButton.extended(
+                  backgroundColor: Color(0xffFC6E2A),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => DraggableScrollableSheet(
+                        initialChildSize: 0.33,
+                        minChildSize: 0.33,
+                        maxChildSize: 0.33,
+                        expand: false,
+                        builder: (context, scrollController) {
+                          return CartSheet(
+                            cart: cartController.cart,
+                            total: cartController.cartTotal,
+                            onClose: () => Navigator.pop(context),
+                            onPaymentSuccess: () {
+                              cartController.clearCart();
+                            },
+                          );
                         },
-                      );
-                    },
+                      ),
+                    );
+                  },
+                  label: Text(
+                    'السلة (${cartController.cart.length})',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: baseFont,
+                    ),
                   ),
-                );
-              },
-              label: Text(
-                'السلة (${controller.cart.length})',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: baseFont,
-                ),
-              ),
-              icon: const Icon(Icons.shopping_cart, color: Colors.white),
-            )
-          : null,
+                  icon: const Icon(Icons.shopping_cart, color: Colors.white),
+                )
+              : const SizedBox.shrink();
+        },
+      ),
     );
   }
 }

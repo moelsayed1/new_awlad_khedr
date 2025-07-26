@@ -8,10 +8,14 @@ import 'dart:developer';
 import 'package:awlad_khedr/core/network/api_service.dart';
 import 'package:awlad_khedr/core/services/product_service.dart';
 
-
 class CategoryRepository {
   final ApiService _apiService;
   final ProductService _productService;
+
+  // Cache token validation result to prevent excessive API calls
+  bool _tokenValidated = false;
+  DateTime? _lastTokenValidation;
+  static const Duration _tokenValidationCache = Duration(minutes: 5);
 
   CategoryRepository(this._apiService, this._productService);
 
@@ -19,6 +23,16 @@ class CategoryRepository {
     if (authToken.isEmpty) {
       return false;
     }
+
+    // Use cached validation if recent
+    if (_tokenValidated && _lastTokenValidation != null) {
+      final timeSinceValidation =
+          DateTime.now().difference(_lastTokenValidation!);
+      if (timeSinceValidation < _tokenValidationCache) {
+        return true;
+      }
+    }
+
     try {
       final response = await http.get(
         Uri.parse(APIConstant.GET_ALL_PRODUCTS),
@@ -27,13 +41,16 @@ class CategoryRepository {
           "Accept": "application/json",
         },
       );
-      return response.statusCode == 200;
+
+      _tokenValidated = response.statusCode == 200;
+      _lastTokenValidation = DateTime.now();
+      return _tokenValidated;
     } catch (e) {
       log('Error validating token: $e');
+      _tokenValidated = false;
       return false;
     }
   }
-
 
   Future<List<String>> fetchCategories() async {
     try {
@@ -56,9 +73,11 @@ class CategoryRepository {
         final jsonResponse = jsonDecode(response.body);
         List<String> fetchedCategories = [];
 
-        if (jsonResponse['categories'] != null && jsonResponse['categories'] is List) {
+        if (jsonResponse['categories'] != null &&
+            jsonResponse['categories'] is List) {
           for (var categoryJson in jsonResponse['categories']) {
-            if (categoryJson['category_name'] != null && (categoryJson['category_name'] as String).isNotEmpty) {
+            if (categoryJson['category_name'] != null &&
+                (categoryJson['category_name'] as String).isNotEmpty) {
               fetchedCategories.add(categoryJson['category_name'] as String);
             }
           }
@@ -76,7 +95,8 @@ class CategoryRepository {
     }
   }
 
-  Future<List<Product>> fetchAllProducts({int page = 1, int pageSize = 10, String? search}) async {
+  Future<List<Product>> fetchAllProducts(
+      {int page = 1, int pageSize = 10, String? search}) async {
     try {
       if (!await _validateToken()) {
         // Don't clear the token, just throw
@@ -120,20 +140,24 @@ class CategoryRepository {
           if (jsonResponse['data'] is Map<String, dynamic> &&
               jsonResponse['data']['products'] is List) {
             products = (jsonResponse['data']['products'] as List)
-                .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
+                .map((productJson) =>
+                    Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
           } else if (jsonResponse['products'] is List) {
             products = (jsonResponse['products'] as List)
-                .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
+                .map((productJson) =>
+                    Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
           } else if (jsonResponse['data'] is List) {
             products = (jsonResponse['data'] as List)
-                .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
+                .map((productJson) =>
+                    Product.fromJson(productJson as Map<String, dynamic>))
                 .toList();
           }
         } else if (jsonResponse is List) {
           products = jsonResponse
-              .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
+              .map((productJson) =>
+                  Product.fromJson(productJson as Map<String, dynamic>))
               .toList();
         }
 
@@ -152,7 +176,8 @@ class CategoryRepository {
     }
   }
 
-  Future<List<Product>> fetchProductsByCategory(String category, {int page = 1, int pageSize = 10, String? search}) async {
+  Future<List<Product>> fetchProductsByCategory(String category,
+      {int page = 1, int pageSize = 10, String? search}) async {
     try {
       if (!await _validateToken()) {
         // Don't clear the token, just throw
@@ -166,7 +191,7 @@ class CategoryRepository {
         'page': page.toString(),
         'page_size': pageSize.toString(),
       };
-      
+
       if (search != null && search.trim().isNotEmpty) {
         queryParams['search'] = search.trim();
         log('Searching category products with query: "$search"');
@@ -175,7 +200,7 @@ class CategoryRepository {
       final uri = Uri.parse(APIConstant.GET_ALL_PRODUCTS_BY_CATEGORY).replace(
         queryParameters: queryParams,
       );
-      
+
       log('Fetching category products from: $uri');
 
       final response = await http.get(
@@ -197,9 +222,10 @@ class CategoryRepository {
 
         if (jsonResponse['categories'] is List) {
           for (var categoryEntry in jsonResponse['categories']) {
-            final categoryName = categoryEntry['category_name']?.toString() ?? '';
+            final categoryName =
+                categoryEntry['category_name']?.toString() ?? '';
             log('Checking category: "$categoryName" against "$category"');
-            
+
             if (categoryName.toLowerCase() == category.toLowerCase()) {
               log('Category match found!');
               if (categoryEntry['products'] is List) {
@@ -225,14 +251,15 @@ class CategoryRepository {
             }
           }
         }
-        
+
         log('Total products found for category "$category": ${productsForSelectedCategory.length}');
         return productsForSelectedCategory;
       } else if (response.statusCode == 401) {
         // Don't clear the token, just throw
         throw Exception('Unauthorized access');
       } else {
-        throw Exception('Failed to fetch category products: ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch category products: ${response.statusCode}');
       }
     } catch (e) {
       log('Error fetching category products: $e');
@@ -308,9 +335,11 @@ class CategoryRepository {
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         List<Product> products = [];
-        if (jsonResponse is Map<String, dynamic> && jsonResponse['products'] is List) {
+        if (jsonResponse is Map<String, dynamic> &&
+            jsonResponse['products'] is List) {
           products = (jsonResponse['products'] as List)
-              .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
+              .map((productJson) =>
+                  Product.fromJson(productJson as Map<String, dynamic>))
               .toList();
         }
         log('Parsed ${products.length} products from brand id $brandId');
@@ -319,7 +348,8 @@ class CategoryRepository {
         // Don't clear the token, just throw
         throw Exception('Unauthorized access');
       } else {
-        throw Exception('Failed to fetch products by brand: ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch products by brand: ${response.statusCode}');
       }
     } catch (e) {
       log('Error fetching products by brand: $e');
@@ -327,7 +357,10 @@ class CategoryRepository {
     }
   }
 
-  Future<bool> addProductToCart({required int productId, required int quantity, required dynamic price}) async {
+  Future<bool> addProductToCart(
+      {required int productId,
+      required int quantity,
+      required dynamic price}) async {
     log('addProductToCart called for productId: $productId, quantity: $quantity, price: $price');
     try {
       if (!await _validateToken()) {
@@ -361,6 +394,7 @@ class CategoryRepository {
         log('Invalid or expired token in fetchCartFromApi');
         return [];
       }
+
       final response = await http.get(
         Uri.parse(APIConstant.GET_STORED_CART),
         headers: {
@@ -368,31 +402,49 @@ class CategoryRepository {
           'Accept': 'application/json',
         },
       );
+
       log('Get /api/cart response: \x1B[33m\x1B[1m${response.statusCode}\x1B[0m - ${response.body}');
+
       if (response.statusCode == 200) {
         final dynamic decodedData = jsonDecode(response.body);
 
         if (decodedData is List<dynamic>) {
           return decodedData;
         } else {
-          log('Unexpected data type from API for cart:  [31m${decodedData.runtimeType} [0m. Expected a List.');
+          log('Unexpected data type from API for cart: \x1B[31m${decodedData.runtimeType}\x1B[0m. Expected a List.');
           return [];
         }
+      } else if (response.statusCode == 401) {
+        // Token expired - invalidate cache
+        _tokenValidated = false;
+        log('Token expired during fetchCartFromApi');
+        return [];
+      } else if (response.statusCode == 404) {
+        // Cart not found - return empty list
+        log('Cart not found - returning empty list');
+        return [];
+      } else {
+        log('Unexpected status code in fetchCartFromApi: ${response.statusCode}');
+        return [];
       }
-      return [];
     } catch (e) {
       log('Error in fetchCartFromApi: $e');
       return [];
     }
   }
 
-  Future<bool> updateCartItem({required int cartId, required int productId, required int quantity, required dynamic price}) async {
+  Future<bool> updateCartItem(
+      {required int cartId,
+      required int productId,
+      required int quantity,
+      required dynamic price}) async {
     log('updateCartItem called for cartId: $cartId, productId: $productId, quantity: $quantity, price: $price');
     try {
       if (!await _validateToken()) {
         log('Invalid or expired token in updateCartItem');
         return false;
       }
+
       final response = await http.post(
         Uri.parse('${APIConstant.UPDATE_CART}/$cartId'),
         headers: {
@@ -405,8 +457,25 @@ class CategoryRepository {
           'price': price.toString(),
         },
       );
-      log('POST /api/cart/ $cartId response:  [33m [1m${response.statusCode} [0m - ${response.body}');
-      return response.statusCode == 200 || response.statusCode == 201;
+
+      log('POST /api/cart/ $cartId response: \x1B[33m\x1B[1m${response.statusCode}\x1B[0m - ${response.body}');
+
+      // Handle different success status codes
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else if (response.statusCode == 404) {
+        // Item not found - might have been deleted
+        log('Cart item $cartId not found during update');
+        return false;
+      } else if (response.statusCode == 401) {
+        // Token expired - invalidate cache
+        _tokenValidated = false;
+        log('Token expired during updateCartItem');
+        return false;
+      } else {
+        log('Unexpected status code in updateCartItem: ${response.statusCode}');
+        return false;
+      }
     } catch (e) {
       log('Error in updateCartItem: $e');
       return false;
@@ -420,6 +489,7 @@ class CategoryRepository {
         log('Invalid or expired token in deleteCartItem');
         return false;
       }
+
       final response = await http.post(
         Uri.parse('${APIConstant.DELETE_CART}/$cartId'),
         headers: {
@@ -427,8 +497,27 @@ class CategoryRepository {
           'Accept': 'application/json',
         },
       );
-      log('POST /api/cart/delete/$cartId response:  [33m [1m${response.statusCode} [0m - ${response.body}');
-      return response.statusCode == 200 || response.statusCode == 201;
+
+      log('POST /api/cart/delete/$cartId response: \x1B[33m\x1B[1m${response.statusCode}\x1B[0m - ${response.body}');
+
+      // Handle different success status codes
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 204) {
+        return true;
+      } else if (response.statusCode == 404) {
+        // Item not found - consider it successfully deleted
+        log('Cart item $cartId not found - considering it deleted');
+        return true;
+      } else if (response.statusCode == 401) {
+        // Token expired - invalidate cache
+        _tokenValidated = false;
+        log('Token expired during deleteCartItem');
+        return false;
+      } else {
+        log('Unexpected status code in deleteCartItem: ${response.statusCode}');
+        return false;
+      }
     } catch (e) {
       log('Error in deleteCartItem: $e');
       return false;

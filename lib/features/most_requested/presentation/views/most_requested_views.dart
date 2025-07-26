@@ -15,7 +15,6 @@ import '../../../drawer_slider/presentation/views/side_slider.dart';
 import '../../../home/presentation/views/widgets/search_widget.dart';
 import '../widgets/most_requested_app_bar.dart';
 
-
 class MostRequestedPage extends StatefulWidget {
   const MostRequestedPage({super.key});
 
@@ -27,7 +26,8 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
   TopRatedModel? topRatedItem;
   bool isListLoaded = false;
 
-  final Map<String, int> _productQuantities = {}; // Key: product ID or unique identifier, Value: quantity
+  final Map<String, int> _productQuantities =
+      {}; // Key: product ID or unique identifier, Value: quantity
   final Map<Product, int> _cart = {}; // Add cart map
 
   final TextEditingController _searchController = TextEditingController();
@@ -74,7 +74,8 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
   GetTopRatedItems() async {
     Uri uriToSend = Uri.parse(APIConstant.GET_TOP_RATED_ITEMS);
     try {
-      final response = await http.get(uriToSend, headers: {"Authorization" : "Bearer $authToken"});
+      final response = await http
+          .get(uriToSend, headers: {"Authorization": "Bearer $authToken"});
       if (response.statusCode == 200) {
         topRatedItem = TopRatedModel.fromJson(jsonDecode(response.body));
         if (topRatedItem != null && topRatedItem!.products.isNotEmpty) {
@@ -84,7 +85,8 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
         }
         _filterProducts();
       } else {
-        debugPrint('Failed to load top rated items: ${response.statusCode.toString()}');
+        debugPrint(
+            'Failed to load top rated items: ${response.statusCode.toString()}');
       }
     } catch (e) {
       debugPrint('Error fetching top rated items: ${e.toString()}');
@@ -98,7 +100,7 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
   void _onQuantityChanged(String productId, int newQuantity) {
     setState(() {
       _productQuantities[productId] = newQuantity;
-      
+
       // Find the product with this productId
       final product = _filteredProducts.firstWhere(
         (p) => p.productName == productId,
@@ -179,9 +181,9 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
             ),
           ),
         );
-              },
-      );
-    }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -209,113 +211,130 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
               const SizedBox(height: 15),
               isListLoaded
                   ? (topRatedItem != null && _filteredProducts.isNotEmpty
-                  ? ListView.separated(
-                itemCount: min(_filteredProducts.length, 10),
-                physics: const NeverScrollableScrollPhysics(),
-                separatorBuilder: (BuildContext context, int index) =>
-                    const SizedBox(height: 15),
-                shrinkWrap: true,
-                scrollDirection: Axis.vertical,
-                reverse: false,
-                itemBuilder: (BuildContext context, int index) {
-                  final product = _filteredProducts[index];
-                  final quantity = _productQuantities[product.productName!] ?? 0;
-                  return CartProductCard(
-                    item: {
-                      'product': product,
-                      'quantity': quantity,
-                      'price': product.price is num
-                          ? (product.price as num).toDouble()
-                          : double.tryParse(product.price.toString()) ?? 0.0,
-                      'total_price': (product.price is num
-                              ? (product.price as num).toDouble()
-                              : double.tryParse(product.price.toString()) ?? 0.0) *
-                          quantity,
-                    },
-                    isRemoving: false,
-                    onIncrease: () async {
-                      // Update UI immediately for better responsiveness
-                      setState(() {
-                        _productQuantities[product.productName!] = quantity + 1;
-                        _cart[product] = quantity + 1;
-                      });
-                      
-                      // Make API call in background (no dialog for quantity changes)
-                      final controller = Provider.of<CategoryController>(context, listen: false);
-                      final success = await controller.addProductToCart(product, quantity + 1);
-                      
-                      // If API call failed, revert the UI changes
-                      if (!success && mounted) {
-                        setState(() {
-                          _productQuantities[product.productName!] = quantity;
-                          if (quantity == 0) {
-                            _cart.remove(product);
-                          } else {
-                            _cart[product] = quantity;
-                          }
-                        });
-                        
-                        // Show error dialog only for API failures
-                        showCustomDialog(
-                          context: context,
-                          icon: Icons.error,
-                          iconColor: Colors.red,
-                          message: 'حدث خطأ أثناء إضافة المنتج للسلة',
-                        );
-                      }
-                    },
-                    onDecrease: () {
-                      if (quantity > 0) {
-                        setState(() {
-                          final newQuantity = quantity - 1;
-                          _productQuantities[product.productName!] = newQuantity;
-                          if (newQuantity == 0) {
-                            _cart.remove(product);
-                          } else {
-                            _cart[product] = newQuantity;
-                          }
-                        });
-                      }
-                    },
-                    onAddToCart: () async {
-                      // Update UI immediately for better responsiveness
-                      setState(() {
-                        _productQuantities[product.productName!] = 1;
-                        _cart[product] = 1;
-                      });
-                      
-                      // Show success dialog immediately
-                      showCustomDialog(
-                        context: context,
-                        icon: Icons.check_circle,
-                        iconColor: const Color(0xffFC6E2A),
-                        message: 'تمت إضافة المنتج إلى السلة',
-                      );
-                      
-                      // Make API call in background
-                      final controller = Provider.of<CategoryController>(context, listen: false);
-                      final success = await controller.addProductToCart(product, 1);
-                      
-                      // If API call failed, revert the UI changes
-                      if (!success && mounted) {
-                        setState(() {
-                          _productQuantities[product.productName!] = 0;
-                          _cart.remove(product);
-                        });
-                        
-                        // Show error dialog
-                        showCustomDialog(
-                          context: context,
-                          icon: Icons.error,
-                          iconColor: Colors.red,
-                          message: 'حدث خطأ أثناء إضافة المنتج للسلة',
-                        );
-                      }
-                    },
-                  );
-                },
-              )
-                  : const Center(child: Text('No products available for the current filter.')))
+                      ? ListView.separated(
+                          itemCount: min(_filteredProducts.length, 10),
+                          physics: const NeverScrollableScrollPhysics(),
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const SizedBox(height: 15),
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          reverse: false,
+                          itemBuilder: (BuildContext context, int index) {
+                            final product = _filteredProducts[index];
+                            final quantity =
+                                _productQuantities[product.productName!] ?? 0;
+                            return CartProductCard(
+                              item: {
+                                'product': product,
+                                'quantity': quantity,
+                                'price': product.price is num
+                                    ? (product.price as num).toDouble()
+                                    : double.tryParse(
+                                            product.price.toString()) ??
+                                        0.0,
+                                'total_price': (product.price is num
+                                        ? (product.price as num).toDouble()
+                                        : double.tryParse(
+                                                product.price.toString()) ??
+                                            0.0) *
+                                    quantity,
+                              },
+                              isRemoving: false,
+                              onIncrease: () async {
+                                // Update UI immediately for better responsiveness
+                                setState(() {
+                                  _productQuantities[product.productName!] =
+                                      quantity + 1;
+                                  _cart[product] = quantity + 1;
+                                });
+
+                                // Make API call in background (no dialog for quantity changes)
+                                final controller =
+                                    Provider.of<CategoryController>(context,
+                                        listen: false);
+                                final success = await controller
+                                    .addProductToCart(product, quantity + 1);
+
+                                // If API call failed, revert the UI changes
+                                if (!success && mounted) {
+                                  setState(() {
+                                    _productQuantities[product.productName!] =
+                                        quantity;
+                                    if (quantity == 0) {
+                                      _cart.remove(product);
+                                    } else {
+                                      _cart[product] = quantity;
+                                    }
+                                  });
+
+                                  // Show error dialog only for API failures
+                                  showCustomDialog(
+                                    context: context,
+                                    icon: Icons.error,
+                                    iconColor: Colors.red,
+                                    message: 'حدث خطأ أثناء إضافة المنتج للسلة',
+                                  );
+                                }
+                              },
+                              onDecrease: () {
+                                if (quantity > 0) {
+                                  setState(() {
+                                    final newQuantity = quantity - 1;
+                                    _productQuantities[product.productName!] =
+                                        newQuantity;
+                                    if (newQuantity == 0) {
+                                      _cart.remove(product);
+                                    } else {
+                                      _cart[product] = newQuantity;
+                                    }
+                                  });
+                                }
+                              },
+                              onAddToCart: () async {
+                                // Update UI immediately for better responsiveness
+                                setState(() {
+                                  _productQuantities[product.productName!] = 1;
+                                  _cart[product] = 1;
+                                });
+
+                                // Show success dialog immediately
+                                showCustomDialog(
+                                  context: context,
+                                  icon: Icons.check_circle,
+                                  iconColor: const Color(0xffFC6E2A),
+                                  message: 'تمت إضافة المنتج إلى السلة',
+                                );
+
+                                // Make API call in background
+                                final controller =
+                                    Provider.of<CategoryController>(context,
+                                        listen: false);
+                                final success = await controller
+                                    .addProductToCart(product, 1);
+
+                                // If API call failed, revert the UI changes
+                                if (!success && mounted) {
+                                  setState(() {
+                                    _productQuantities[product.productName!] =
+                                        0;
+                                    _cart.remove(product);
+                                  });
+
+                                  // Show error dialog
+                                  showCustomDialog(
+                                    context: context,
+                                    icon: Icons.error,
+                                    iconColor: Colors.red,
+                                    message: 'حدث خطأ أثناء إضافة المنتج للسلة',
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        )
+                      : const Center(
+                          child: Text(
+                              'No products available for the current filter.')))
                   : const Center(child: CircularProgressIndicator()),
             ],
           ),

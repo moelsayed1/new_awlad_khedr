@@ -153,8 +153,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     _cart[widget.product] = newQuantity;
                   });
 
-                  final success =
-                      await controller.addProductToCart(widget.product, newQuantity);
+                  final success = await controller.addProductToCart(
+                      widget.product, newQuantity);
 
                   if (success) {
                     showCustomDialog(
@@ -222,4 +222,4 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           : null,
     );
   }
-} 
+}

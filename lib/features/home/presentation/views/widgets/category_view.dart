@@ -183,8 +183,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                 final newQuantity = currentQuantity + 1;
                                 log.dev('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
                                 controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.cart[product] = newQuantity;
-                                controller.safeNotifyListeners();
+                                controller.updateCartItemQuantity(product, newQuantity);
                                 await controller.addProductToCart(product, newQuantity);
                               },
                               onIncrease: () async {
@@ -192,8 +191,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                 final newQuantity = currentQuantity + 1;
                                 log.dev('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
                                 controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.cart[product] = newQuantity;
-                                controller.safeNotifyListeners();
+                                controller.updateCartItemQuantity(product, newQuantity);
                                 await controller.addProductToCart(product, newQuantity);
                               },
                               onDecrease: () async {
@@ -202,14 +200,12 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                 log.dev('onDecrease: key=$quantityKey, newQuantity=$newQuantity');
                                 if (newQuantity > 0) {
                                   controller.onQuantityChanged(quantityKey, newQuantity);
-                                  controller.cart[product] = newQuantity;
-                                  controller.safeNotifyListeners();
+                                  controller.updateCartItemQuantity(product, newQuantity);
                                   await controller.addProductToCart(product, newQuantity);
                                 } else {
                                   controller.onQuantityChanged(quantityKey, 0);
-                                  controller.cart.remove(product);
-                                  controller.safeNotifyListeners();
-                                  // Remove from local cart only - API call removed
+                                  controller.removeFromCart(product);
+                                  await controller.removeProductFromCart(product);
                                 }
                               },
                             ),

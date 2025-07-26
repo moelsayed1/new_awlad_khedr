@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
-import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart'
+    as top_rated;
 import 'dart:developer';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -10,6 +11,8 @@ class CategoryController extends ChangeNotifier {
   final CategoryRepository _repository;
 
   bool _disposed = false;
+  final Map<int, bool> cartItemDeleteLoading = {};
+  bool isCartItemDeleting(int cartId) => cartItemDeleteLoading[cartId] == true;
 
   @override
   void dispose() {
@@ -66,7 +69,7 @@ class CategoryController extends ChangeNotifier {
       await fetchCategories();
       // Temporarily disabled to prevent heavy initial loading
       // await _loadAllProductsForLookup();
-      
+
       if (selectedCategory == 'الكل') {
         await fetchAllProducts();
       } else {
@@ -74,10 +77,9 @@ class CategoryController extends ChangeNotifier {
       }
 
       filteredProducts = topRatedItem?.products ?? [];
-      
+
       isListLoaded = true;
       safeNotifyListeners();
-
     } catch (e) {
       log('Error initializing data: $e');
       isListLoaded = true;
@@ -99,25 +101,26 @@ class CategoryController extends ChangeNotifier {
       int page = 1;
       bool hasMore = true;
       _allProductsById.clear();
-      
+
       while (hasMore) {
-        final productsBatch = await _repository.fetchAllProducts(page: page, pageSize: 10);
+        final productsBatch =
+            await _repository.fetchAllProducts(page: page, pageSize: 10);
         for (var p in productsBatch) {
           if (p.productId != null) {
             _allProductsById[p.productId!] = p;
           }
         }
-        
+
         // Check if we have more products to load
         hasMore = productsBatch.length == 10;
         page++;
-        
+
         // Add a small delay to prevent overwhelming the server
         if (hasMore) {
           await Future.delayed(Duration(milliseconds: 100));
         }
       }
-      
+
       _isAllProductsMapLoaded = true;
       log('Successfully loaded ${_allProductsById.length} products into lookup map.');
     } catch (e) {
@@ -142,7 +145,10 @@ class CategoryController extends ChangeNotifier {
       safeNotifyListeners();
     }
     try {
-      final products = await _repository.fetchAllProducts(page: currentPage, pageSize: 10, search: _currentSearchQuery.isNotEmpty ? _currentSearchQuery : null);
+      final products = await _repository.fetchAllProducts(
+          page: currentPage,
+          pageSize: 10,
+          search: _currentSearchQuery.isNotEmpty ? _currentSearchQuery : null);
       if (reset) {
         _allLoadedProducts.clear();
       }
@@ -182,7 +188,11 @@ class CategoryController extends ChangeNotifier {
       safeNotifyListeners();
     }
     try {
-      final products = await _repository.fetchProductsByCategory(selectedCategory, page: currentPage, pageSize: 10, search: _currentSearchQuery.isNotEmpty ? _currentSearchQuery : null);
+      final products = await _repository.fetchProductsByCategory(
+          selectedCategory,
+          page: currentPage,
+          pageSize: 10,
+          search: _currentSearchQuery.isNotEmpty ? _currentSearchQuery : null);
       if (reset) {
         _allLoadedProducts.clear();
       }
@@ -222,7 +232,9 @@ class CategoryController extends ChangeNotifier {
   void _updateProductQuantities(List<top_rated.Product> products) {
     final Map<String, int> newProductQuantities = {};
     for (var product in products) {
-      final String key = product.productId?.toString() ?? product.productName ?? UniqueKey().toString();
+      final String key = product.productId?.toString() ??
+          product.productName ??
+          UniqueKey().toString();
       newProductQuantities[key] = productQuantities[key] ?? 0;
     }
     productQuantities.clear();
@@ -234,7 +246,10 @@ class CategoryController extends ChangeNotifier {
     List<top_rated.Product> productsToFilter = _allLoadedProducts;
     if (query.isNotEmpty) {
       filteredProducts = productsToFilter.where((product) {
-        return (product.productName?.toLowerCase().contains(query.toLowerCase()) ?? false);
+        return (product.productName
+                ?.toLowerCase()
+                .contains(query.toLowerCase()) ??
+            false);
       }).toList();
     } else {
       filteredProducts = productsToFilter;
@@ -244,13 +259,58 @@ class CategoryController extends ChangeNotifier {
 
   void onCategorySelected(String category) {
     selectedCategory = category;
-    _currentSearchQuery = ''; 
-    safeNotifyListeners(); 
+    _currentSearchQuery = '';
+    safeNotifyListeners();
   }
 
   void onQuantityChanged(String productKey, int newQuantity) {
     productQuantities[productKey] = newQuantity;
     safeNotifyListeners();
+  }
+
+  // Helper method to update cart item quantity
+  void updateCartItemQuantity(top_rated.Product product, int newQuantity) {
+    if (newQuantity > 0) {
+      cart[product] = newQuantity;
+    } else {
+      cart.remove(product);
+    }
+    safeNotifyListeners();
+  }
+
+  // Helper method to remove item from cart
+  void removeFromCart(top_rated.Product product) {
+    cart.remove(product);
+    safeNotifyListeners();
+  }
+
+  // Helper method to remove product from cart via API
+  Future<bool> removeProductFromCart(top_rated.Product product) async {
+    log('CategoryController.removeProductFromCart called for productId: ${product.productId}');
+
+    // Find the cart item to remove
+    Map<String, dynamic>? cartItemToRemove;
+    try {
+      cartItemToRemove = fetchedCartItems.firstWhere(
+        (item) => item['product'].productId == product.productId,
+      );
+    } catch (e) {
+      // Product not found in cart
+      return true; // Consider it already removed
+    }
+
+    if (cartItemToRemove != null) {
+      final cartId = cartItemToRemove['id'];
+      final success = await _repository.deleteCartItem(cartId: cartId);
+      if (success) {
+        // Remove from local cart data
+        fetchedCartItems.removeWhere((item) => item['id'] == cartId);
+        cart.remove(product);
+        safeNotifyListeners();
+      }
+      return success;
+    }
+    return false;
   }
 
   void addToCart(top_rated.Product product) {
@@ -268,61 +328,105 @@ class CategoryController extends ChangeNotifier {
 
   Future<bool> addProductToCart(top_rated.Product product, int quantity) async {
     log('CategoryController.addProductToCart called for productId: ${product.productId}, quantity: ${quantity}');
-    final success = await _repository.addProductToCart(
-      productId: product.productId ?? 0,
-      quantity: quantity,
-      price: product.price,
-    );
-    return success;
+
+    // Check if product already exists in cart
+    Map<String, dynamic>? existingCartItem;
+    try {
+      existingCartItem = fetchedCartItems.firstWhere(
+        (item) => item['product'].productId == product.productId,
+      );
+    } catch (e) {
+      // Product not found in cart
+      existingCartItem = null;
+    }
+
+    if (existingCartItem != null) {
+      // Update existing cart item
+      final cartId = existingCartItem['id'];
+      final success = await _repository.updateCartItem(
+        cartId: cartId,
+        productId: product.productId ?? 0,
+        quantity: quantity,
+        price: product.price,
+      );
+      if (success) {
+        // Update local cart data
+        existingCartItem['quantity'] = quantity;
+        existingCartItem['total_price'] = (product.price ?? 0.0) * quantity;
+        cart[product] = quantity;
+      }
+      return success;
+    } else {
+      // Add new cart item
+      final success = await _repository.addProductToCart(
+        productId: product.productId ?? 0,
+        quantity: quantity,
+        price: product.price,
+      );
+      return success;
+    }
   }
 
   List<Map<String, dynamic>> fetchedCartItems = [];
 
   Future<void> fetchCartFromApi() async {
     log('CategoryController.fetchCartFromApi called');
-    
-    final cartList = await _repository.fetchCartFromApi();
 
-    cart.clear();
-    fetchedCartItems.clear();
+    try {
+      final cartList = await _repository.fetchCartFromApi();
 
-    for (var item in cartList) {
-      final productId = item['product_id'];
-      // Fetch individual product if not in lookup map
-      top_rated.Product? product = _allProductsById[productId];
-      if (product == null) {
-        try {
-          final products = await _repository.fetchAllProducts(page: 1, pageSize: 1000, search: null);
-          product = products.firstWhere((p) => p.productId == productId, orElse: () => throw StateError('Product not found'));
-        } catch (e) {
-          if (e is StateError) {
-            log('Product $productId not found in fetched products');
-          } else {
-            log('Error fetching product $productId: $e');
+      cart.clear();
+      fetchedCartItems.clear();
+
+      for (var item in cartList) {
+        final productId = item['product_id'];
+        // Fetch individual product if not in lookup map
+        top_rated.Product? product = _allProductsById[productId];
+        if (product == null) {
+          try {
+            final products = await _repository.fetchAllProducts(
+                page: 1, pageSize: 1000, search: null);
+            product = products.firstWhere((p) => p.productId == productId,
+                orElse: () => throw StateError('Product not found'));
+          } catch (e) {
+            if (e is StateError) {
+              log('Product $productId not found in fetched products');
+            } else {
+              log('Error fetching product $productId: $e');
+            }
           }
-        }
           if (product != null) {
             _allProductsById[productId] = product;
           }
+        }
+
+        final cartItemId = item['id'];
+        final quantity = int.tryParse(item['product_quantity'].toString()) ?? 1;
+        final price = double.tryParse(item['price'].toString()) ?? 0.0;
+        if (product != null) {
+          cart[product] = quantity;
+          fetchedCartItems.add({
+            'id': cartItemId,
+            'product': product,
+            'quantity': quantity,
+            'price': price,
+            'total_price': price * quantity,
+          });
+
+          // Sync productQuantities map with cart data
+          final String quantityKey = product.productId?.toString() ??
+              product.productName ??
+              'product_$productId';
+          productQuantities[quantityKey] = quantity;
+        } else {
+          log('Skipping cart item with product_id $productId because product not found.');
+        }
       }
-      
-      final cartItemId = item['id'];
-      final quantity = int.tryParse(item['product_quantity'].toString()) ?? 1;
-      final price = double.tryParse(item['price'].toString()) ?? 0.0;
-      if (product != null) {
-        cart[product] = quantity;
-        fetchedCartItems.add({
-          'id': cartItemId,
-          'product': product,
-          'quantity': quantity,
-          'price': price,
-          'total_price': price * quantity,
-        });
-      } else {
-        log('Skipping cart item with product_id $productId because product not found.');
-      }
+      safeNotifyListeners();
+    } catch (e) {
+      log('Error in fetchCartFromApi: $e');
+      // Don't clear existing cart data on error to prevent UI issues
     }
-    safeNotifyListeners();
   }
 
   double get fetchedCartTotal {
@@ -333,24 +437,66 @@ class CategoryController extends ChangeNotifier {
     return total;
   }
 
-  Future<bool> updateCartItem({required int cartId, required top_rated.Product product, required int quantity}) async {
-    final success = await _repository.updateCartItem(
-      cartId: cartId,
-      productId: product.productId ?? 0,
-      quantity: quantity,
-      price: product.price,
-    );
-    if (success) {
-      await fetchCartFromApi();
+  Future<bool> updateCartItem(
+      {required int cartId,
+      required top_rated.Product product,
+      required int quantity}) async {
+    try {
+      final success = await _repository.updateCartItem(
+        cartId: cartId,
+        productId: product.productId ?? 0,
+        quantity: quantity,
+        price: product.price,
+      );
+      if (success) {
+        // Update local data immediately instead of fetching from API
+        final cartItemIndex =
+            fetchedCartItems.indexWhere((item) => item['id'] == cartId);
+        if (cartItemIndex != -1) {
+          fetchedCartItems[cartItemIndex]['quantity'] = quantity;
+          fetchedCartItems[cartItemIndex]['total_price'] =
+              (product.price ?? 0.0) * quantity;
+          cart[product] = quantity;
+          safeNotifyListeners();
+        }
+      }
+      return success;
+    } catch (e) {
+      log('Error updating cart item: $e');
+      return false;
     }
-    return success;
   }
 
   Future<bool> deleteCartItem({required int cartId}) async {
-    final success = await _repository.deleteCartItem(cartId: cartId);
-    if (success) {
-      await fetchCartFromApi();
+    if (cartItemDeleteLoading[cartId] == true) {
+      log('DeleteCartItem request ignored: delete already in progress for cartId $cartId');
+      return false;
     }
-    return success;
+
+    cartItemDeleteLoading[cartId] = true;
+    safeNotifyListeners();
+
+    try {
+      final success = await _repository.deleteCartItem(cartId: cartId);
+      if (success) {
+        // Remove from local data immediately instead of fetching from API
+        final removedItemIndex =
+            fetchedCartItems.indexWhere((item) => item['id'] == cartId);
+        if (removedItemIndex != -1) {
+          final removedItem = fetchedCartItems[removedItemIndex];
+          final product = removedItem['product'] as top_rated.Product;
+          fetchedCartItems.removeAt(removedItemIndex);
+          cart.remove(product);
+          safeNotifyListeners();
+        }
+      }
+      return success;
+    } catch (e) {
+      log('Error deleting cart item: $e');
+      return false;
+    } finally {
+      cartItemDeleteLoading[cartId] = false;
+      safeNotifyListeners();
+    }
   }
 }
