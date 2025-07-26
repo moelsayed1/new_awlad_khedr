@@ -95,7 +95,8 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
     return '${words.take(2).join(' ')}\n${words.skip(2).join(' ')}';
   }
 
-  Widget _buildOrderItem(String name, String price, String quantity, String imageUrl) {
+  Widget _buildOrderItem(
+      String name, String price, String quantity, String imageUrl) {
     // Format quantity: remove .0 if integer
     String formattedQuantity;
     final doubleQty = double.tryParse(quantity);
@@ -144,7 +145,7 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
                         fontWeight: FontWeight.bold,
                         fontFamily: baseFont),
                   ),
-                 SizedBox(height: 4.h),
+                  SizedBox(height: 4.h),
                   Text(
                     'الكمية : $formattedQuantity',
                     style: TextStyle(
@@ -155,20 +156,23 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
                 ],
               ),
             ),
-           SizedBox(width: 16.w),
+            SizedBox(width: 16.w),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text('سعر الكرتونة',
-                    style:
-                        TextStyle(color: darkOrange, fontSize: 14.sp, fontFamily: baseFont, fontWeight: FontWeight.w500)),
+                    style: TextStyle(
+                        color: darkOrange,
+                        fontSize: 14.sp,
+                        fontFamily: baseFont,
+                        fontWeight: FontWeight.w500)),
                 const SizedBox(height: 4),
                 Text(price,
                     style: const TextStyle(
-                        color: darkOrange,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        )),
+                      color: darkOrange,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    )),
               ],
             ),
           ],
@@ -224,11 +228,14 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
     final Map<String, Map<String, dynamic>> grouped = {};
     for (var item in items) {
       final product = item['product'] ?? {};
-      final productId = product['id']?.toString() ?? product['name']?.toString() ?? 'unknown';
+      final productId =
+          product['id']?.toString() ?? product['name']?.toString() ?? 'unknown';
       if (grouped.containsKey(productId)) {
         // Sum the quantity
-        final prevQty = double.tryParse(grouped[productId]!['quantity'].toString()) ?? 0;
-        final newQty = double.tryParse(item['quantity']?.toString() ?? '0') ?? 0;
+        final prevQty =
+            double.tryParse(grouped[productId]!['quantity'].toString()) ?? 0;
+        final newQty =
+            double.tryParse(item['quantity']?.toString() ?? '0') ?? 0;
         grouped[productId]!['quantity'] = (prevQty + newQty).toString();
       } else {
         // Clone the item for grouping
@@ -246,111 +253,294 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
         borderRadius: BorderRadius.circular(20),
         child: Container(
           color: Colors.white,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                width: double.infinity,
-                color: darkOrange,
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                  width: double.infinity,
+                  color: darkOrange,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(Icons.arrow_back,
+                                  size: 20, color: Colors.black),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
                           ),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
-                            onPressed: () => Navigator.of(context).pop(),
+                          const Expanded(
+                            child: Text(
+                              'اجمالي سعر الاوردرات',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: baseFont),
+                            ),
                           ),
-                        ),
-                        const Expanded(
-                          child: Text(
-                            'اجمالي سعر الاوردرات',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: baseFont),
-                          ),
-                        ),
-                        const SizedBox(width: 36), // Balance the back button
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'EGP ${_formatPrice(totalPrice)}',
-                      style: const TextStyle(
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'EGP ${_formatPrice(totalPrice)}',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Body
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Order number
+                      Center(
+                        child: Column(
+                          children: [
+                            Text('رقم الطلب #$invoiceNo',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                )),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                    height: 3, width: 20, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Container(
+                                    height: 3, width: 20, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Container(
+                                    height: 3, width: 40, color: darkOrange),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      // Details title
+                      const Text('تفاصيل الاوردر',
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontFamily: baseFont)),
+                      const SizedBox(height: 16),
+                      // Table-like structure with three columns
+                      _buildOrderItemsTable(groupedItems),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderItemsTable(List<Map<String, dynamic>> groupedItems) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Directionality(
+        textDirection: ui.TextDirection.rtl,
+        child: Column(
+          children: [
+            // Table Header
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
               ),
-              // Body
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        // Order number
-                        Center(
-                          child: Column(
-                            children: [
-                              Text('رقم الطلب #$invoiceNo',
-                                  style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                      )),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                      height: 3, width: 20, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Container(
-                                      height: 3, width: 20, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Container(
-                                      height: 3, width: 40, color: darkOrange),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // Details title
-                        const Text('تفاصيل الاوردر',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontFamily: baseFont)),
-                        const SizedBox(height: 8),
-                        // Item list
-                        GroupedProductList(products: items),
-                      ],
+              child: Row(
+                children: [
+                  // Product Name Column Header - Right Aligned
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'اسم المنتج',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontFamily: baseFont,
+                      ),
+                      textAlign: TextAlign.start, // Right align the header
+                    ),
+                  ),
+                  // Price Column Header
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'السعر',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontFamily: baseFont,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  // Quantity Column Header
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'الكمية',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontFamily: baseFont,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Table Data Rows
+            ...groupedItems.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final product = item['product'] ?? {};
+              final productName = product['name']?.toString() ?? 'N/A';
+              final quantity = item['quantity']?.toString() ?? '0';
+              final price = item['unit_price']?.toString() ?? '0';
+
+              // Format quantity: remove .0 if integer
+              String formattedQuantity;
+              final doubleQty = double.tryParse(quantity);
+              if (doubleQty != null &&
+                  doubleQty == doubleQty.truncateToDouble()) {
+                formattedQuantity = doubleQty.toInt().toString();
+              } else {
+                formattedQuantity = quantity;
+              }
+
+              return Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: index < groupedItems.length - 1
+                          ? Colors.grey[200]!
+                          : Colors.transparent,
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                  child: Row(
+                    children: [
+                      // Product Name Column - Right Aligned
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 8),
+                          child: Text(
+                            splitAfterTwoWords(productName),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                              fontFamily: baseFont,
+                            ),
+                            textAlign: TextAlign
+                                .start, // Right align the product names
+                          ),
+                        ),
+                      ),
+                      // Price Column - Fixed layout to keep currency on same line
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 4),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  price,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: darkOrange,
+                                    fontFamily: baseFont,
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                Text(
+                                  'ج.م',
+                                  style: TextStyle(
+                                    fontSize: 10.sp,
+                                    color: Colors.grey[600],
+                                    fontFamily: baseFont,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Quantity Column
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 4),
+                          child: Text(
+                            formattedQuantity,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontFamily: baseFont,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
         ),
       ),
     );
