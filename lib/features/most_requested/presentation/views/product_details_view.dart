@@ -200,8 +200,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     expand: false,
                     builder: (context, scrollController) {
                       return CartSheet(
-                        cart: _cart,
-                        total: cartTotal,
                         onClose: () => Navigator.pop(context),
                       );
                     },

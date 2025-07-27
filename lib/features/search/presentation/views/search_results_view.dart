@@ -193,6 +193,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     categoryController.cart[product] = newQuantity;
                                     categoryController.safeNotifyListeners();
                                     await categoryController.addProductToCart(product, newQuantity);
+                                    // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+                                    // categoryController.syncProductQuantitiesWithCart();
                                   },
                                   onDecrease: () async {
                                     final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
@@ -205,6 +207,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                       categoryController.cart.remove(product);
                                     }
                                     categoryController.safeNotifyListeners();
+                                    // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+                                    // categoryController.syncProductQuantitiesWithCart();
                                   },
                                   onAddToCart: () async {
                                     final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
@@ -213,6 +217,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                     categoryController.cart[product] = newQuantity;
                                     categoryController.safeNotifyListeners();
                                     await categoryController.addProductToCart(product, newQuantity);
+                                    // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+                                    // categoryController.syncProductQuantitiesWithCart();
                                   },
                                 ),
                               ],
@@ -229,7 +235,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           ],
         ),
       ),
-      floatingActionButton: categoryController.cart.isNotEmpty
+              floatingActionButton: categoryController.fetchedCartItems.isNotEmpty
           ? FloatingActionButton.extended(
               backgroundColor: const Color(0xffFC6E2A),
               onPressed: () {
@@ -244,8 +250,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                     expand: false,
                     builder: (context, scrollController) {
                       return CartSheet(
-                        cart: categoryController.cart,
-                        total: categoryController.cartTotal,
                         onClose: () => Navigator.pop(context),
                         onPaymentSuccess: () {
                           categoryController.clearCart();
@@ -256,7 +260,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                 );
               },
               label: Text(
-                'السلة (${categoryController.cart.length})',
+                'السلة (${categoryController.fetchedCartItems.length})',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,

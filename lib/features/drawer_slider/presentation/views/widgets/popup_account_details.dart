@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:awlad_khedr/features/order/presentation/views/orders_view.dart';
+import 'package:awlad_khedr/core/assets.dart';
+
 
 class OrderDetailsButton extends StatelessWidget {
   const OrderDetailsButton({super.key, required this.transaction});
@@ -114,23 +116,24 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: (imageUrl.isNotEmpty)
-                  ? Image.network(
-                      imageUrl,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      width: 60,
-                      height: 60,
-                      color: Colors.grey[300],
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: Colors.grey,
-                        size: 32,
-                      ),
+              child: Image.network(
+                imageUrl ?? '',
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 60,
+                    height: 60,
+                    color: Colors.grey[300],
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: Colors.grey,
+                      size: 32,
                     ),
+                  );
+                },
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(

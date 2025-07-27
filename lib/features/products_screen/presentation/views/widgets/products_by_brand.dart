@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../../../../../constant.dart';
 import '../../../../../main.dart';
 
+
 class ProductItemByBrand extends StatefulWidget {
   final int selectedBrandId; // Receive selectedBrandId
 
@@ -192,27 +193,27 @@ class ProductItemByBrandState extends State<ProductItemByBrand> {
                                 borderRadius: BorderRadius.circular(8),
                                 color: Colors.grey[100],
                             ),
-                            child: (product.imageUrl != null && product.imageUrl!.isNotEmpty && product.imageUrl! != 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      product.imageUrl!,
-                                      fit: BoxFit.cover,
-                                      loadingBuilder: (context, child, loadingProgress) {
-                                        if (loadingProgress == null) return child;
-                                        return Center(
-                                          child: CircularProgressIndicator(
-                                            value: loadingProgress.expectedTotalBytes != null
-                                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                : null,
-                                            strokeWidth: 2.0,
-                                            valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
-                                          ),
-                                        );
-                                      },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                product.imageUrl ?? '',
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.0,
+                                      valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
                                     ),
-                                  )
-                                : Icon(Icons.image_not_supported, color: Colors.grey[400]),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(Icons.image_not_supported, color: Colors.grey[400]);
+                                },
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(

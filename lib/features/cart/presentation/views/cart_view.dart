@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/main_layout.dart';
 import 'package:awlad_khedr/features/cart/presentation/views/widgets/custom_button_cart.dart';
@@ -7,9 +8,11 @@ import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.d
     as top_rated;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/core/assets.dart';
+
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slider.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/cart/services/cart_api_service.dart';
 
 /// Logic class to separate business logic from UI
 class CartViewLogic extends ChangeNotifier {
@@ -21,26 +24,93 @@ class CartViewLogic extends ChangeNotifier {
 
   Future<void> fetchCart() async {
     await controller.fetchCartFromApi();
+    
+    // Preload any missing product names
+    await _preloadMissingProducts();
+    
+    // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+    // controller.syncProductQuantitiesWithCart();
+    
     loading = false;
     notifyListeners();
   }
 
+  /// Preload any products that don't have proper names
+  Future<void> _preloadMissingProducts() async {
+    try {
+      log('🔍 Checking for products with placeholder names...');
+      final items = controller.fetchedCartItems;
+      
+      for (var item in items) {
+        final product = item['product'] as top_rated.Product;
+        final productName = product.productName;
+        
+        // Check if this is a placeholder name
+        if (productName != null && productName.startsWith('اسم المنتج')) {
+          log('⚠️ Found product with placeholder name: $productName');
+          
+          // Try to fetch the actual product name
+          final actualProduct = await controller.fetchAndCacheProduct(product.productId ?? 0);
+          if (actualProduct != null) {
+            log('✅ Updated product name: ${actualProduct.productName}');
+            // Update the product in the cart item
+            item['product'] = actualProduct;
+          }
+        }
+      }
+      
+      // Notify listeners to update the UI
+      controller.safeNotifyListeners();
+    } catch (e) {
+      log('❌ Error preloading missing products: $e');
+    }
+  }
+
   List<Map<String, dynamic>> get cartItems {
+    // CRITICAL FIX: Add validation and deduplication logic
     final Map<int?, List<Map<String, dynamic>>> grouped = {};
+    final Set<int> processedCartIds = {}; // Track processed cart IDs to prevent duplicates
+    
     for (var item in controller.fetchedCartItems) {
       final product = item['product'];
       if (product == null) continue;
       final productId = product.productId;
+      final cartId = item['id'] as int?;
+      
+      // CRITICAL FIX: Skip if we've already processed this cart ID
+      if (cartId != null && processedCartIds.contains(cartId)) {
+        log('🚫 Skipping duplicate cart ID: $cartId');
+        continue;
+      }
+      
+      if (cartId != null) {
+        processedCartIds.add(cartId);
+      }
+      
       grouped.putIfAbsent(productId, () => []).add(item);
     }
-    // For display, sum quantities and total_price, but keep a reference to all cart entries
+    
+    log('🔍 CartViewLogic: Found ${grouped.length} unique products');
+    for (var entry in grouped.entries) {
+      final productId = entry.key;
+      final items = entry.value;
+      log('   - Product ID $productId: ${items.length} cart entries');
+      for (var item in items) {
+        log('     * Cart ID: ${item['id']}, Quantity: ${item['quantity']}');
+      }
+    }
+    
+    // CRITICAL FIX: For display, use aggregated data from controller
     return grouped.entries.map((entry) {
       final items = entry.value;
       final first = items.first;
-      final totalQuantity =
-          items.fold<int>(0, (sum, i) => sum + (i['quantity'] as int));
-      final totalPrice =
-          items.fold<double>(0, (sum, i) => sum + (i['total_price'] as double));
+      
+      // CRITICAL FIX: Use the aggregated quantity and price from the controller
+      final totalQuantity = first['quantity'] as int? ?? 0;
+      final totalPrice = first['total_price'] as double? ?? 0.0;
+      
+      log('📊 Product ${first['product'].productName}: ${items.length} entries, Total Quantity: $totalQuantity');
+      
       return {
         ...first,
         'quantity': totalQuantity,
@@ -50,7 +120,16 @@ class CartViewLogic extends ChangeNotifier {
     }).toList();
   }
 
-  double get total => controller.fetchedCartTotal;
+  double get total {
+    // CRITICAL FIX: Calculate total dynamically based on current quantities
+    double total = 0.0;
+    for (var item in controller.fetchedCartItems) {
+      final quantity = item['quantity'] as int? ?? 0;
+      final price = item['price'] as double? ?? 0.0;
+      total += price * quantity;
+    }
+    return total;
+  }
 
   // Improved debounce logic with better cancellation handling
   final Map<int, bool> _debounceCancelled = {};
@@ -88,18 +167,23 @@ class CartViewLogic extends ChangeNotifier {
 
     // Optimistic update
     cartEntry['quantity'] = newQuantity;
+    // CRITICAL FIX: Update total_price dynamically
+    cartEntry['total_price'] = (product.price ?? 0.0) * newQuantity;
     notifyListeners();
 
     _debounceAction(cartId, () async {
       try {
-        final success = await controller.updateCartItem(
+        // Use the new CartApiService for UPDATE endpoint
+        final success = await CartApiService.updateCartItem(
           cartId: cartId,
-          product: product,
+          productId: product.productId ?? 0,
           quantity: newQuantity,
+          price: product.price ?? 0.0,
         );
         if (!success) {
           // Revert on failure
           cartEntry['quantity'] = quantity;
+          cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
           notifyListeners();
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -110,6 +194,7 @@ class CartViewLogic extends ChangeNotifier {
       } catch (e) {
         // Revert on error
         cartEntry['quantity'] = quantity;
+        cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
         notifyListeners();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -140,23 +225,28 @@ class CartViewLogic extends ChangeNotifier {
 
     // Optimistic update
     cartEntry['quantity'] = newQuantity;
+    // CRITICAL FIX: Update total_price dynamically
+    cartEntry['total_price'] = (product.price ?? 0.0) * newQuantity;
     notifyListeners();
 
     _debounceAction(cartId, () async {
       try {
         bool success = true;
         if (newQuantity > 0) {
-          success = await controller.updateCartItem(
+          // Use the new CartApiService for UPDATE endpoint
+          success = await CartApiService.updateCartItem(
             cartId: cartId,
-            product: product,
+            productId: product.productId ?? 0,
             quantity: newQuantity,
+            price: product.price ?? 0.0,
           );
         } else {
           // Mark as removing to prevent overlapping operations
           removingItems.add(cartId);
           notifyListeners();
 
-          success = await controller.deleteCartItem(cartId: cartId);
+          // Use the new CartApiService for DELETE endpoint
+          success = await CartApiService.deleteCartItem(cartId: cartId);
 
           if (success) {
             removingItems.remove(cartId);
@@ -181,6 +271,7 @@ class CartViewLogic extends ChangeNotifier {
         if (!success && newQuantity > 0) {
           // Revert on failure for quantity updates
           cartEntry['quantity'] = quantity;
+          cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
           notifyListeners();
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -191,6 +282,7 @@ class CartViewLogic extends ChangeNotifier {
       } catch (e) {
         // Revert on error
         cartEntry['quantity'] = quantity;
+        cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
         removingItems.remove(cartId);
         notifyListeners();
         if (context.mounted) {
@@ -238,7 +330,8 @@ class CartProductCard extends StatelessWidget {
     final product = item['product'];
     final quantity = item['quantity'] as int;
     final price = item['price'] as double;
-    final totalPrice = item['total_price'] as double;
+    // CRITICAL FIX: Calculate total price dynamically based on current quantity
+    final totalPrice = price * quantity;
 
     // Show Add to Cart button if quantity is 0, otherwise show quantity controls
     final bool showAddToCart = quantity == 0;
@@ -323,17 +416,14 @@ class CartProductCard extends StatelessWidget {
                 // Product image (right)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10.r),
-                  child: Container(
-                    color: Colors.grey[100],
-                    child: (product.imageUrl != null && product.imageUrl != '')
-                        ? Image.network(
-                            product.imageUrl,
-                            width: 60.w,
-                            height: 60.w,
-                            fit: BoxFit.cover,
-                          )
-                        : Icon(Icons.image,
-                            size: 60.w, color: Colors.grey[300]),
+                  child: Image.network(
+                    product.imageUrl ?? '',
+                    width: 60.w,
+                    height: 60.w,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.image, size: 60.w, color: Colors.grey[300]);
+                    },
                   ),
                 ),
               ],
@@ -501,9 +591,10 @@ class CartProductList extends StatelessWidget {
               onQuantityChanged(product, newQuantity);
               final success = await addProductToCart(product, newQuantity);
               debugPrint('addProductToCart success: $success');
-              if (success && controller != null) {
-                await controller.fetchCartFromApi();
-              }
+                // CRITICAL FIX: Removed unnecessary fetchCartFromApi() call
+              // if (success && controller != null) {
+              //   await controller.fetchCartFromApi();
+              // }
             },
             onDecrease: () async {
               final currentQuantity = productQuantities[quantityKey] ?? 0;
@@ -512,12 +603,16 @@ class CartProductList extends StatelessWidget {
                 onQuantityChanged(product, newQuantity);
                 final success = await addProductToCart(product, newQuantity);
                 debugPrint('addProductToCart success: $success');
-                if (success && controller != null) {
-                  await controller.fetchCartFromApi();
-                }
+                // CRITICAL FIX: Removed unnecessary fetchCartFromApi() call
+                // if (success && controller != null) {
+                //   await controller.fetchCartFromApi();
+                // }
               } else {
+                // CRITICAL FIX: Remove product from cart via API when quantity reaches 0
                 onQuantityChanged(product, 0);
-                // Remove from local cart only - API call removed
+                final controller = Provider.of<CategoryController>(context, listen: false);
+                final success = await controller.removeProductFromCart(product);
+                debugPrint('removeProductFromCart success: $success');
               }
             },
           ),
@@ -528,11 +623,7 @@ class CartProductList extends StatelessWidget {
 }
 
 class CartViewPage extends StatefulWidget {
-  // No need to pass products/quantities; always use controller
-  const CartViewPage(
-      {super.key,
-      required List<top_rated.Product> products,
-      required List<int> quantities});
+  const CartViewPage({super.key});
 
   @override
   State<CartViewPage> createState() => _CartViewPageState();

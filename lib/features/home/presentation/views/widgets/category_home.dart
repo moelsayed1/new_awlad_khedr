@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:awlad_khedr/constant.dart';
-import 'package:awlad_khedr/core/assets.dart';
-import 'package:awlad_khedr/features/products_screen/model/product_by_category_model.dart';
-import 'package:awlad_khedr/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
+import 'package:awlad_khedr/constant.dart';
+import 'package:awlad_khedr/core/assets.dart';
+
 import 'package:awlad_khedr/core/app_router.dart';
+import 'package:awlad_khedr/features/products_screen/model/product_by_category_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:awlad_khedr/main.dart';
+
 
 class HomeCategory extends StatefulWidget {
   const HomeCategory({
@@ -109,24 +111,18 @@ class _HomeCategoryState extends State<HomeCategory> {
                               width: double.infinity,
                               height: MediaQuery.sizeOf(context).height * .15,
                               color: Colors.transparent,
-                              child:
-                                  productByCategory?.categories[index] != null
-                                      ? Image.network(
-                                          productByCategory!.categories[index]
-                                                  .categoryImage ??
-                                              'https://img4cdn.haraj.com.sa/userfiles30/2022-08-23/800x689-1_-GO__MTY2MTI4MDM2MzM5OTk0NDE1OTEwNQ.jpg',
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Image.asset(
-                                                'assets/images/logoPng.png',
-                                                fit: BoxFit.cover);
-                                          },
-                                        )
-                                      : Image.asset(
-                                          AssetsData.callCenter,
-                                          fit: BoxFit.cover,
-                                        ),
+                              child: Image.network(
+                                productByCategory!.categories[index].categoryImage ?? '',
+                                width: double.infinity,
+                                height: MediaQuery.sizeOf(context).height * .15,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    AssetsData.logoPng,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
                             ),
                             const Spacer(),
                             Row(

@@ -141,13 +141,7 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: kCartViewPage,
-          builder: (context, state) {
-            final args = state.extra as Map<String, dynamic>?;
-            return CartViewPage(
-              products: args?['products'] ?? [],
-              quantities: args?['quantities'] ?? [],
-            );
-          },
+          builder: (context, state) => const CartViewPage(),
         ),
         GoRoute(
           path: kOrdersViewPage,

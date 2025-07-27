@@ -96,32 +96,35 @@ class _RegisterViewState extends State<RegisterView> {
                    SizedBox(
                       height: 25.h,
                     ),
-                    const Text(
+                    Text(
                       'الأسم ',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
                     CustomTextField(
                       hintText: 'السيد',
                       inputType: TextInputType.text,
                       controller: _nameController,
                     ),
-                    const Text(
+                    SizedBox(
+                      height: 18.h,
+                    ),
+                    Text(
                       'اسم المستخدم',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
                     CustomTextField(
                       hintText: 'محمد احمد',
@@ -139,16 +142,19 @@ class _RegisterViewState extends State<RegisterView> {
                         return null;
                       },
                     ),
-                    const Text(
+                    SizedBox(
+                      height: 18.h,
+                    ),
+                    Text(
                       'البريد الالكتروني',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
                     CustomTextField(
                       hintText: 'janedoe@gmail.com',
@@ -161,19 +167,19 @@ class _RegisterViewState extends State<RegisterView> {
                         return null;
                       },
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
-                    const Text(
+                    Text(
                       'كلمة المرور',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
                     CustomTextField(
                       hintText: '********',
@@ -203,19 +209,19 @@ class _RegisterViewState extends State<RegisterView> {
                         return null;
                       },
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),      
-                    const Text(
+                    Text(
                       'إعادة كتابة كلمة المرور ',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
                     CustomTextField(
                       hintText: '********',
@@ -245,7 +251,7 @@ class _RegisterViewState extends State<RegisterView> {
                         return null;
                       },
                     ),
-                   SizedBox(
+                    SizedBox(
                       height: 32.h,
                     ),
                     Center(
@@ -279,7 +285,7 @@ class _RegisterViewState extends State<RegisterView> {
                               "password": _passwordController.text.trim(),
                             });
                           },
-                          text: 'دخول',
+                          text: 'التالي',
                           width: 200,
                           height: 60,
                           color: Colors.black,

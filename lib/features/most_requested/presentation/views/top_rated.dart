@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:developer' as dev;
 import 'package:awlad_khedr/core/assets.dart';
 
+
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -151,24 +152,18 @@ class _TopRatedItemState extends State<TopRatedItem> {
                             width: MediaQuery.sizeOf(context).width * 0.4,
                             height: MediaQuery.sizeOf(context).height * .18,
                             color: Colors.transparent,
-                            child: (topRatedItem?.products[index].imageUrl !=
-                                        null &&
-                                    topRatedItem!
-                                        .products[index].imageUrl!.isNotEmpty)
-                                ? Image.network(
-                                    topRatedItem!.products[index].imageUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        AssetsData.callCenter,
-                                        fit: BoxFit.cover,
-                                      );
-                                    },
-                                  )
-                                : Image.asset(
-                                    AssetsData.callCenter,
-                                    fit: BoxFit.cover,
-                                  ),
+                            child: Image.network(
+                              topRatedItem!.products[index].imageUrl ?? '',
+                              width: MediaQuery.sizeOf(context).width * 0.4,
+                              height: MediaQuery.sizeOf(context).height * .18,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  AssetsData.callCenter,
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            ),
                           ),
                           const Spacer(),
                           SingleChildScrollView(

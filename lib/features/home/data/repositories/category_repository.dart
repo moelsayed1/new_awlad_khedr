@@ -523,4 +523,48 @@ class CategoryRepository {
       return false;
     }
   }
+
+  Future<Product?> fetchProductById(int productId) async {
+    try {
+      if (!await _validateToken()) {
+        log('Invalid or expired token in fetchProductById');
+        return null;
+      }
+
+      final response = await http.get(
+        Uri.parse('${APIConstant.GET_ALL_PRODUCTS}/$productId'),
+        headers: {
+          "Authorization": "Bearer $authToken",
+          "Accept": "application/json",
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+        },
+      );
+
+      log('Fetch product by ID response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['data'] != null) {
+          final product = Product.fromJson(jsonResponse['data'] as Map<String, dynamic>);
+          log('Successfully fetched product: ${product.productName}');
+          return product;
+        }
+      } else if (response.statusCode == 404) {
+        log('Product $productId not found');
+        return null;
+      } else if (response.statusCode == 401) {
+        _tokenValidated = false;
+        log('Token expired during fetchProductById');
+        return null;
+      } else {
+        log('Unexpected status code in fetchProductById: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      log('Error in fetchProductById: $e');
+      return null;
+    }
+    return null;
+  }
 }

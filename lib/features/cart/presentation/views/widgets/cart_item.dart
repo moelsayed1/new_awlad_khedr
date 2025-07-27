@@ -2,6 +2,7 @@ import 'package:awlad_khedr/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/assets.dart';
+
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
 
 class CartItem extends StatelessWidget {
@@ -149,18 +150,21 @@ class CartItem extends StatelessWidget {
                   ],
                 ),
                 // CONDITIONAL IMAGE DISPLAY
-                child: (product.imageUrl != null && product.imageUrl!.isNotEmpty && product.imageUrl! != 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
-                    ? Image.network(
-                        product.imageUrl!,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          // Fallback to logoPng if network image fails to load
-                          return Image.asset(AssetsData.logoPng,
-                              fit: BoxFit.contain);
-                        },
-                      )
-                    : Image.asset(AssetsData.logoPng,
-                        fit: BoxFit.contain), // Fallback if imageUrl is null, empty, or matches problematic URL
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    product.imageUrl ?? '',
+                    width: 60.w,
+                    height: 60.h,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+                      );
+                    },
+                  ),
+                ),
               ),
               // SizedBox(height: 5.h),
               // Text(

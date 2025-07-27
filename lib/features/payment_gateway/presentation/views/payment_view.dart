@@ -9,6 +9,8 @@ import 'package:awlad_khedr/features/order/data/model/order_model.dart';
 import 'package:awlad_khedr/features/order/presentation/controllers/order_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:awlad_khedr/core/app_router.dart';
+import 'package:awlad_khedr/core/assets.dart';
+
 
 class PaymentView extends StatelessWidget {
   final List<Product> products;
@@ -78,18 +80,15 @@ class PaymentView extends StatelessWidget {
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8.r),
-                                  child: (product.imageUrl != null &&
-                                          product.imageUrl!.isNotEmpty &&
-                                          product.imageUrl! != 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png' &&
-                                          !product.imageUrl!.toLowerCase().endsWith('فريم.png'))
-                                      ? Image.network(
-                                          product.imageUrl!,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return Image.asset('assets/images/logoPng.png', fit: BoxFit.contain);
-                                          },
-                                        )
-                                      : Image.asset('assets/images/logoPng.png', fit: BoxFit.contain),
+                                  child: Image.network(
+                                    product.imageUrl ?? '',
+                                    width: 60.w,
+                                    height: 60.h,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset('assets/images/logoPng.png', fit: BoxFit.contain);
+                                    },
+                                  ),
                                 ),
                               ),
                               SizedBox(width: 12.w),

@@ -355,8 +355,6 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                     expand: false,
                     builder: (context, scrollController) {
                       return CartSheet(
-                        cart: _cart,
-                        total: cartTotal,
                         onClose: () => Navigator.pop(context),
                       );
                     },

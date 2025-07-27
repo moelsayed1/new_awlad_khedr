@@ -185,6 +185,8 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                 controller.onQuantityChanged(quantityKey, newQuantity);
                                 controller.updateCartItemQuantity(product, newQuantity);
                                 await controller.addProductToCart(product, newQuantity);
+                                // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+                                // controller.syncProductQuantitiesWithCart();
                               },
                               onIncrease: () async {
                                 final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
@@ -193,6 +195,8 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                 controller.onQuantityChanged(quantityKey, newQuantity);
                                 controller.updateCartItemQuantity(product, newQuantity);
                                 await controller.addProductToCart(product, newQuantity);
+                                // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+                                // controller.syncProductQuantitiesWithCart();
                               },
                               onDecrease: () async {
                                 final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
@@ -202,10 +206,14 @@ class _CategoriesViewState extends State<_CategoriesView> {
                                   controller.onQuantityChanged(quantityKey, newQuantity);
                                   controller.updateCartItemQuantity(product, newQuantity);
                                   await controller.addProductToCart(product, newQuantity);
+                                  // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+                                  // controller.syncProductQuantitiesWithCart();
                                 } else {
                                   controller.onQuantityChanged(quantityKey, 0);
                                   controller.removeFromCart(product);
                                   await controller.removeProductFromCart(product);
+                                  // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+                                  // controller.syncProductQuantitiesWithCart();
                                 }
                               },
                             ),
@@ -219,7 +227,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
           ],
         ),
       ),
-      floatingActionButton: controller.cart.isNotEmpty
+      floatingActionButton: controller.fetchedCartItems.isNotEmpty
           ? FloatingActionButton.extended(
         backgroundColor: Color(0xffFC6E2A),
         onPressed: () {
@@ -234,8 +242,6 @@ class _CategoriesViewState extends State<_CategoriesView> {
               expand: false,
               builder: (context, scrollController) {
                 return CartSheet(
-                  cart: controller.cart,
-                  total: controller.cartTotal,
                   onClose: () => Navigator.pop(context),
                   onPaymentSuccess: () {
                     controller.clearCart();
@@ -246,7 +252,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
           );
         },
         label: Text(
-          'السلة (${controller.cart.length})',
+          'السلة (${controller.fetchedCartItems.length})',
           style: TextStyle(
             color: Colors.white,
             fontSize: 14.sp,

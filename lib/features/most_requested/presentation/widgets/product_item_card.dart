@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
-import 'package:awlad_khedr/constant.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:awlad_khedr/constant.dart';
+import 'package:awlad_khedr/core/assets.dart';
+
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
@@ -81,16 +83,18 @@ class ProductItemCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: _isValidImage(product.imageUrl)
-            ? Image.network(
-                product.imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset('assets/images/logoPng.png',
-                      fit: BoxFit.contain);
-                },
-              )
-            : Image.asset('assets/images/logoPng.png', fit: BoxFit.contain),
+        child: Image.network(
+          product.imageUrl ?? '',
+          width: double.infinity,
+          height: 120.h,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[200],
+              child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+            );
+          },
+        ),
       ),
     );
   }

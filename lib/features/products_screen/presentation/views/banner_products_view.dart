@@ -232,66 +232,77 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Column(
                             children: [
-                              CartProductCard(
-                                item: {
-                                  'product': product,
-                                  'quantity': cartController
-                                          .productQuantities[quantityKey] ??
-                                      0,
-                                  'price': product.price ?? 0.0,
-                                  'total_price': (product.price ?? 0.0) *
-                                      (cartController
-                                              .productQuantities[quantityKey] ??
-                                          0),
-                                },
-                                isRemoving: false,
-                                onAddToCart: () async {
-                                  final currentQuantity = cartController
-                                          .productQuantities[quantityKey] ??
-                                      0;
-                                  final newQuantity = currentQuantity + 1;
-                                  log('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
-                                  cartController.onQuantityChanged(
-                                      quantityKey, newQuantity);
-                                  cartController.updateCartItemQuantity(
-                                      product, newQuantity);
-                                  await cartController.addProductToCart(
-                                      product, newQuantity);
-                                },
-                                onIncrease: () async {
-                                  final currentQuantity = cartController
-                                          .productQuantities[quantityKey] ??
-                                      0;
-                                  final newQuantity = currentQuantity + 1;
-                                  log('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
-                                  cartController.onQuantityChanged(
-                                      quantityKey, newQuantity);
-                                  cartController.updateCartItemQuantity(
-                                      product, newQuantity);
-                                  await cartController.addProductToCart(
-                                      product, newQuantity);
-                                },
-                                onDecrease: () async {
-                                  final currentQuantity = cartController
-                                          .productQuantities[quantityKey] ??
-                                      0;
-                                  final newQuantity = currentQuantity - 1;
-                                  log('onDecrease: key=$quantityKey, newQuantity=$newQuantity');
-                                  if (newQuantity > 0) {
-                                    cartController.onQuantityChanged(
-                                        quantityKey, newQuantity);
-                                    cartController.updateCartItemQuantity(
-                                        product, newQuantity);
-                                    await cartController.addProductToCart(
-                                        product, newQuantity);
-                                  } else {
-                                    cartController.onQuantityChanged(
-                                        quantityKey, 0);
-                                    cartController.removeFromCart(product);
-                                    // Use the improved removeProductFromCart method
-                                    await cartController
-                                        .removeProductFromCart(product);
-                                  }
+                              Consumer<CategoryController>(
+                                builder: (context, cartController, _) {
+                                  return CartProductCard(
+                                    item: {
+                                      'product': product,
+                                      'quantity': cartController.getCurrentQuantity(product),
+                                      'price': product.price ?? 0.0,
+                                      'total_price': (product.price ?? 0.0) *
+                                          cartController.getCurrentQuantity(product),
+                                    },
+                                    isRemoving: false,
+                                    onAddToCart: () async {
+                                      final currentQuantity = cartController.getCurrentQuantity(product);
+                                      final newQuantity = currentQuantity + 1;
+                                      log('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
+                                      
+                                      // CRITICAL FIX: Update local state first
+                                      cartController.updateLocalQuantity(product, newQuantity);
+                                      
+                                      final success = await cartController.addSingleProductToCart(product, newQuantity);
+                                      
+                                      if (!success) {
+                                        // Revert on failure
+                                        cartController.updateLocalQuantity(product, currentQuantity);
+                                      } else {
+                                        log('✅ Successfully added product: ${product.productName} - Quantity: $newQuantity');
+                                      }
+                                    },
+                                    onIncrease: () async {
+                                      final currentQuantity = cartController.getCurrentQuantity(product);
+                                      final newQuantity = currentQuantity + 1;
+                                      log('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
+                                      
+                                      // CRITICAL FIX: Update local state first
+                                      cartController.updateLocalQuantity(product, newQuantity);
+                                      
+                                      final success = await cartController.addSingleProductToCart(product, newQuantity);
+                                      
+                                      if (!success) {
+                                        // Revert on failure
+                                        cartController.updateLocalQuantity(product, currentQuantity);
+                                      }
+                                    },
+                                    onDecrease: () async {
+                                      final currentQuantity = cartController.getCurrentQuantity(product);
+                                      final newQuantity = currentQuantity - 1;
+                                      log('onDecrease: key=$quantityKey, newQuantity=$newQuantity'); 
+                                      
+                                      if (newQuantity > 0) {
+                                        // CRITICAL FIX: Update local state first
+                                        cartController.updateLocalQuantity(product, newQuantity);
+                                        
+                                        final success = await cartController.addSingleProductToCart(product, newQuantity);
+                                        
+                                        if (!success) {
+                                          // Revert on failure
+                                          cartController.updateLocalQuantity(product, currentQuantity);
+                                        }
+                                      } else {
+                                        // CRITICAL FIX: Update local state first
+                                        cartController.updateLocalQuantity(product, 0);
+                                        
+                                        final success = await cartController.removeProductFromCart(product);
+                                        
+                                        if (!success) {
+                                          // Revert on failure
+                                          cartController.updateLocalQuantity(product, currentQuantity);
+                                        }
+                                      }
+                                    },
+                                  );
                                 },
                               ),
                             ],
@@ -307,7 +318,7 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
       ),
       floatingActionButton: Consumer<CategoryController>(
         builder: (context, cartController, _) {
-          return cartController.cart.isNotEmpty
+          return cartController.fetchedCartItems.isNotEmpty
               ? FloatingActionButton.extended(
                   backgroundColor: Color(0xffFC6E2A),
                   onPressed: () {
@@ -322,9 +333,11 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                         expand: false,
                         builder: (context, scrollController) {
                           return CartSheet(
-                            cart: cartController.cart,
-                            total: cartController.cartTotal,
-                            onClose: () => Navigator.pop(context),
+                            onClose: () {
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            },
                             onPaymentSuccess: () {
                               cartController.clearCart();
                             },
@@ -334,7 +347,7 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                     );
                   },
                   label: Text(
-                    'السلة (${cartController.cart.length})',
+                    'السلة (${cartController.fetchedCartItems.length})',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
