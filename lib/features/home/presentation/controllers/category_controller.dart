@@ -14,7 +14,7 @@ class CategoryController extends ChangeNotifier {
   bool _disposed = false;
   final Map<int, bool> cartItemDeleteLoading = {};
   bool isCartItemDeleting(int cartId) => cartItemDeleteLoading[cartId] == true;
-  
+
   // CRITICAL FIX: Add atomic operation flag to prevent race conditions
   bool _isProcessingCartOperation = false;
 
@@ -70,10 +70,10 @@ class CategoryController extends ChangeNotifier {
     try {
       log('🔄 Preloading cart products...');
       final cartList = await _repository.fetchCartFromApi();
-      
+
       if (cartList.isNotEmpty) {
         log('📦 Found ${cartList.length} items in cart, preloading products...');
-        
+
         // Get unique product IDs from cart
         final Set<int> productIds = {};
         for (var item in cartList) {
@@ -82,9 +82,9 @@ class CategoryController extends ChangeNotifier {
             productIds.add(productId);
           }
         }
-        
+
         log('🔍 Preloading ${productIds.length} unique products...');
-        
+
         // CRITICAL FIX: Check if products are already loaded in _allLoadedProducts
         for (int productId in productIds) {
           if (!_allProductsById.containsKey(productId)) {
@@ -100,16 +100,16 @@ class CategoryController extends ChangeNotifier {
                 }
               }
             }
-            
+
             // If not found in loaded products, try to fetch from API
             if (!foundInLoaded) {
               await fetchAndCacheProduct(productId);
             }
           }
         }
-        
+
         log('✅ Preloaded ${productIds.length} cart products');
-        
+
         // CRITICAL FIX: Sync quantities after preloading
         await fetchCartFromApi();
       }
@@ -124,14 +124,14 @@ class CategoryController extends ChangeNotifier {
 
     try {
       await fetchCategories();
-      
+
       // CRITICAL FIX: Load products first, then preload cart products
       if (selectedCategory == 'الكل') {
         await fetchAllProducts();
       } else {
         await fetchProductsByCategory();
       }
-      
+
       // Preload cart products to ensure we have their names
       await preloadCartProducts();
 
@@ -354,9 +354,9 @@ class CategoryController extends ChangeNotifier {
       cartItemToRemove = fetchedCartItems.firstWhere(
         (item) {
           final itemProduct = item['product'] as top_rated.Product;
-          return itemProduct.productId != null && 
-                 product.productId != null && 
-                 itemProduct.productId == product.productId;
+          return itemProduct.productId != null &&
+              product.productId != null &&
+              itemProduct.productId == product.productId;
         },
       );
     } catch (e) {
@@ -366,19 +366,21 @@ class CategoryController extends ChangeNotifier {
 
     if (cartItemToRemove != null) {
       final cartId = cartItemToRemove['id'];
-        final success = await CartApiService.deleteCartItem(cartId: cartId);
+      final success = await CartApiService.deleteCartItem(cartId: cartId);
       if (success) {
-          // CRITICAL FIX: Remove from all local data consistently
+        // CRITICAL FIX: Remove from all local data consistently
         fetchedCartItems.removeWhere((item) => item['id'] == cartId);
         cart.remove(product);
-          
-          // Update local quantities
-          final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${product.productId}';
-          productQuantities[quantityKey] = 0;
-          
-          log('🗑️ Removed cart item: ${product.productName}');
+
+        // Update local quantities
+        final String quantityKey = product.productId?.toString() ??
+            product.productName ??
+            'product_${product.productId}';
+        productQuantities[quantityKey] = 0;
+
+        log('🗑️ Removed cart item: ${product.productName}');
         safeNotifyListeners();
-          log('✅ CartSheet will be updated with removed item');
+        log('✅ CartSheet will be updated with removed item');
       }
       return success;
     }
@@ -395,11 +397,11 @@ class CategoryController extends ChangeNotifier {
     productQuantities.updateAll((key, value) => 0);
     safeNotifyListeners();
   }
-  
+
   /// Clean up duplicate cart items on the server
   Future<void> cleanupDuplicateCartItems() async {
     log('🧹 Starting cart cleanup...');
-    
+
     final Map<int, List<Map<String, dynamic>>> groupedItems = {};
     for (var item in fetchedCartItems) {
       final product = item['product'] as top_rated.Product;
@@ -408,14 +410,14 @@ class CategoryController extends ChangeNotifier {
         groupedItems.putIfAbsent(productId, () => []).add(item);
       }
     }
-    
+
     for (var entry in groupedItems.entries) {
       final productId = entry.key;
       final items = entry.value;
-      
+
       if (items.length > 1) {
         log('🧹 Found ${items.length} duplicate entries for product ID $productId');
-        
+
         // Keep the first item, delete the rest
         final itemsToDelete = items.skip(1).toList();
         for (var itemToDelete in itemsToDelete) {
@@ -425,7 +427,7 @@ class CategoryController extends ChangeNotifier {
         }
       }
     }
-    
+
     // Refresh cart data after cleanup
     await fetchCartFromApi();
   }
@@ -433,16 +435,16 @@ class CategoryController extends ChangeNotifier {
   /// Sync local product quantities with cart quantities
   void syncProductQuantitiesWithCart() {
     log('🔄 Syncing product quantities with cart...');
-    
+
     // Update local quantities based on cart data, but preserve higher local quantities
     for (var item in fetchedCartItems) {
       final product = item['product'] as top_rated.Product;
       final cartQuantity = item['quantity'] as int? ?? 0;
-      
+
       if (product.productId != null) {
         final key = product.productId.toString();
         final currentLocalQuantity = productQuantities[key] ?? 0;
-        
+
         // CRITICAL FIX: Only update if cart quantity is higher than local quantity
         // This prevents overriding user's current selection
         if (cartQuantity > currentLocalQuantity) {
@@ -453,7 +455,7 @@ class CategoryController extends ChangeNotifier {
         }
       }
     }
-    
+
     // Also sync with local cart map
     cart.clear();
     for (var item in fetchedCartItems) {
@@ -461,7 +463,7 @@ class CategoryController extends ChangeNotifier {
       final quantity = item['quantity'] as int? ?? 0;
       cart[product] = quantity;
     }
-    
+
     safeNotifyListeners();
   }
 
@@ -479,12 +481,15 @@ class CategoryController extends ChangeNotifier {
 
     try {
       // CRITICAL FIX: Preserve the current local quantity
-      final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${product.productId}';
+      final String quantityKey = product.productId?.toString() ??
+          product.productName ??
+          'product_${product.productId}';
       final currentLocalQuantity = productQuantities[quantityKey] ?? 0;
-      
+
       // Use the higher quantity between local and requested
-      final finalQuantity = quantity > currentLocalQuantity ? quantity : currentLocalQuantity;
-      
+      final finalQuantity =
+          quantity > currentLocalQuantity ? quantity : currentLocalQuantity;
+
       log('🔍 Local quantity: $currentLocalQuantity, Requested: $quantity, Final: $finalQuantity');
 
       // Check if product already exists in cart with proper null safety
@@ -493,9 +498,9 @@ class CategoryController extends ChangeNotifier {
         existingCartItem = fetchedCartItems.firstWhere(
           (item) {
             final itemProduct = item['product'] as top_rated.Product;
-            return itemProduct.productId != null && 
-                   product.productId != null && 
-                   itemProduct.productId == product.productId;
+            return itemProduct.productId != null &&
+                product.productId != null &&
+                itemProduct.productId == product.productId;
           },
         );
       } catch (e) {
@@ -515,12 +520,13 @@ class CategoryController extends ChangeNotifier {
         if (success) {
           // CRITICAL FIX: Update local cart data directly instead of fetching from API
           existingCartItem['quantity'] = finalQuantity;
-          existingCartItem['total_price'] = (product.price ?? 0.0) * finalQuantity;
+          existingCartItem['total_price'] =
+              (product.price ?? 0.0) * finalQuantity;
           cart[product] = finalQuantity;
-          
+
           // CRITICAL FIX: Update local quantities with the final quantity
           productQuantities[quantityKey] = finalQuantity;
-          
+
           // CRITICAL FIX: Don't call fetchCartFromApi() to avoid unnecessary product loading
           safeNotifyListeners();
         }
@@ -536,7 +542,8 @@ class CategoryController extends ChangeNotifier {
           // CRITICAL FIX: Update local cart data directly instead of fetching from API
           // Create a new cart item entry
           final newCartItem = {
-            'id': DateTime.now().millisecondsSinceEpoch, // Temporary ID until we get real one
+            'id': DateTime.now()
+                .millisecondsSinceEpoch, // Temporary ID until we get real one
             'product': product,
             'quantity': finalQuantity,
             'price': product.price ?? 0.0,
@@ -544,10 +551,10 @@ class CategoryController extends ChangeNotifier {
           };
           fetchedCartItems.add(newCartItem);
           cart[product] = finalQuantity;
-          
+
           // CRITICAL FIX: Update local quantities with the final quantity
           productQuantities[quantityKey] = finalQuantity;
-          
+
           // CRITICAL FIX: Don't call fetchCartFromApi() to avoid unnecessary product loading
           safeNotifyListeners();
         }
@@ -559,7 +566,8 @@ class CategoryController extends ChangeNotifier {
   }
 
   /// Add single product to cart without fetching all cart data
-  Future<bool> addSingleProductToCart(top_rated.Product product, int quantity) async {
+  Future<bool> addSingleProductToCart(
+      top_rated.Product product, int quantity) async {
     log('CategoryController.addSingleProductToCart called for productId: ${product.productId}, quantity: ${quantity}');
 
     // CRITICAL FIX: Add atomic operation flag to prevent race conditions
@@ -576,9 +584,9 @@ class CategoryController extends ChangeNotifier {
         existingCartItem = fetchedCartItems.firstWhere(
           (item) {
             final itemProduct = item['product'] as top_rated.Product;
-            return itemProduct.productId != null && 
-                   product.productId != null && 
-                   itemProduct.productId == product.productId;
+            return itemProduct.productId != null &&
+                product.productId != null &&
+                itemProduct.productId == product.productId;
           },
         );
         log('🔍 Found existing cart item: Cart ID ${existingCartItem['id']}, Product ID ${product.productId}');
@@ -608,13 +616,15 @@ class CategoryController extends ChangeNotifier {
           price: product.price ?? 0.0,
         );
       }
-      
+
       if (success) {
         // CRITICAL FIX: Update all local data consistently
-        final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${product.productId}';
+        final String quantityKey = product.productId?.toString() ??
+            product.productName ??
+            'product_${product.productId}';
         productQuantities[quantityKey] = quantity;
         cart[product] = quantity;
-        
+
         // CRITICAL FIX: Update fetchedCartItems to sync with CartSheet
         if (existingCartItem != null) {
           existingCartItem['quantity'] = quantity;
@@ -628,11 +638,11 @@ class CategoryController extends ChangeNotifier {
           log('📊 Current fetchedCartItems after fetch: ${fetchedCartItems.length} items');
           return true;
         }
-        
+
         // CRITICAL FIX: Force update CartSheet immediately
         safeNotifyListeners();
         log('✅ CartSheet will be updated with new data');
-        
+
         // CRITICAL FIX: Log current state for debugging
         log('📊 Current cart state:');
         for (var item in fetchedCartItems) {
@@ -640,7 +650,7 @@ class CategoryController extends ChangeNotifier {
           log('   - ${itemProduct.productName}: ${item['quantity']} units');
         }
       }
-      
+
       return success;
     } catch (e) {
       log('❌ Error in addSingleProductToCart: $e');
@@ -650,8 +660,6 @@ class CategoryController extends ChangeNotifier {
     }
   }
 
-
-
   List<Map<String, dynamic>> fetchedCartItems = [];
 
   Future<void> fetchCartFromApi() async {
@@ -659,7 +667,7 @@ class CategoryController extends ChangeNotifier {
 
     try {
       final cartList = await _repository.fetchCartFromApi();
-      
+
       log('🔍 Raw cart data from API: ${cartList.length} items');
       for (var item in cartList) {
         log('   - Product ID: ${item['product_id']}, Quantity: ${item['product_quantity']}, Cart ID: ${item['id']}');
@@ -677,7 +685,7 @@ class CategoryController extends ChangeNotifier {
           groupedItems.putIfAbsent(productId, () => []).add(item);
         }
       }
-      
+
       log('🔍 Grouped items by product ID:');
       for (var entry in groupedItems.entries) {
         log('   - Product ID ${entry.key}: ${entry.value.length} entries');
@@ -690,7 +698,7 @@ class CategoryController extends ChangeNotifier {
       for (var entry in groupedItems.entries) {
         final productId = entry.key;
         final items = entry.value;
-        
+
         // Fetch individual product if not in lookup map
         top_rated.Product? product = _allProductsById[productId];
         if (product == null) {
@@ -706,12 +714,12 @@ class CategoryController extends ChangeNotifier {
               }
             }
           }
-          
+
           // If still not found, try to fetch from API
           if (product == null) {
             log('⚠️ Product $productId not found in loaded data. Fetching from API...');
             product = await fetchAndCacheProduct(productId);
-            
+
             if (product == null) {
               log('❌ Could not fetch product $productId from API. Creating placeholder...');
               // Create a minimal product object with better placeholder
@@ -731,36 +739,37 @@ class CategoryController extends ChangeNotifier {
           }
         }
 
-          // CRITICAL FIX: Update product price from cart data if it's 0
-          if (product != null && product.price == 0.0) {
-            for (var item in items) {
-              final cartPrice = double.tryParse(item['price'].toString()) ?? 0.0;
-              if (cartPrice > 0) {
-                final originalProduct = product!;
-                product = top_rated.Product(
-                  productId: originalProduct.productId ?? productId,
-                  productName: originalProduct.productName ?? 'منتج غير معروف',
-                  price: cartPrice,
-                  qtyAvailable: originalProduct.qtyAvailable,
-                  minimumSoldQuantity: originalProduct.minimumSoldQuantity,
-                  image: originalProduct.image,
-                  imageUrl: originalProduct.imageUrl,
-                  categoryName: originalProduct.categoryName,
-                );
-                _allProductsById[productId] = product;
-                break;
-              }
+        // CRITICAL FIX: Update product price from cart data if it's 0
+        if (product != null && product.price == 0.0) {
+          for (var item in items) {
+            final cartPrice = double.tryParse(item['price'].toString()) ?? 0.0;
+            if (cartPrice > 0) {
+              final originalProduct = product!;
+              product = top_rated.Product(
+                productId: originalProduct.productId ?? productId,
+                productName: originalProduct.productName ?? 'منتج غير معروف',
+                price: cartPrice,
+                qtyAvailable: originalProduct.qtyAvailable,
+                minimumSoldQuantity: originalProduct.minimumSoldQuantity,
+                image: originalProduct.image,
+                imageUrl: originalProduct.imageUrl,
+                categoryName: originalProduct.categoryName,
+              );
+              _allProductsById[productId] = product;
+              break;
             }
           }
+        }
 
         if (product != null) {
           // CRITICAL FIX: Calculate total quantity from all cart entries for this product
           int totalQuantity = 0;
           double totalPrice = 0.0;
           final List<Map<String, dynamic>> cartEntries = [];
-          
+
           for (var item in items) {
-            final quantity = int.tryParse(item['product_quantity'].toString()) ?? 1;
+            final quantity =
+                int.tryParse(item['product_quantity'].toString()) ?? 1;
             final price = double.tryParse(item['price'].toString()) ?? 0.0;
             totalQuantity += quantity;
             totalPrice += price * quantity;
@@ -772,49 +781,51 @@ class CategoryController extends ChangeNotifier {
               'total_price': price * quantity,
             });
           }
-          
+
           if (items.length > 1) {
             log('⚠️ Found ${items.length} duplicate entries for product ${product.productName}. Aggregating quantities.');
           }
-          
+
           // CRITICAL FIX: Add only ONE entry per product with aggregated data
           cart[product] = totalQuantity;
           fetchedCartItems.add({
-            'id': cartEntries.first['id'], // Use first cart ID as representative
+            'id':
+                cartEntries.first['id'], // Use first cart ID as representative
             'product': product,
             'quantity': totalQuantity,
             'price': totalPrice / totalQuantity, // Average price
             'total_price': totalPrice,
-            'cart_entries': cartEntries, // Keep all original entries for reference
+            'cart_entries':
+                cartEntries, // Keep all original entries for reference
           });
 
           // Sync productQuantities map with cart data
           final String quantityKey = product.productId?.toString() ??
               product.productName ??
               'product_$productId';
-          
+
           // CRITICAL FIX: Always update local quantity with cart data to ensure consistency
           productQuantities[quantityKey] = totalQuantity;
           log('📦 Updated local quantity for ${product.productName}: $totalQuantity');
-          
+
           log('📦 Added cart item: ${product.productName} - Total Quantity: $totalQuantity, Total Price: $totalPrice');
         } else {
           log('Skipping cart item with product_id $productId because product not found.');
         }
       }
-      
+
       log('🛒 Final cart state: ${fetchedCartItems.length} items');
       for (var item in fetchedCartItems) {
         final product = item['product'] as top_rated.Product;
         log('   - ${product.productName}: ${item['quantity']} units');
       }
-      
+
       // CRITICAL FIX: Try to improve product names for placeholder products
       await _improveProductNames();
-      
+
       // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
       // syncProductQuantitiesWithCart();
-      
+
       safeNotifyListeners();
     } catch (e) {
       log('Error in fetchCartFromApi: $e');
@@ -836,14 +847,17 @@ class CategoryController extends ChangeNotifier {
       required int quantity}) async {
     try {
       // CRITICAL FIX: Preserve the current local quantity
-      final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${product.productId}';
+      final String quantityKey = product.productId?.toString() ??
+          product.productName ??
+          'product_${product.productId}';
       final currentLocalQuantity = productQuantities[quantityKey] ?? 0;
-      
+
       // Use the higher quantity between local and requested
-      final finalQuantity = quantity > currentLocalQuantity ? quantity : currentLocalQuantity;
-      
+      final finalQuantity =
+          quantity > currentLocalQuantity ? quantity : currentLocalQuantity;
+
       log('🔍 UpdateCartItem - Local quantity: $currentLocalQuantity, Requested: $quantity, Final: $finalQuantity');
-      
+
       final success = await _repository.updateCartItem(
         cartId: cartId,
         productId: product.productId ?? 0,
@@ -859,10 +873,10 @@ class CategoryController extends ChangeNotifier {
           fetchedCartItems[cartItemIndex]['total_price'] =
               (product.price ?? 0.0) * finalQuantity;
           cart[product] = finalQuantity;
-          
+
           // CRITICAL FIX: Update local quantities with the final quantity
           productQuantities[quantityKey] = finalQuantity;
-          
+
           safeNotifyListeners();
         }
       }
@@ -893,13 +907,13 @@ class CategoryController extends ChangeNotifier {
           final product = removedItem['product'] as top_rated.Product;
           fetchedCartItems.removeAt(removedItemIndex);
           cart.remove(product);
-          
+
           // CRITICAL FIX: Sync local quantities with cart
           if (product.productId != null) {
             final key = product.productId.toString();
             productQuantities[key] = 0; // Set to 0 when removed
           }
-          
+
           safeNotifyListeners();
         }
       }
@@ -938,54 +952,63 @@ class CategoryController extends ChangeNotifier {
       if (product != null) {
         _allProductsById[productId] = product;
         log('✅ Cached product from API: ${product.productName}');
-        
+
         // CRITICAL FIX: Log the actual product name for debugging
         if (product.productName != null && product.productName!.isNotEmpty) {
           log('✅ Product name found: ${product.productName}');
         } else {
           log('⚠️ Product name is null or empty for product ID: $productId');
         }
-        
+
         return product;
       }
     } catch (e) {
       log('❌ Error fetching product $productId: $e');
     }
-    
+
     log('❌ Product $productId not found in cache, loaded data, or API');
     return null;
   }
 
   /// Get current quantity for a product from local state
   int getCurrentQuantity(top_rated.Product product) {
-    final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${product.productId}';
+    final String quantityKey = product.productId?.toString() ??
+        product.productName ??
+        'product_${product.productId}';
     return productQuantities[quantityKey] ?? 0;
   }
 
   /// Update local quantity for a product
   void updateLocalQuantity(top_rated.Product product, int quantity) {
-    final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${product.productId}';
+    final String quantityKey = product.productId?.toString() ??
+        product.productName ??
+        'product_${product.productId}';
     productQuantities[quantityKey] = quantity;
     log('📦 Updated local quantity for ${product.productName}: $quantity');
   }
-  
+
   /// Try to improve product names for placeholder products
   Future<void> _improveProductNames() async {
     try {
       log('🔍 Checking for products with placeholder names...');
-      
+
       for (int i = 0; i < fetchedCartItems.length; i++) {
         final item = fetchedCartItems[i];
         final product = item['product'] as top_rated.Product;
-        
+
         // Check if this is a placeholder name or null
-        if (product.productName == null || product.productName!.isEmpty || product.productName!.startsWith('منتج غير معروف')) {
+        if (product.productName == null ||
+            product.productName!.isEmpty ||
+            product.productName!.startsWith('منتج غير معروف')) {
           log('⚠️ Found product with placeholder or null name: ${product.productName}');
-          
+
           // Try to fetch the actual product name
-          final actualProduct = await fetchAndCacheProduct(product.productId ?? 0);
-          if (actualProduct != null && actualProduct.productName != null && 
-              actualProduct.productName!.isNotEmpty && !actualProduct.productName!.startsWith('منتج غير معروف')) {
+          final actualProduct =
+              await fetchAndCacheProduct(product.productId ?? 0);
+          if (actualProduct != null &&
+              actualProduct.productName != null &&
+              actualProduct.productName!.isNotEmpty &&
+              !actualProduct.productName!.startsWith('منتج غير معروف')) {
             log('✅ Updated product name: ${actualProduct.productName}');
             // Update the product in the cart item
             fetchedCartItems[i]['product'] = actualProduct;
@@ -1014,8 +1037,11 @@ class CategoryController extends ChangeNotifier {
             } else {
               // CRITICAL FIX: Try to get product name from API directly
               try {
-                final apiProduct = await _repository.fetchProductById(product.productId ?? 0);
-                if (apiProduct != null && apiProduct.productName != null && apiProduct.productName!.isNotEmpty) {
+                final apiProduct =
+                    await _repository.fetchProductById(product.productId ?? 0);
+                if (apiProduct != null &&
+                    apiProduct.productName != null &&
+                    apiProduct.productName!.isNotEmpty) {
                   log('✅ Found product name from API: ${apiProduct.productName}');
                   // Create new product with actual name
                   final updatedProduct = top_rated.Product(
@@ -1037,7 +1063,7 @@ class CategoryController extends ChangeNotifier {
           }
         }
       }
-      
+
       safeNotifyListeners();
     } catch (e) {
       log('❌ Error improving product names: $e');

@@ -37,7 +37,8 @@ class CategoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => CategoryController(CategoryRepository(ApiService(), ProductService())),
+      create: (context) => CategoryController(
+          CategoryRepository(ApiService(), ProductService())),
       child: const _CategoriesView(),
     );
   }
@@ -65,7 +66,8 @@ class _CategoriesViewState extends State<_CategoriesView> {
 
   void _onScroll() async {
     final controller = context.read<CategoryController>();
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 10 &&
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 10 &&
         !controller.isLoadingProducts &&
         controller.hasMoreProducts) {
       setState(() => _isLoadingMore = true);
@@ -90,7 +92,8 @@ class _CategoriesViewState extends State<_CategoriesView> {
       drawer: const CustomDrawer(),
       body: SafeArea(
         // REMOVE SingleChildScrollView here
-        child: Column( // Use Column instead of SingleChildScrollView here
+        child: Column(
+          // Use Column instead of SingleChildScrollView here
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
@@ -100,7 +103,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
                 onChanged: controller.applySearchFilter,
               ),
             ),
-           //SizedBox(height: 8.h),
+            //SizedBox(height: 8.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: SizedBox(
@@ -125,11 +128,13 @@ class _CategoriesViewState extends State<_CategoriesView> {
             ),
             const SizedBox(height: 12),
             if (!controller.isListLoaded)
-              const Expanded( // Use Expanded to allow CircularProgressIndicator to take available space
+              const Expanded(
+                // Use Expanded to allow CircularProgressIndicator to take available space
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (controller.filteredProducts.isEmpty)
-              Expanded( // Use Expanded
+              Expanded(
+                // Use Expanded
                 child: Center(
                   child: Text(
                     'لا توجد منتجات متاحة لهذه الفئة.',
@@ -154,8 +159,10 @@ class _CategoriesViewState extends State<_CategoriesView> {
                   backgroundColor: Colors.white,
                   child: ListView.separated(
                     controller: _scrollController,
-                    itemCount: controller.filteredProducts.length + (controller.hasMoreProducts ? 1 : 0),
-                    separatorBuilder: (context, index) => const SizedBox(height: 15),
+                    itemCount: controller.filteredProducts.length +
+                        (controller.hasMoreProducts ? 1 : 0),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 15),
                     itemBuilder: (context, index) {
                       if (index == controller.filteredProducts.length) {
                         // Show loading indicator at the bottom
@@ -165,7 +172,9 @@ class _CategoriesViewState extends State<_CategoriesView> {
                         );
                       }
                       final product = controller.filteredProducts[index];
-                      final String quantityKey = product.productId != null ? product.productId.toString() : 'product_${index}';
+                      final String quantityKey = product.productId != null
+                          ? product.productId.toString()
+                          : 'product_${index}';
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Column(
@@ -173,45 +182,69 @@ class _CategoriesViewState extends State<_CategoriesView> {
                             CartProductCard(
                               item: {
                                 'product': product,
-                                'quantity': controller.productQuantities[quantityKey] ?? 0,
+                                'quantity':
+                                    controller.productQuantities[quantityKey] ??
+                                        0,
                                 'price': product.price ?? 0.0,
-                                'total_price': (product.price ?? 0.0) * (controller.productQuantities[quantityKey] ?? 0),
+                                'total_price': (product.price ?? 0.0) *
+                                    (controller
+                                            .productQuantities[quantityKey] ??
+                                        0),
                               },
                               isRemoving: false,
                               onAddToCart: () async {
-                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                final currentQuantity =
+                                    controller.productQuantities[quantityKey] ??
+                                        0;
                                 final newQuantity = currentQuantity + 1;
-                                log.dev('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
-                                controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.updateCartItemQuantity(product, newQuantity);
-                                await controller.addProductToCart(product, newQuantity);
+                                log.dev(
+                                    'onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
+                                controller.onQuantityChanged(
+                                    quantityKey, newQuantity);
+                                controller.updateCartItemQuantity(
+                                    product, newQuantity);
+                                await controller.addProductToCart(
+                                    product, newQuantity);
                                 // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
                                 // controller.syncProductQuantitiesWithCart();
                               },
                               onIncrease: () async {
-                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                final currentQuantity =
+                                    controller.productQuantities[quantityKey] ??
+                                        0;
                                 final newQuantity = currentQuantity + 1;
-                                log.dev('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
-                                controller.onQuantityChanged(quantityKey, newQuantity);
-                                controller.updateCartItemQuantity(product, newQuantity);
-                                await controller.addProductToCart(product, newQuantity);
+                                log.dev(
+                                    'onIncrease: key=$quantityKey, newQuantity=$newQuantity');
+                                controller.onQuantityChanged(
+                                    quantityKey, newQuantity);
+                                controller.updateCartItemQuantity(
+                                    product, newQuantity);
+                                await controller.addProductToCart(
+                                    product, newQuantity);
                                 // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
                                 // controller.syncProductQuantitiesWithCart();
                               },
                               onDecrease: () async {
-                                final currentQuantity = controller.productQuantities[quantityKey] ?? 0;
+                                final currentQuantity =
+                                    controller.productQuantities[quantityKey] ??
+                                        0;
                                 final newQuantity = currentQuantity - 1;
-                                log.dev('onDecrease: key=$quantityKey, newQuantity=$newQuantity');
+                                log.dev(
+                                    'onDecrease: key=$quantityKey, newQuantity=$newQuantity');
                                 if (newQuantity > 0) {
-                                  controller.onQuantityChanged(quantityKey, newQuantity);
-                                  controller.updateCartItemQuantity(product, newQuantity);
-                                  await controller.addProductToCart(product, newQuantity);
+                                  controller.onQuantityChanged(
+                                      quantityKey, newQuantity);
+                                  controller.updateCartItemQuantity(
+                                      product, newQuantity);
+                                  await controller.addProductToCart(
+                                      product, newQuantity);
                                   // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
                                   // controller.syncProductQuantitiesWithCart();
                                 } else {
                                   controller.onQuantityChanged(quantityKey, 0);
                                   controller.removeFromCart(product);
-                                  await controller.removeProductFromCart(product);
+                                  await controller
+                                      .removeProductFromCart(product);
                                   // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
                                   // controller.syncProductQuantitiesWithCart();
                                 }
@@ -229,44 +262,51 @@ class _CategoriesViewState extends State<_CategoriesView> {
       ),
       floatingActionButton: controller.fetchedCartItems.isNotEmpty
           ? FloatingActionButton.extended(
-        backgroundColor: Color(0xffFC6E2A),
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => DraggableScrollableSheet(
-              initialChildSize: 0.33,
-              minChildSize: 0.33,
-              maxChildSize: 0.33,
-              expand: false,
-              builder: (context, scrollController) {
-                return CartSheet(
-                  onClose: () => Navigator.pop(context),
-                  onPaymentSuccess: () {
-                    controller.clearCart();
-                  },
+              backgroundColor: Color(0xffFC6E2A),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => DraggableScrollableSheet(
+                    initialChildSize: 0.33,
+                    minChildSize: 0.33,
+                    maxChildSize: 0.33,
+                    expand: false,
+                    builder: (context, scrollController) {
+                      return CartSheet(
+                        onClose: () => Navigator.pop(context),
+                        onPaymentSuccess: () {
+                          controller.clearCart();
+                        },
+                      );
+                    },
+                  ),
                 );
               },
-            ),
-          );
-        },
-        label: Text(
-          'السلة (${controller.fetchedCartItems.length})',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-            fontFamily: baseFont,
-          ),
-        ),
-        icon: const Icon(Icons.shopping_cart, color: Colors.white),
-      )
+              label: Text(
+                'السلة (${controller.fetchedCartItems.length})',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: baseFont,
+                ),
+              ),
+              icon: const Icon(Icons.shopping_cart, color: Colors.white),
+            )
           : null,
     );
   }
 }
 
-extension on void Function(String message, {Object? error, int level, String name, int? sequenceNumber, StackTrace? stackTrace, DateTime? time, Zone? zone}) {
+extension on void Function(String message,
+    {Object? error,
+    int level,
+    String name,
+    int? sequenceNumber,
+    StackTrace? stackTrace,
+    DateTime? time,
+    Zone? zone}) {
   void dev(String s) {}
 }

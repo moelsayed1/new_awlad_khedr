@@ -6,7 +6,7 @@ import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slide
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/widgets/popup_account_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 import '../../../drawer_slider/controller/notification_provider.dart';

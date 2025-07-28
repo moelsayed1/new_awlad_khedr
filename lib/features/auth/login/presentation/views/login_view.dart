@@ -121,7 +121,7 @@ class _LoginViewState extends State<LoginView> {
                             GoRouter.of(context).push(AppRouter.kResetPasswordScreen);
                           },
                           child: const Text(
-                            'نسيت كلمة السر',
+                            'نسيت كلمة المرور',
                             textDirection: TextDirection.rtl,
                             textAlign: TextAlign.right,
                             style: TextStyle(
@@ -150,7 +150,7 @@ class _LoginViewState extends State<LoginView> {
                               _passwordController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Username and password are required.'),
+                                content: Text('اسم المستخدم وكلمة المرور مطلوبة.'),
                               ),
                             );
                             return;
@@ -165,7 +165,7 @@ class _LoginViewState extends State<LoginView> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Login failed. Please try again.'),
+                                content: Text('فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.'),
                               ),
                             );
                           }

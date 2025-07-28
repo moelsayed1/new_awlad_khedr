@@ -237,68 +237,88 @@ class _BannerProductsViewState extends State<_BannerProductsView> {
                                   return CartProductCard(
                                     item: {
                                       'product': product,
-                                      'quantity': cartController.getCurrentQuantity(product),
+                                      'quantity': cartController
+                                          .getCurrentQuantity(product),
                                       'price': product.price ?? 0.0,
                                       'total_price': (product.price ?? 0.0) *
-                                          cartController.getCurrentQuantity(product),
+                                          cartController
+                                              .getCurrentQuantity(product),
                                     },
                                     isRemoving: false,
                                     onAddToCart: () async {
-                                      final currentQuantity = cartController.getCurrentQuantity(product);
+                                      final currentQuantity = cartController
+                                          .getCurrentQuantity(product);
                                       final newQuantity = currentQuantity + 1;
                                       log('onAddToCart: key=$quantityKey, newQuantity=$newQuantity');
-                                      
+
                                       // CRITICAL FIX: Update local state first
-                                      cartController.updateLocalQuantity(product, newQuantity);
-                                      
-                                      final success = await cartController.addSingleProductToCart(product, newQuantity);
-                                      
+                                      cartController.updateLocalQuantity(
+                                          product, newQuantity);
+
+                                      final success = await cartController
+                                          .addSingleProductToCart(
+                                              product, newQuantity);
+
                                       if (!success) {
                                         // Revert on failure
-                                        cartController.updateLocalQuantity(product, currentQuantity);
+                                        cartController.updateLocalQuantity(
+                                            product, currentQuantity);
                                       } else {
                                         log('✅ Successfully added product: ${product.productName} - Quantity: $newQuantity');
                                       }
                                     },
                                     onIncrease: () async {
-                                      final currentQuantity = cartController.getCurrentQuantity(product);
+                                      final currentQuantity = cartController
+                                          .getCurrentQuantity(product);
                                       final newQuantity = currentQuantity + 1;
                                       log('onIncrease: key=$quantityKey, newQuantity=$newQuantity');
-                                      
+
                                       // CRITICAL FIX: Update local state first
-                                      cartController.updateLocalQuantity(product, newQuantity);
-                                      
-                                      final success = await cartController.addSingleProductToCart(product, newQuantity);
-                                      
+                                      cartController.updateLocalQuantity(
+                                          product, newQuantity);
+
+                                      final success = await cartController
+                                          .addSingleProductToCart(
+                                              product, newQuantity);
+
                                       if (!success) {
                                         // Revert on failure
-                                        cartController.updateLocalQuantity(product, currentQuantity);
+                                        cartController.updateLocalQuantity(
+                                            product, currentQuantity);
                                       }
                                     },
                                     onDecrease: () async {
-                                      final currentQuantity = cartController.getCurrentQuantity(product);
+                                      final currentQuantity = cartController
+                                          .getCurrentQuantity(product);
                                       final newQuantity = currentQuantity - 1;
-                                      log('onDecrease: key=$quantityKey, newQuantity=$newQuantity'); 
-                                      
+                                      log('onDecrease: key=$quantityKey, newQuantity=$newQuantity');
+
                                       if (newQuantity > 0) {
                                         // CRITICAL FIX: Update local state first
-                                        cartController.updateLocalQuantity(product, newQuantity);
-                                        
-                                        final success = await cartController.addSingleProductToCart(product, newQuantity);
-                                        
+                                        cartController.updateLocalQuantity(
+                                            product, newQuantity);
+
+                                        final success = await cartController
+                                            .addSingleProductToCart(
+                                                product, newQuantity);
+
                                         if (!success) {
                                           // Revert on failure
-                                          cartController.updateLocalQuantity(product, currentQuantity);
+                                          cartController.updateLocalQuantity(
+                                              product, currentQuantity);
                                         }
                                       } else {
                                         // CRITICAL FIX: Update local state first
-                                        cartController.updateLocalQuantity(product, 0);
-                                        
-                                        final success = await cartController.removeProductFromCart(product);
-                                        
+                                        cartController.updateLocalQuantity(
+                                            product, 0);
+
+                                        final success = await cartController
+                                            .removeProductFromCart(product);
+
                                         if (!success) {
                                           // Revert on failure
-                                          cartController.updateLocalQuantity(product, currentQuantity);
+                                          cartController.updateLocalQuantity(
+                                              product, currentQuantity);
                                         }
                                       }
                                     },

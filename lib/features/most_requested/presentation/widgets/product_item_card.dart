@@ -37,6 +37,37 @@ class ProductItemCard extends StatelessWidget {
     return '${words.sublist(0, 2).join(' ')}\n${words.sublist(2).join(' ')}';
   }
 
+  Widget _buildProductImage() {
+    final imageUrl = product.imageUrl;
+
+    // Check if imageUrl is valid
+    if (imageUrl == null ||
+        imageUrl.isEmpty ||
+        Uri.tryParse(imageUrl)?.hasAbsolutePath != true) {
+      return Container(
+        width: double.infinity,
+        height: 120.h,
+        color: Colors.grey[200],
+        child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+      );
+    }
+
+    return Image.network(
+      imageUrl,
+      width: double.infinity,
+      height: 120.h,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          width: double.infinity,
+          height: 120.h,
+          color: Colors.grey[200],
+          child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+        );
+      },
+    );
+  }
+
   Widget _buildProductDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,31 +104,7 @@ class ProductItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildProductImage() {
-    return Container(
-      width: 100.w,
-      height: 80.h,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange.withOpacity(0.2)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          product.imageUrl ?? '',
-          width: double.infinity,
-          height: 120.h,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: Colors.grey[200],
-              child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
-            );
-          },
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildQuantityControl() {
     return Container(
@@ -113,7 +120,6 @@ class ProductItemCard extends StatelessWidget {
             onPressed: () => onQuantityChanged(quantity + 1),
             padding: const EdgeInsets.all(4),
           ),
-          
           Text(
             '$quantity',
             style: TextStyle(
@@ -187,7 +193,18 @@ class ProductItemCard extends StatelessWidget {
                         // Product Image and Quantity Control (Right Side)
                         Column(
                           children: [
-                            _buildProductImage(),
+                            Container(
+                              width: 100.w,
+                              height: 80.h,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.orange.withOpacity(0.2)),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: _buildProductImage(),
+                              ),
+                            ),
                             SizedBox(height: 28.h),
                             _buildQuantityControl(),
                           ],

@@ -24,13 +24,13 @@ class CartViewLogic extends ChangeNotifier {
 
   Future<void> fetchCart() async {
     await controller.fetchCartFromApi();
-    
+
     // Preload any missing product names
     await _preloadMissingProducts();
-    
+
     // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
     // controller.syncProductQuantitiesWithCart();
-    
+
     loading = false;
     notifyListeners();
   }
@@ -40,17 +40,18 @@ class CartViewLogic extends ChangeNotifier {
     try {
       log('🔍 Checking for products with placeholder names...');
       final items = controller.fetchedCartItems;
-      
+
       for (var item in items) {
         final product = item['product'] as top_rated.Product;
         final productName = product.productName;
-        
+
         // Check if this is a placeholder name
         if (productName != null && productName.startsWith('اسم المنتج')) {
           log('⚠️ Found product with placeholder name: $productName');
-          
+
           // Try to fetch the actual product name
-          final actualProduct = await controller.fetchAndCacheProduct(product.productId ?? 0);
+          final actualProduct =
+              await controller.fetchAndCacheProduct(product.productId ?? 0);
           if (actualProduct != null) {
             log('✅ Updated product name: ${actualProduct.productName}');
             // Update the product in the cart item
@@ -58,7 +59,7 @@ class CartViewLogic extends ChangeNotifier {
           }
         }
       }
-      
+
       // Notify listeners to update the UI
       controller.safeNotifyListeners();
     } catch (e) {
@@ -69,27 +70,28 @@ class CartViewLogic extends ChangeNotifier {
   List<Map<String, dynamic>> get cartItems {
     // CRITICAL FIX: Add validation and deduplication logic
     final Map<int?, List<Map<String, dynamic>>> grouped = {};
-    final Set<int> processedCartIds = {}; // Track processed cart IDs to prevent duplicates
-    
+    final Set<int> processedCartIds =
+        {}; // Track processed cart IDs to prevent duplicates
+
     for (var item in controller.fetchedCartItems) {
       final product = item['product'];
       if (product == null) continue;
       final productId = product.productId;
       final cartId = item['id'] as int?;
-      
+
       // CRITICAL FIX: Skip if we've already processed this cart ID
       if (cartId != null && processedCartIds.contains(cartId)) {
         log('🚫 Skipping duplicate cart ID: $cartId');
         continue;
       }
-      
+
       if (cartId != null) {
         processedCartIds.add(cartId);
       }
-      
+
       grouped.putIfAbsent(productId, () => []).add(item);
     }
-    
+
     log('🔍 CartViewLogic: Found ${grouped.length} unique products');
     for (var entry in grouped.entries) {
       final productId = entry.key;
@@ -99,18 +101,18 @@ class CartViewLogic extends ChangeNotifier {
         log('     * Cart ID: ${item['id']}, Quantity: ${item['quantity']}');
       }
     }
-    
+
     // CRITICAL FIX: For display, use aggregated data from controller
     return grouped.entries.map((entry) {
       final items = entry.value;
       final first = items.first;
-      
+
       // CRITICAL FIX: Use the aggregated quantity and price from the controller
       final totalQuantity = first['quantity'] as int? ?? 0;
       final totalPrice = first['total_price'] as double? ?? 0.0;
-      
+
       log('📊 Product ${first['product'].productName}: ${items.length} entries, Total Quantity: $totalQuantity');
-      
+
       return {
         ...first,
         'quantity': totalQuantity,
@@ -325,6 +327,39 @@ class CartProductCard extends StatelessWidget {
     this.onAddToCart,
   }) : super(key: key);
 
+  Widget _buildProductImage(dynamic product) {
+    final imageUrl = product.imageUrl;
+
+    // Check if imageUrl is valid
+    if (imageUrl == null ||
+        imageUrl.isEmpty ||
+        Uri.tryParse(imageUrl)?.hasAbsolutePath != true) {
+      return Container(
+        width: 60.w,
+        height: 60.w,
+        color: Colors.grey[200],
+        child: Icon(Icons.image_not_supported,
+            size: 30.w, color: Colors.grey[400]),
+      );
+    }
+
+    return Image.network(
+      imageUrl,
+      width: 60.w,
+      height: 60.w,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          width: 60.w,
+          height: 60.w,
+          color: Colors.grey[200],
+          child: Icon(Icons.image_not_supported,
+              size: 30.w, color: Colors.grey[400]),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final product = item['product'];
@@ -416,15 +451,7 @@ class CartProductCard extends StatelessWidget {
                 // Product image (right)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10.r),
-                  child: Image.network(
-                    product.imageUrl ?? '',
-                    width: 60.w,
-                    height: 60.w,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.image, size: 60.w, color: Colors.grey[300]);
-                    },
-                  ),
+                  child: _buildProductImage(product),
                 ),
               ],
             ),
@@ -591,7 +618,7 @@ class CartProductList extends StatelessWidget {
               onQuantityChanged(product, newQuantity);
               final success = await addProductToCart(product, newQuantity);
               debugPrint('addProductToCart success: $success');
-                // CRITICAL FIX: Removed unnecessary fetchCartFromApi() call
+              // CRITICAL FIX: Removed unnecessary fetchCartFromApi() call
               // if (success && controller != null) {
               //   await controller.fetchCartFromApi();
               // }
@@ -610,7 +637,8 @@ class CartProductList extends StatelessWidget {
               } else {
                 // CRITICAL FIX: Remove product from cart via API when quantity reaches 0
                 onQuantityChanged(product, 0);
-                final controller = Provider.of<CategoryController>(context, listen: false);
+                final controller =
+                    Provider.of<CategoryController>(context, listen: false);
                 final success = await controller.removeProductFromCart(product);
                 debugPrint('removeProductFromCart success: $success');
               }
