@@ -138,9 +138,11 @@ class _LoginViewState extends State<LoginView> {
                       height: 38,
                     ),
                     loginProvider.isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        :   loginProvider.isLoading
-                        ? const CircularProgressIndicator()
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                            ),
+                          )
                         : CustomButton(
                         onTap: () async {
                           log("Username: ${_userNameController.text}");

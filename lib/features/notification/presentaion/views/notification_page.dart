@@ -41,6 +41,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         SnackBar(
           backgroundColor: backgroundColor ?? darkOrange,
           content: Row(
+            textDirection: TextDirection.rtl,
             children: [
               if (icon != null) ...[
                 Icon(
@@ -53,7 +54,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
               Expanded(
                 child: Text(
                   message,
-                  textAlign: TextAlign.start,
+                  textAlign: TextAlign.right,
+                  textDirection: TextDirection.rtl,
                   style: TextStyle(
                     color: textColor ?? Colors.white,
                     fontWeight: FontWeight.w600,

@@ -538,7 +538,11 @@ class OrderProductsLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SizedBox(
       height: 180,
-      child: Center(child: CircularProgressIndicator()),
+                          child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                      ),
+                    ),
     );
   }
 }

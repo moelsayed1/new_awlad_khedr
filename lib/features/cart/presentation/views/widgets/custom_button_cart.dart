@@ -181,7 +181,9 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
         return const AlertDialog(
           content: Row(
             children: [
-              CircularProgressIndicator(),
+                              CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
               SizedBox(width: 20),
               Text("جاري إرسال الطلب..."),
             ],
@@ -302,6 +304,7 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
                   width: 24,
                   height: 24,
                   child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
                     color: Colors.black,
                     strokeWidth: 2,
                   ),

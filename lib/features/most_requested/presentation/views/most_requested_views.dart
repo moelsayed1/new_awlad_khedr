@@ -402,7 +402,11 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                       : const Center(
                           child: Text(
                               'No products available for the current filter.')))
-                  : const Center(child: CircularProgressIndicator()),
+                  : const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              ),
             ],
           ),
         ),

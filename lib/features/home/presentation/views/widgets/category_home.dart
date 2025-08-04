@@ -81,7 +81,7 @@ class _HomeCategoryState extends State<HomeCategory> {
                       onTap: () {
                         final category = productByCategory!.categories[index];
                         GoRouter.of(context).push(
-                          AppRouter.kBannerProductsPage,
+                          AppRouter.kCategoryProductsPage,
                           extra: {
                             'bannerTitle': category.categoryName,
                             'categoryName': category.categoryName,
@@ -147,7 +147,9 @@ class _HomeCategoryState extends State<HomeCategory> {
                 },
               )
             : const Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
               ));
   }
 }

@@ -105,6 +105,10 @@ class _CustomCategorySelectorState extends State<CustomCategorySelector> {
         ),
       ),
     )
-        : const Center(child: CircularProgressIndicator());
+                    : const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              );
   }
 }

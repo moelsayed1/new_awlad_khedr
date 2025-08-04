@@ -96,13 +96,31 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
     if (!isBannerLoaded) {
       return SizedBox(
         height: 200.h,
-        child: const Center(child: CircularProgressIndicator()),
+                        child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                  ),
+                ),
       );
     }
 
     // Use dummy banners if error or no data
     final List<Datum> bannersToShow = (hasError || bannersModel == null || bannersModel!.data.isEmpty)
-        ? _generateDummyBanners()
+        ? List.generate(
+            3,
+            (index) => Datum(
+              id: index,
+              title: 'Loading...',
+              image: '',
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+              imageUrl: '',
+              categoryId: null,
+              categoryName: null,
+              brandId: null,
+              brandName: null,
+            ),
+          )
         : bannersModel!.data;
 
     return Column(
@@ -113,16 +131,16 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
               builder: (BuildContext context) {
                 return InkWell(
                   onTap: () {
-                    GoRouter.of(context).push(
-                      AppRouter.kBannerProductsPage,
-                      extra: {
-                        'bannerTitle': item.brandName ?? item.categoryName,
-                        'categoryName': item.categoryName,
-                        'categoryId': item.categoryId,
-                        'brandName': item.brandName,
-                        'brandId': item.brandId,
-                      },
-                    );
+                    // GoRouter.of(context).push(
+                    //   AppRouter.kBannerProductsPage,
+                    //   extra: {
+                    //     'bannerTitle': item.brandName ?? item.categoryName,
+                    //     'categoryName': item.categoryName,
+                    //     'categoryId': item.categoryId,
+                    //     'brandName': item.brandName,
+                    //     'brandId': item.brandId,
+                    //   },
+                    // );
                   },
                   child: Container(
                     width: MediaQuery.of(context).size.width,

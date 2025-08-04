@@ -263,6 +263,10 @@ class ProductItemByBrandState extends State<ProductItemByBrand> {
       textDirection: TextDirection.rtl,
       child: Center(child: Text('لا توجد منتجات متاحة' , style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25 , color: Colors.black),)),
     )
-        : const Center(child: CircularProgressIndicator());
+        : const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+            ),
+          );
   }
 } 

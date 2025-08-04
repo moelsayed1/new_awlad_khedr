@@ -201,10 +201,10 @@ class ProductItemByCategoryState extends State<ProductItemByCategory> {
                                   SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.0,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          darkOrange),
+                                                                        child: const CircularProgressIndicator(
+                                        strokeWidth: 2.0,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                            darkOrange),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -380,7 +380,11 @@ class ProductItemByCategoryState extends State<ProductItemByCategory> {
                         color: Colors.black),
                   )),
                 )
-          : const Center(child: CircularProgressIndicator()),
+                        : const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                  ),
+                ),
       floatingActionButton: cart.isNotEmpty
           ? FloatingActionButton.extended(
               backgroundColor: const Color(0xffFC6E2A),

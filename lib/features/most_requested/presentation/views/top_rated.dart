@@ -208,7 +208,11 @@ class _TopRatedItemState extends State<TopRatedItem> {
                 );
               },
             )
-          : const Center(child: CircularProgressIndicator()),
+                      : const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              ),
     );
   }
 }

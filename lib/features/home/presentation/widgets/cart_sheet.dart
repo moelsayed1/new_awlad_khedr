@@ -12,25 +12,32 @@ import 'dart:developer';
 class CartSheet extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback? onPaymentSuccess;
+  final List<Map<String, dynamic>>? cartItems;
+  final double? total;
 
   const CartSheet({
     super.key,
     required this.onClose,
     this.onPaymentSuccess,
+    this.cartItems,
+    this.total,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CategoryController>(
-      builder: (context, controller, child) {
-        final cartItems = controller.fetchedCartItems;
-        final total = controller.fetchedCartTotal;
+            return Consumer<CategoryController>(
+          builder: (context, controller, child) {
+            // Use provided cart items or fall back to fetched cart items
+            final items = cartItems ?? controller.fetchedCartItems;
+            final cartTotal = total ?? controller.fetchedCartTotal;
         
         // CRITICAL FIX: Add validation logging
-        log('🔍 CartSheet: ${cartItems.length} items, Total: $total');
-        for (var item in cartItems) {
-          final product = item['product'] as top_rated.Product;
-          log('   - ${product.productName}: ${item['quantity']} units');
+        log('🔍 CartSheet: ${items?.length ?? 0} items, Total: $cartTotal');
+        if (items != null) {
+          for (var item in items) {
+            final product = item['product'] as top_rated.Product;
+            log('   - ${product.productName}: ${item['quantity']} units');
+          }
         }
         
         return Container(
@@ -55,7 +62,7 @@ class CartSheet extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          if (cartItems.isEmpty)
+                          if (items?.isEmpty ?? true)
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 20.h),
                               child: Text(
@@ -67,7 +74,7 @@ class CartSheet extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          ...cartItems.map((item) {
+                          ...(items?.map((item) {
                             final product = item['product'] as top_rated.Product;
                             final quantity = item['quantity'] as int;
                             final price = item['price'] as double;
@@ -105,7 +112,7 @@ class CartSheet extends StatelessWidget {
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }).toList() ?? []),
                         ],
                       ),
                     ),
@@ -117,7 +124,7 @@ class CartSheet extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${total.toStringAsFixed(2)} ج.م',
+                          '${(cartTotal ?? 0.0).toStringAsFixed(2)} ج.م',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 16.sp,
@@ -141,7 +148,7 @@ class CartSheet extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: cartItems.isNotEmpty
+                      onPressed: (items?.isNotEmpty ?? false)
                           ? () async {
                               // CRITICAL FIX: Navigate directly since products are already added
                               Navigator.push(

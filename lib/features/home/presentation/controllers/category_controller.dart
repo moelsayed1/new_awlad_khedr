@@ -124,7 +124,7 @@ class CategoryController extends ChangeNotifier {
 
     try {
       await fetchCategories();
-
+      
       // CRITICAL FIX: Load products first, then preload cart products
       if (selectedCategory == 'الكل') {
         await fetchAllProducts();
@@ -136,7 +136,7 @@ class CategoryController extends ChangeNotifier {
       await preloadCartProducts();
 
       filteredProducts = topRatedItem?.products ?? [];
-
+      
       isListLoaded = true;
       safeNotifyListeners();
     } catch (e) {
@@ -165,8 +165,8 @@ class CategoryController extends ChangeNotifier {
         final productsBatch =
             await _repository.fetchAllProducts(page: page, pageSize: 10);
         for (var p in productsBatch) {
-          if (p.productId != null) {
-            _allProductsById[p.productId!] = p;
+        if (p.productId != null) {
+          _allProductsById[p.productId!] = p;
           }
         }
 
@@ -319,8 +319,8 @@ class CategoryController extends ChangeNotifier {
 
   void onCategorySelected(String category) {
     selectedCategory = category;
-    _currentSearchQuery = '';
-    safeNotifyListeners();
+    _currentSearchQuery = ''; 
+    safeNotifyListeners(); 
   }
 
   void onQuantityChanged(String productKey, int newQuantity) {
@@ -529,6 +529,10 @@ class CategoryController extends ChangeNotifier {
 
           // CRITICAL FIX: Don't call fetchCartFromApi() to avoid unnecessary product loading
           safeNotifyListeners();
+        } else {
+          // If update failed, refresh cart data to sync with API
+          log('⚠️ Cart update failed, refreshing cart data...');
+          await fetchCartFromApi();
         }
         return success;
       } else {
@@ -611,8 +615,8 @@ class CategoryController extends ChangeNotifier {
         // CRITICAL FIX: Use STORE only for new items
         log('🆕 Using STORE for new cart item: Product ID ${product.productId}, Quantity: $quantity');
         success = await CartApiService.addProductToCart(
-          productId: product.productId ?? 0,
-          quantity: quantity,
+      productId: product.productId ?? 0,
+      quantity: quantity,
           price: product.price ?? 0.0,
         );
       }
@@ -651,7 +655,7 @@ class CategoryController extends ChangeNotifier {
         }
       }
 
-      return success;
+    return success;
     } catch (e) {
       log('❌ Error in addSingleProductToCart: $e');
       return false;
@@ -664,9 +668,9 @@ class CategoryController extends ChangeNotifier {
 
   Future<void> fetchCartFromApi() async {
     log('CategoryController.fetchCartFromApi called');
-
+    
     try {
-      final cartList = await _repository.fetchCartFromApi();
+    final cartList = await _repository.fetchCartFromApi();
 
       log('🔍 Raw cart data from API: ${cartList.length} items');
       for (var item in cartList) {
@@ -674,13 +678,13 @@ class CategoryController extends ChangeNotifier {
       }
 
       // CRITICAL FIX: Clear existing data before processing
-      cart.clear();
-      fetchedCartItems.clear();
+    cart.clear();
+    fetchedCartItems.clear();
 
       // Group items by product ID to detect duplicates
       final Map<int, List<Map<String, dynamic>>> groupedItems = {};
-      for (var item in cartList) {
-        final productId = item['product_id'];
+    for (var item in cartList) {
+      final productId = item['product_id'];
         if (productId != null) {
           groupedItems.putIfAbsent(productId, () => []).add(item);
         }
@@ -770,16 +774,16 @@ class CategoryController extends ChangeNotifier {
           for (var item in items) {
             final quantity =
                 int.tryParse(item['product_quantity'].toString()) ?? 1;
-            final price = double.tryParse(item['price'].toString()) ?? 0.0;
+      final price = double.tryParse(item['price'].toString()) ?? 0.0;
             totalQuantity += quantity;
             totalPrice += price * quantity;
             cartEntries.add({
               'id': item['id'],
-              'product': product,
-              'quantity': quantity,
-              'price': price,
-              'total_price': price * quantity,
-            });
+          'product': product,
+          'quantity': quantity,
+          'price': price,
+          'total_price': price * quantity,
+        });
           }
 
           if (items.length > 1) {
@@ -809,7 +813,7 @@ class CategoryController extends ChangeNotifier {
           log('📦 Updated local quantity for ${product.productName}: $totalQuantity');
 
           log('📦 Added cart item: ${product.productName} - Total Quantity: $totalQuantity, Total Price: $totalPrice');
-        } else {
+      } else {
           log('Skipping cart item with product_id $productId because product not found.');
         }
       }
@@ -858,13 +862,13 @@ class CategoryController extends ChangeNotifier {
 
       log('🔍 UpdateCartItem - Local quantity: $currentLocalQuantity, Requested: $quantity, Final: $finalQuantity');
 
-      final success = await _repository.updateCartItem(
-        cartId: cartId,
-        productId: product.productId ?? 0,
+    final success = await _repository.updateCartItem(
+      cartId: cartId,
+      productId: product.productId ?? 0,
         quantity: finalQuantity,
-        price: product.price,
-      );
-      if (success) {
+      price: product.price,
+    );
+    if (success) {
         // Update local data immediately instead of fetching from API
         final cartItemIndex =
             fetchedCartItems.indexWhere((item) => item['id'] == cartId);
@@ -879,8 +883,8 @@ class CategoryController extends ChangeNotifier {
 
           safeNotifyListeners();
         }
-      }
-      return success;
+    }
+    return success;
     } catch (e) {
       log('Error updating cart item: $e');
       return false;
@@ -897,8 +901,8 @@ class CategoryController extends ChangeNotifier {
     safeNotifyListeners();
 
     try {
-      final success = await _repository.deleteCartItem(cartId: cartId);
-      if (success) {
+    final success = await _repository.deleteCartItem(cartId: cartId);
+    if (success) {
         // Remove from local data immediately instead of fetching from API
         final removedItemIndex =
             fetchedCartItems.indexWhere((item) => item['id'] == cartId);
@@ -916,8 +920,8 @@ class CategoryController extends ChangeNotifier {
 
           safeNotifyListeners();
         }
-      }
-      return success;
+    }
+    return success;
     } catch (e) {
       log('Error deleting cart item: $e');
       return false;

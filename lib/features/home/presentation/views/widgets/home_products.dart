@@ -147,7 +147,11 @@ bool isProductsLoaded = false ;
             ],
           );
         })
-          : const Center ( child : CircularProgressIndicator());
+                      : const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              );
   }
 }
 

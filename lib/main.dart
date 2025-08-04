@@ -1,3 +1,4 @@
+import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/network/api_service.dart';
 import 'package:awlad_khedr/core/services/product_service.dart';
 import 'package:awlad_khedr/features/auth/register/data/provider/register_provider.dart';
@@ -86,8 +87,10 @@ class AwladKhedr extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return child!;
                 }
-                return const Center(
-                  child: CircularProgressIndicator(),
+                return Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                  ),
                 );
               },
             );

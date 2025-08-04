@@ -177,12 +177,12 @@ class CartViewLogic extends ChangeNotifier {
       try {
         // Use the new CartApiService for UPDATE endpoint
         final success = await CartApiService.updateCartItem(
-          cartId: cartId,
+      cartId: cartId,
           productId: product.productId ?? 0,
-          quantity: newQuantity,
+      quantity: newQuantity,
           price: product.price ?? 0.0,
-        );
-        if (!success) {
+    );
+    if (!success) {
           // Revert on failure
           cartEntry['quantity'] = quantity;
           cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
@@ -197,12 +197,12 @@ class CartViewLogic extends ChangeNotifier {
         // Revert on error
         cartEntry['quantity'] = quantity;
         cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
-        notifyListeners();
+      notifyListeners();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Error updating item quantity.')),
-          );
-        }
+      );
+    }
       }
     });
   }
@@ -233,30 +233,30 @@ class CartViewLogic extends ChangeNotifier {
 
     _debounceAction(cartId, () async {
       try {
-        bool success = true;
-        if (newQuantity > 0) {
+    bool success = true;
+    if (newQuantity > 0) {
           // Use the new CartApiService for UPDATE endpoint
           success = await CartApiService.updateCartItem(
-            cartId: cartId,
+        cartId: cartId,
             productId: product.productId ?? 0,
-            quantity: newQuantity,
+        quantity: newQuantity,
             price: product.price ?? 0.0,
-          );
-        } else {
+      );
+    } else {
           // Mark as removing to prevent overlapping operations
-          removingItems.add(cartId);
-          notifyListeners();
+      removingItems.add(cartId);
+      notifyListeners();
 
           // Use the new CartApiService for DELETE endpoint
           success = await CartApiService.deleteCartItem(cartId: cartId);
 
-          if (success) {
-            removingItems.remove(cartId);
+      if (success) {
+        removingItems.remove(cartId);
             // Remove from local data immediately to prevent UI issues
             controller.fetchedCartItems
                 .removeWhere((item) => item['id'] == cartId);
-            notifyListeners();
-          } else {
+        notifyListeners();
+      } else {
             removingItems.remove(cartId);
             // Revert on failure
             cartEntry['quantity'] = quantity;
@@ -288,10 +288,10 @@ class CartViewLogic extends ChangeNotifier {
         removingItems.remove(cartId);
         notifyListeners();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Error updating cart.')),
-          );
-        }
+      );
+    }
       }
     });
   }
@@ -468,7 +468,10 @@ class CartProductCard extends StatelessWidget {
                 child: SizedBox(
                   width: 32,
                   height: 32,
-                  child: CircularProgressIndicator(strokeWidth: 3),
+                  child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
                 ),
               ),
             ),
@@ -508,46 +511,46 @@ class CartProductCard extends StatelessWidget {
 
   Widget _buildQuantityControls() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        GestureDetector(
-          onTap: onIncrease,
-          child: Icon(
-            Icons.add,
-            color: Color(0xffFC6E2A),
-            size: 24.sp,
-          ),
-        ),
-        SizedBox(height: 4.h),
-        Container(
-          width: 36.w,
-          height: 36.w,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: Color(0xffE0E0E0)),
-          ),
-          child: Text(
-            item['quantity'].toString(),
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-              fontFamily: baseFont,
-            ),
-          ),
-        ),
-        SizedBox(height: 4.h),
-        GestureDetector(
-          onTap: onDecrease,
-          child: Icon(
-            Icons.remove,
-            color: Color(0xffC29500),
-            size: 28,
-          ),
-        ),
-      ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: onIncrease,
+                      child: Icon(
+                        Icons.add,
+                        color: Color(0xffFC6E2A),
+                        size: 24.sp,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Container(
+                      width: 36.w,
+                      height: 36.w,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: Border.all(color: Color(0xffE0E0E0)),
+                      ),
+                      child: Text(
+                        item['quantity'].toString(),
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontFamily: baseFont,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    GestureDetector(
+                      onTap: onDecrease,
+                      child: Icon(
+                        Icons.remove,
+                        color: Color(0xffC29500),
+                        size: 28,
+                      ),
+                    ),
+                  ],
     );
   }
 }
@@ -584,7 +587,11 @@ class CartProductList extends StatelessWidget {
           // Show loading indicator at the bottom
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(child: CircularProgressIndicator()),
+                            child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                  ),
+                ),
           );
         }
         final product = products[index];
@@ -718,7 +725,11 @@ class _CartViewPageState extends State<CartViewPage> {
             ),
             drawer: const CustomDrawer(),
             body: logic.loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              )
                 : Column(
                     children: [
                       Expanded(

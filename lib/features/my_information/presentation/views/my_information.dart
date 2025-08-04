@@ -230,7 +230,11 @@ class _MyInformationState extends State<MyInformation> {
         body: Padding(
           padding: const EdgeInsets.all(18.0),
           child: _loading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              )
               : _customerInfo == null
                   ? const Center(child: Text('تعذر تحميل البيانات'))
                   : SingleChildScrollView(
@@ -248,7 +252,10 @@ class _MyInformationState extends State<MyInformation> {
                                       ? CircleAvatar(
                                           radius: 50.w,
                                           backgroundColor: Colors.grey,
-                                          child: CircularProgressIndicator(color: Colors.white),
+                                          child: CircularProgressIndicator(
+                  color: Colors.white,
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
                                         )
                                       : (_localProfileImage != null)
                                           ? CircleAvatar(
