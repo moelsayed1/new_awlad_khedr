@@ -28,8 +28,7 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
   top_rated.TopRatedModel? topRatedItem;
   bool isListLoaded = false;
 
-  final Map<String, int> _productQuantities =
-      {}; // Key: product ID or unique identifier, Value: quantity
+  final Map<String, int> _productQuantities = {}; // Key: product ID or unique identifier, Value: quantity
   final Map<top_rated.Product, int> _cart = {}; // Add cart map
 
   final TextEditingController _searchController = TextEditingController();
@@ -100,25 +99,6 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
     }
   }
 
-  void _onQuantityChanged(String productId, int newQuantity) {
-    setState(() {
-      _productQuantities[productId] = newQuantity;
-
-      // Find the product with this productId
-      final product = _filteredProducts.firstWhere(
-        (p) => p.productName == productId,
-        orElse: () => throw Exception('Product not found'),
-      );
-
-      if (newQuantity == 0) {
-        // Remove from cart if quantity is 0
-        _cart.remove(product);
-      } else {
-        // Update cart quantity
-        _cart[product] = newQuantity;
-      }
-    });
-  }
 
   void showCustomDialog({
     required BuildContext context,
@@ -401,12 +381,15 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                         )
                       : const Center(
                           child: Text(
-                              'No products available for the current filter.')))
-                  : const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
-                ),
-              ),
+                              'لا توجد منتجات متاحة للتصفية الحالية.')))
+                  : SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                        ),
+                      ),
+                    ),
             ],
           ),
         ),
