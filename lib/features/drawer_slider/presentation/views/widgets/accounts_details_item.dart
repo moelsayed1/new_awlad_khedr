@@ -17,35 +17,43 @@ class CustomAccountItem extends StatelessWidget {
     return Consumer<InvoiceProvider>(
       builder: (context, provider, child) {
         if (provider.isLoadingTransactions) {
-          return const Center(child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
-                ),);
+          return  SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                        ),
+                      ),
+                    );
         }
         if (provider.error != null) {
           return Center(child: Text('Error: ${provider.error}'));
         }
         final transactions = provider.transactions;
         if (transactions.isEmpty) {
-          return const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.receipt_long_outlined,
-                  color: Colors.grey,
-                  size: 48,
-                ),
-                SizedBox(height: 12),
-                Text(
-                  'لا توجد معاملات. للمزيد من المعاملات, يرجى التوجه إلى المتجر',
-                  style: TextStyle(
+          return SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.receipt_long_outlined,
                     color: Colors.grey,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: baseFont,
+                    size: 48,
                   ),
-                ),
-              ],
+                  SizedBox(height: 12),
+                  Text(
+                    'لا توجد معاملات. للمزيد من المعاملات, يرجى التوجه إلى المتجر',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: baseFont,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
