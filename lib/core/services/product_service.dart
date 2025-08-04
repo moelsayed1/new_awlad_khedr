@@ -3,7 +3,7 @@ import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.d
 import 'package:awlad_khedr/core/network/api_service.dart';
 import 'package:awlad_khedr/constant.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http; // Make sure http is imported for jsonDecode
+// Make sure http is imported for jsonDecode
 
 class ProductService {
   final ApiService _apiService;
@@ -33,7 +33,7 @@ class ProductService {
                   .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
                   .toList();
             } else if (data is List) {
-              products = (data as List)
+              products = (data)
                   .map((productJson) => Product.fromJson(productJson as Map<String, dynamic>))
                   .toList();
             }

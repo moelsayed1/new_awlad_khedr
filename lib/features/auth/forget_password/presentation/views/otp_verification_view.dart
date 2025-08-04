@@ -1,8 +1,7 @@
 import 'package:awlad_khedr/constant.dart';
-import 'package:awlad_khedr/features/auth/forget_password/data/forget_password_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../../core/app_router.dart';
 
@@ -37,7 +36,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
           backgroundColor: Colors.transparent,
           leading: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Container(
+            child: SizedBox(
               width: 40.11,
               height: 40.11,
               child: Stack(
@@ -79,7 +78,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               Text(
                 'التحقق من رقم الهاتف الخاص بك',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   fontFamily: baseFont
@@ -91,7 +90,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               Text(
                 'لقد تم إرسال رسالة تحتوي على رمز تحقق، الرجاء تحقق من ذلك لاستكمال استعادة كلمة المرور',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   color: Colors.grey,
                   fontFamily: baseFont
                 ),

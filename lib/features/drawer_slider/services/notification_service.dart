@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:http/http.dart' as http;
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/network/api_service.dart';
 import '../model/notification_model.dart';

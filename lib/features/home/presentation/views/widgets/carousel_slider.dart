@@ -7,8 +7,6 @@ import 'package:http/http.dart' as http;
 import '../../../../../constant.dart'; // For APIConstant.GET_BANNERS
 import '../../../../../main.dart'; // For authToken
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // For responsive units
-import 'package:go_router/go_router.dart';
-import '../../../../../core/app_router.dart';
 
 class CarouselWithIndicator extends StatefulWidget {
   const CarouselWithIndicator({super.key});
@@ -76,20 +74,6 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
   // <--- FIX: Use CarouselSliderController from carousel_slider package explicitly
   final CarouselSliderController _controller = CarouselSliderController();
 
-  List<Datum> _generateDummyBanners() {
-    return List.generate(3, (index) => Datum(
-      id: index,
-      title: 'Dummy Banner $index',
-      image: 'https://picsum.photos/seed/banner$index/800/400',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      imageUrl: 'https://picsum.photos/seed/banner$index/800/400',
-      categoryId: index % 2 == 0 ? index + 1 : null,
-      categoryName: index % 2 == 0 ? 'Category ${index + 1}' : null,
-      brandId: index % 2 == 1 ? 100 + index : null,
-      brandName: index % 2 == 1 ? 'Brand ${index + 1}' : null,
-    ));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +182,7 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
                   color: (Theme.of(context).brightness == Brightness.dark
                       ? Colors.white
                       : Colors.black)
-                      .withOpacity(_current == entry.key ? 0.9 : 0.4),
+                      .withValues(alpha: _current == entry.key ? 0.9 : 0.4),
                 ),
               ),
             );

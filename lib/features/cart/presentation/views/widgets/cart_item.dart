@@ -1,7 +1,6 @@
 import 'package:awlad_khedr/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../core/assets.dart';
 
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart'
     as top_rated;
@@ -64,7 +63,7 @@ class CartItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -175,7 +174,7 @@ class CartItem extends StatelessWidget {
                   boxShadow: [
                     // Added a subtle shadow to the image container
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.08),
+                      color: Colors.grey.withValues(alpha: 0.08),
                       blurRadius: 6,
                       offset: const Offset(0, 3),
                     ),
@@ -221,12 +220,12 @@ class CartProductItem extends StatelessWidget {
   final double total;
 
   const CartProductItem({
-    Key? key,
+    super.key,
     required this.productName,
     required this.quantity,
     required this.price,
     required this.total,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

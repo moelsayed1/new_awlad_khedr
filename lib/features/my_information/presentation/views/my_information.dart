@@ -25,6 +25,7 @@ class _MyInformationState extends State<MyInformation> {
   bool _loading = true;
   File? _localProfileImage;
 
+
   // Controllers for each field
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -65,19 +66,65 @@ class _MyInformationState extends State<MyInformation> {
   Future<void> _fetchCustomerInfo() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    
+    // First try to get cached data for immediate display
+    final cachedInfo = await MyInformationLogic.getCachedCustomerInfo();
+    if (cachedInfo != null) {
+      setState(() {
+        _customerInfo = cachedInfo;
+        _nameController.text = cachedInfo.name;
+        _phoneController.text = cachedInfo.phone ?? '';
+        _emailController.text = cachedInfo.email;
+        _addressController.text = cachedInfo.addressLine1;
+        _supplierNameController.text = cachedInfo.supplierBusinessName;
+        _loading = false;
+      });
+    }
+    
+    // Then fetch fresh data from API
     if (token != null) {
       final info = await MyInformationLogic.fetchCustomerInfo(token);
-      setState(() {
-        _customerInfo = info;
-        _loading = false;
-        if (info != null) {
-          _nameController.text = info.name;
-          _phoneController.text = info.phone ?? '';
-          _emailController.text = info.email;
-          _addressController.text = info.addressLine1;
-          _supplierNameController.text = info.supplierBusinessName;
+      if (info != null) {
+        // Only update if the API data is newer or different from cached data
+        final cachedInfo = await MyInformationLogic.getCachedCustomerInfo();
+        bool shouldUpdate = true;
+        
+        if (cachedInfo != null) {
+          // Check if API data is actually newer (has more recent changes)
+          // For now, we'll prioritize cached data if it's different from API
+          // This prevents old API data from overwriting recent updates
+          if (cachedInfo.name != info.name || 
+              cachedInfo.email != info.email ||
+              cachedInfo.phone != info.phone) {
+            // If cached data is different, keep the cached data (it's more recent)
+            log('Keeping cached data as it appears more recent than API data');
+            shouldUpdate = false;
+          }
         }
-      });
+        
+        if (shouldUpdate) {
+          setState(() {
+            _customerInfo = info;
+            _nameController.text = info.name;
+            _phoneController.text = info.phone ?? '';
+            _emailController.text = info.email;
+            _addressController.text = info.addressLine1;
+            _supplierNameController.text = info.supplierBusinessName;
+            _loading = false;
+          });
+          
+          // Save the fresh data to cache
+          await MyInformationLogic.saveCustomerInfoLocally(info);
+        } else {
+          setState(() {
+            _loading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _loading = false;
+        });
+      }
     } else {
       setState(() {
         _loading = false;
@@ -93,7 +140,7 @@ class _MyInformationState extends State<MyInformation> {
       _loading = true;
     });
 
-    final success = await MyInformationLogic.updateUserDataWithPhoto(
+    final updatedCustomerInfo = await MyInformationLogic.updateUserDataWithPhoto(
       token,
       name: _nameController.text,
       phone: _phoneController.text,
@@ -102,16 +149,31 @@ class _MyInformationState extends State<MyInformation> {
       supplierBusinessName: _supplierNameController.text,
       profilePhoto: _localProfileImage,
     );
-    if (success) {
-      await _fetchCustomerInfo();
+    
+    if (updatedCustomerInfo != null) {
+      // Update the UI with the new data from the API response
       setState(() {
+        _customerInfo = updatedCustomerInfo;
+        _nameController.text = updatedCustomerInfo.name;
+        _phoneController.text = updatedCustomerInfo.phone ?? '';
+        _emailController.text = updatedCustomerInfo.email;
+        _addressController.text = updatedCustomerInfo.addressLine1;
+        _supplierNameController.text = updatedCustomerInfo.supplierBusinessName;
         _isEditingName = false;
         _isEditingPhone = false;
         _isEditingEmail = false;
         _isEditingAddress = false;
         _isEditingSupplierName = false;
         _localProfileImage = null;
+        _loading = false;
       });
+      
+      // Save the updated data to cache for persistence
+      await MyInformationLogic.saveCustomerInfoLocally(updatedCustomerInfo);
+      
+      // Refresh the drawer to show updated information
+      _refreshDrawer();
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.white,
@@ -119,7 +181,7 @@ class _MyInformationState extends State<MyInformation> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          content: Row(
+          content: const Row(
             children: [
               Icon(Icons.check_circle, color: Colors.green, size: 28),
               SizedBox(width: 12),
@@ -192,6 +254,11 @@ class _MyInformationState extends State<MyInformation> {
     }
   }
 
+  void _refreshDrawer() {
+    // Force a rebuild of the current screen to refresh the drawer
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return MainLayout(
@@ -226,7 +293,12 @@ class _MyInformationState extends State<MyInformation> {
             )
           ],
         ),
-        drawer: const CustomDrawer(),
+                 drawer: CustomDrawer(
+           onUserInfoUpdated: () {
+             // This will be called when the drawer refreshes
+             setState(() {});
+           },
+         ),
         body: Padding(
           padding: const EdgeInsets.all(18.0),
           child: _loading

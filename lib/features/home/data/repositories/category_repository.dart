@@ -3,13 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/main.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
 import 'package:awlad_khedr/core/network/api_service.dart';
 import 'package:awlad_khedr/core/services/product_service.dart';
 
 class CategoryRepository {
-  final ApiService _apiService;
+  final ApiService apiService;
   final ProductService _productService;
 
   // Cache token validation result to prevent excessive API calls
@@ -17,7 +16,7 @@ class CategoryRepository {
   DateTime? _lastTokenValidation;
   static const Duration _tokenValidationCache = Duration(minutes: 5);
 
-  CategoryRepository(this._apiService, this._productService);
+  CategoryRepository(this.apiService, this._productService);
 
   Future<bool> _validateToken() async {
     if (authToken.isEmpty) {

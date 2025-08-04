@@ -45,11 +45,9 @@ class _MyAccountsBody extends StatelessWidget {
     // Use ScreenUtil to get responsive sizes
     final double horizontalPadding = 16.w;
     final double verticalPadding = 16.h;
-    final double cardHeight = 90.h;
     final double cardRadius = 20.r;
     final double iconSize = 24.sp;
     final double smallIconSize = 20.sp;
-    final double cardWidth = 0.44.sw;
     final double betweenCards = 8.w; // Reduced from 12.w
     final double betweenRows = 22.h;
     final double nextPaymentWidth = 0.85.sw;
@@ -236,7 +234,7 @@ class _MyAccountsBody extends StatelessWidget {
                   Consumer<InvoiceProvider>(
                     builder: (context, provider, _) {
                       if (provider.transactions.isEmpty) {
-                        return SizedBox(); // Show nothing while loading
+                        return const SizedBox(); // Show nothing while loading
                       }
                       final nextPayment = provider.transactions.first;
                       final amount = nextPayment['rest_of_dues']?.toString() ?? '-';
@@ -268,11 +266,11 @@ class _MyAccountsBody extends StatelessWidget {
                                         fontFamily: baseFont,
                                       ),
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                     Text(
                                       'مطلوب دفعه',
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(0.7),
+                                        color: Colors.white.withValues(alpha: 0.7),
                                         fontSize: 16.sp,
                                         fontWeight: FontWeight.w500,
                                         fontFamily: baseFont,
@@ -308,7 +306,7 @@ class _MyAccountsBody extends StatelessWidget {
                                         fontSize: 14.sp,
                                       ),
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                     Text(
                                       formatTime(time),
                                       style: TextStyle(

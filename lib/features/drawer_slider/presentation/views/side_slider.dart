@@ -13,7 +13,9 @@ import '../../../../main.dart';
 import '../../controller/notification_provider.dart';
 
 class CustomDrawer extends StatefulWidget {
-  const CustomDrawer({super.key});
+  final VoidCallback? onUserInfoUpdated;
+  
+  const CustomDrawer({super.key, this.onUserInfoUpdated});
 
   @override
   State<CustomDrawer> createState() => _CustomDrawerState();
@@ -30,14 +32,61 @@ class _CustomDrawerState extends State<CustomDrawer> {
     _fetchUserInfo();
   }
 
+  // Method to refresh user info (can be called from other screens)
+  Future<void> refreshUserInfo() async {
+    await _fetchUserInfo();
+    // Notify parent widget that user info was updated
+    widget.onUserInfoUpdated?.call();
+  }
+
   Future<void> _fetchUserInfo() async {
-    // You may need to get the token from your provider or storage
-    // For now, let's assume you have a global authToken
+    // First try to get cached data for immediate display
+    final cachedInfo = await MyInformationLogic.getCachedCustomerInfo();
+    if (cachedInfo != null) {
+      setState(() {
+        customerInfo = cachedInfo;
+        isLoadingInfo = false;
+      });
+    }
+    
+    // Then fetch fresh data from API
     final info = await MyInformationLogic.fetchCustomerInfo(authToken);
-    setState(() {
-      customerInfo = info;
-      isLoadingInfo = false;
-    });
+    if (info != null) {
+      // Only update if the API data is newer or different from cached data
+      final currentCachedInfo = await MyInformationLogic.getCachedCustomerInfo();
+      bool shouldUpdate = true;
+      
+      if (currentCachedInfo != null) {
+        // Check if API data is actually newer (has more recent changes)
+        // For now, we'll prioritize cached data if it's different from API
+        // This prevents old API data from overwriting recent updates
+        if (currentCachedInfo.name != info.name || 
+            currentCachedInfo.email != info.email ||
+            currentCachedInfo.phone != info.phone) {
+          // If cached data is different, keep the cached data (it's more recent)
+          log('Drawer: Keeping cached data as it appears more recent than API data');
+          shouldUpdate = false;
+        }
+      }
+      
+      if (shouldUpdate) {
+        setState(() {
+          customerInfo = info;
+          isLoadingInfo = false;
+        });
+        
+        // Save the fresh data to cache
+        await MyInformationLogic.saveCustomerInfoLocally(info);
+      } else {
+        setState(() {
+          isLoadingInfo = false;
+        });
+      }
+    } else {
+      setState(() {
+        isLoadingInfo = false;
+      });
+    }
   }
 
   @override

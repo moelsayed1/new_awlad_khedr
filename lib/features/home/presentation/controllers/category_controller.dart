@@ -4,9 +4,6 @@ import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.d
     as top_rated;
 import 'package:awlad_khedr/features/cart/services/cart_api_service.dart';
 import 'dart:developer';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryController extends ChangeNotifier {
   final CategoryRepository _repository;
@@ -48,7 +45,6 @@ class CategoryController extends ChangeNotifier {
 
   // جديد: خريطة لتخزين جميع المنتجات للبحث الفعال (مثل سلة التسوق)
   final Map<int, top_rated.Product> _allProductsById = {};
-  bool _isAllProductsMapLoaded = false;
 
   double get cartTotal {
     double total = 0;
@@ -149,44 +145,6 @@ class CategoryController extends ChangeNotifier {
   }
 
   // دالة جديدة لتحميل جميع المنتجات في خريطة البحث
-  Future<void> _loadAllProductsForLookup() async {
-    if (_isAllProductsMapLoaded && _allProductsById.isNotEmpty) {
-      log('All products lookup map already loaded.');
-      return;
-    }
-    log('Loading all products for lookup map...');
-    try {
-      // Use pagination to load products in batches of 10
-      int page = 1;
-      bool hasMore = true;
-      _allProductsById.clear();
-
-      while (hasMore) {
-        final productsBatch =
-            await _repository.fetchAllProducts(page: page, pageSize: 10);
-        for (var p in productsBatch) {
-        if (p.productId != null) {
-          _allProductsById[p.productId!] = p;
-          }
-        }
-
-        // Check if we have more products to load
-        hasMore = productsBatch.length == 10;
-        page++;
-
-        // Add a small delay to prevent overwhelming the server
-        if (hasMore) {
-          await Future.delayed(Duration(milliseconds: 100));
-        }
-      }
-
-      _isAllProductsMapLoaded = true;
-      log('Successfully loaded ${_allProductsById.length} products into lookup map.');
-    } catch (e) {
-      log('Error loading all products for lookup map: $e');
-      _isAllProductsMapLoaded = false;
-    }
-  }
 
   Future<void> fetchCategories() async {
     categories = await _repository.fetchCategories();
@@ -233,7 +191,7 @@ class CategoryController extends ChangeNotifier {
   }
 
   Future<void> fetchProductsByCategory({bool reset = true}) async {
-    if (selectedCategory == null || selectedCategory.isEmpty) {
+    if (selectedCategory.isEmpty) {
       log('No category selected');
       return;
     }
@@ -364,27 +322,24 @@ class CategoryController extends ChangeNotifier {
       return true; // Consider it already removed
     }
 
-    if (cartItemToRemove != null) {
-      final cartId = cartItemToRemove['id'];
-      final success = await CartApiService.deleteCartItem(cartId: cartId);
-      if (success) {
-        // CRITICAL FIX: Remove from all local data consistently
-        fetchedCartItems.removeWhere((item) => item['id'] == cartId);
-        cart.remove(product);
+    final cartId = cartItemToRemove['id'];
+    final success = await CartApiService.deleteCartItem(cartId: cartId);
+    if (success) {
+      // CRITICAL FIX: Remove from all local data consistently
+      fetchedCartItems.removeWhere((item) => item['id'] == cartId);
+      cart.remove(product);
 
-        // Update local quantities
-        final String quantityKey = product.productId?.toString() ??
-            product.productName ??
-            'product_${product.productId}';
-        productQuantities[quantityKey] = 0;
+      // Update local quantities
+      final String quantityKey = product.productId?.toString() ??
+          product.productName ??
+          'product_${product.productId}';
+      productQuantities[quantityKey] = 0;
 
-        log('🗑️ Removed cart item: ${product.productName}');
-        safeNotifyListeners();
-        log('✅ CartSheet will be updated with removed item');
-      }
-      return success;
+      log('🗑️ Removed cart item: ${product.productName}');
+      safeNotifyListeners();
+      log('✅ CartSheet will be updated with removed item');
     }
-    return false;
+    return success;
   }
 
   void addToCart(top_rated.Product product) {
@@ -467,10 +422,9 @@ class CategoryController extends ChangeNotifier {
     safeNotifyListeners();
   }
 
-  static const String _cartBaseUrl = 'https://erp.khedrsons.com/api/cart';
 
   Future<bool> addProductToCart(top_rated.Product product, int quantity) async {
-    log('CategoryController.addProductToCart called for productId: ${product.productId}, quantity: ${quantity}');
+    log('CategoryController.addProductToCart called for productId: ${product.productId}, quantity: $quantity');
 
     // CRITICAL FIX: Add atomic operation flag to prevent race conditions
     if (_isProcessingCartOperation) {
@@ -572,7 +526,7 @@ class CategoryController extends ChangeNotifier {
   /// Add single product to cart without fetching all cart data
   Future<bool> addSingleProductToCart(
       top_rated.Product product, int quantity) async {
-    log('CategoryController.addSingleProductToCart called for productId: ${product.productId}, quantity: ${quantity}');
+    log('CategoryController.addSingleProductToCart called for productId: ${product.productId}, quantity: $quantity');
 
     // CRITICAL FIX: Add atomic operation flag to prevent race conditions
     if (_isProcessingCartOperation) {
@@ -744,7 +698,7 @@ class CategoryController extends ChangeNotifier {
         }
 
         // CRITICAL FIX: Update product price from cart data if it's 0
-        if (product != null && product.price == 0.0) {
+        if (product.price == 0.0) {
           for (var item in items) {
             final cartPrice = double.tryParse(item['price'].toString()) ?? 0.0;
             if (cartPrice > 0) {

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/network/api_service.dart';
@@ -59,7 +58,7 @@ class NotificationIntegrationTest {
   /// Test API endpoint URL construction
   static void testEndpointURL() {
     log('🔗 Testing endpoint URL construction...');
-    final url = APIConstant.GET_USER_NOTIFICATIONS;
+    const url = APIConstant.GET_USER_NOTIFICATIONS;
     log('📡 Endpoint URL: $url');
 
     if (url.contains('get-user-notifications')) {

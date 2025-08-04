@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:awlad_khedr/core/assets.dart';
-import 'dart:io';
-import 'dart:async';
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
 
 class ImageUtils {
   /// Encodes a URL to handle spaces and special characters properly
@@ -119,41 +115,6 @@ class ImageUtils {
     );
   }
 
-  /// Load image with retry mechanism
-  static Future<Uint8List?> _loadImageWithRetry(
-    String url, 
-    Duration timeout, 
-    int maxRetries,
-  ) async {
-    for (int attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        final httpClient = HttpClient();
-        httpClient.connectionTimeout = timeout;
-        
-        final request = await httpClient.getUrl(Uri.parse(url));
-        request.headers.set('Accept', 'image/*');
-        request.headers.set('User-Agent', 'Mozilla/5.0 (compatible; Flutter App)');
-        
-        final response = await request.close();
-        
-        if (response.statusCode == 200) {
-          final bytes = await consolidateHttpClientResponseBytes(response);
-          httpClient.close();
-          return bytes;
-        } else {
-          httpClient.close();
-          throw Exception('HTTP ${response.statusCode}');
-        }
-      } catch (e) {
-        if (attempt == maxRetries) {
-          rethrow;
-        }
-        // Wait before retry (exponential backoff)
-        await Future.delayed(Duration(milliseconds: 500 * (attempt + 1)));
-      }
-    }
-    return null;
-  }
 
   /// Creates a circular network image with proper error handling
   static Widget buildCircularNetworkImage({
@@ -168,14 +129,6 @@ class ImageUtils {
     final isValidUrl = isValidImageUrl(imageUrl);
     
     // Default placeholder
-    final defaultPlaceholder = CircleAvatar(
-      radius: radius,
-      backgroundColor: Colors.grey[200],
-      child: const CircularProgressIndicator(
-        strokeWidth: 2,
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-      ),
-    );
 
     // Default error widget
     final defaultErrorWidget = CircleAvatar(
