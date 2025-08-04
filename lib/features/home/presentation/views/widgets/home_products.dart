@@ -1,9 +1,9 @@
 import 'dart:convert';
+// ignore: library_prefixes
 import 'dart:ui' as UI;
 
 import 'package:awlad_khedr/constant.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +15,7 @@ class HomeProductItem extends StatefulWidget {
   const HomeProductItem({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProductScreenState createState() => _ProductScreenState();
 }
 
@@ -30,6 +31,7 @@ bool isProductsLoaded = false ;
     return formatter.format(parsedPrice);
   }
 
+  // ignore: non_constant_identifier_names
   GetAllProducts() async {
     Uri uriToSend = Uri.parse(APIConstant.GET_ALL_PRODUCTS);
     final response = await http.get(uriToSend , headers: {"Authorization" : "Bearer $authToken"});
@@ -44,7 +46,6 @@ bool isProductsLoaded = false ;
     }
   @override
   void initState() {
-    // TODO: implement initState
     GetAllProducts();
     super.initState();
   }
@@ -80,7 +81,7 @@ bool isProductsLoaded = false ;
                             color: Colors.white,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.8),
+                                color: Colors.grey.withValues(alpha: 0.8),
                                 blurRadius: 6,
                                 offset: const Offset(0, 3),
                               ),
@@ -136,7 +137,6 @@ bool isProductsLoaded = false ;
                        // CounterVertical( index,product: productsLista!.products![index],),
                       ElevatedButton(
                         onPressed: () {
-                          // TODO: Implement add to cart functionality
                         },
                         child: const Text('إضافة'),
                       ),

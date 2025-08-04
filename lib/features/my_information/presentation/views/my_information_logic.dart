@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import '../../../../constant.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerInfo {
   final int userId;
@@ -45,10 +46,43 @@ class MyInformationLogic {
         'Accept': 'application/json',
       },
     );
+    
+    // Debug the response
+    log('Fetch customer info response status: ${response.statusCode}');
+    log('Fetch customer info response body: ${response.body}');
+    
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      if (data.isNotEmpty) {
-        return CustomerInfo.fromJson(data[0]);
+      try {
+        final dynamic responseData = json.decode(response.body);
+        
+        // Handle both array and object responses
+        if (responseData is List) {
+          if (responseData.isNotEmpty) {
+            return CustomerInfo.fromJson(responseData[0]);
+          }
+        } else if (responseData is Map<String, dynamic>) {
+          // If the response is an object with data structure similar to update response
+          if (responseData['data'] != null) {
+            final Map<String, dynamic> data = responseData['data'];
+            final Map<String, dynamic> contact = data['contact'] ?? {};
+            final Map<String, dynamic> user = data['user'] ?? {};
+            
+            return CustomerInfo(
+              userId: 0,
+              phone: contact['mobile'],
+              name: contact['first_name'] ?? user['first_name'] ?? '',
+              supplierBusinessName: contact['supplier_business_name'] ?? '',
+              addressLine1: contact['address_line_1'] ?? '',
+              email: contact['email'] ?? user['email'] ?? '',
+              profilePhoto: data['profile_photo'],
+            );
+          } else {
+            // Direct object response
+            return CustomerInfo.fromJson(responseData);
+          }
+        }
+      } catch (e) {
+        log('Error parsing fetch customer info response: $e');
       }
     }
     return null;
@@ -79,7 +113,7 @@ class MyInformationLogic {
     return response.statusCode == 200;
   }
 
-  static Future<bool> updateUserDataWithPhoto(
+  static Future<CustomerInfo?> updateUserDataWithPhoto(
     String token, {
     required String name,
     required String? phone,
@@ -106,6 +140,70 @@ class MyInformationLogic {
     log('Status code: ${response.statusCode}');
     log('Response body: ${response.body}');
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200) {
+      try {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        if (responseData['status'] == 'success' && responseData['data'] != null) {
+          final Map<String, dynamic> data = responseData['data'];
+          final Map<String, dynamic> contact = data['contact'] ?? {};
+          final Map<String, dynamic> user = data['user'] ?? {};
+          
+          // Create CustomerInfo from the update response
+          return CustomerInfo(
+            userId: 0, // We don't have user_id in this response
+            phone: contact['mobile'],
+            name: contact['first_name'] ?? user['first_name'] ?? name,
+            supplierBusinessName: contact['supplier_business_name'] ?? supplierBusinessName,
+            addressLine1: contact['address_line_1'] ?? addressLine1,
+            email: contact['email'] ?? user['email'] ?? email,
+            profilePhoto: data['profile_photo'],
+          );
+        }
+      } catch (e) {
+        log('Error parsing update response: $e');
+      }
+    }
+    return null;
+  }
+
+  // Save customer info locally for persistence
+  static Future<void> saveCustomerInfoLocally(CustomerInfo customerInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cacheData = {
+      'name': customerInfo.name,
+      'phone': customerInfo.phone,
+      'email': customerInfo.email,
+      'addressLine1': customerInfo.addressLine1,
+      'supplierBusinessName': customerInfo.supplierBusinessName,
+      'profilePhoto': customerInfo.profilePhoto,
+    };
+    await prefs.setString('cached_customer_info', jsonEncode(cacheData));
+    log('Saved to cache: ${jsonEncode(cacheData)}');
+  }
+
+  // Get cached customer info
+  static Future<CustomerInfo?> getCachedCustomerInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedData = prefs.getString('cached_customer_info');
+    log('Retrieved from cache: $cachedData');
+    if (cachedData != null) {
+      try {
+        final Map<String, dynamic> data = jsonDecode(cachedData);
+        final customerInfo = CustomerInfo(
+          userId: 0,
+          name: data['name'] ?? '',
+          phone: data['phone'],
+          email: data['email'] ?? '',
+          addressLine1: data['addressLine1'] ?? '',
+          supplierBusinessName: data['supplierBusinessName'] ?? '',
+          profilePhoto: data['profilePhoto'],
+        );
+        log('Parsed cached customer info: ${customerInfo.name}');
+        return customerInfo;
+      } catch (e) {
+        log('Error parsing cached customer info: $e');
+      }
+    }
+    return null;
   }
 } 

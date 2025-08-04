@@ -55,7 +55,6 @@ class _CategoriesView extends StatefulWidget {
 class _CategoriesViewState extends State<_CategoriesView> {
   late final TextEditingController searchController;
   final ScrollController _scrollController = ScrollController();
-  bool _isLoadingMore = false;
   
   // Add local state management like most_requested_views.dart
   final Map<String, int> _productQuantities = {};
@@ -75,9 +74,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
             _scrollController.position.maxScrollExtent - 10 &&
         !controller.isLoadingProducts &&
         controller.hasMoreProducts) {
-      setState(() => _isLoadingMore = true);
       await controller.loadMoreProducts();
-      setState(() => _isLoadingMore = false);
     }
   }
 
@@ -109,7 +106,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
+                    color: iconColor.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   padding: const EdgeInsets.all(16.0),
@@ -387,6 +384,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
 
                                   // Show error dialog
                                   _showCustomDialog(
+                                    // ignore: use_build_context_synchronously
                                     context: context,
                                     icon: Icons.error,
                                     iconColor: Colors.red,
@@ -412,7 +410,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
       ),
       floatingActionButton: _cart.isNotEmpty
           ? FloatingActionButton.extended(
-              backgroundColor: Color(0xffFC6E2A),
+              backgroundColor: const Color(0xffFC6E2A),
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -487,5 +485,4 @@ extension on void Function(String message,
     StackTrace? stackTrace,
     DateTime? time,
     Zone? zone}) {
-  void dev(String s) {}
 }

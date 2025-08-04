@@ -6,7 +6,6 @@ import '../../constant.dart';
 
 class ApiService {
   static const String _authTokenKey = 'token';
-  static const String _refreshTokenKey = 'refresh_token';
   static const String _tokenExpiryKey = 'token_expiry';
 
   String? _authToken;

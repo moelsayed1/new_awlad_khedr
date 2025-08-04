@@ -4,8 +4,6 @@ import 'package:awlad_khedr/features/invoice/data/invoice_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:awlad_khedr/features/order/presentation/views/orders_view.dart';
-import 'package:awlad_khedr/core/assets.dart';
 
 
 class OrderDetailsButton extends StatelessWidget {
@@ -21,7 +19,7 @@ class OrderDetailsButton extends StatelessWidget {
         child: ElevatedButton(
           style: ButtonStyle(
             backgroundColor:
-                WidgetStateProperty.all(blueHawai.withOpacity(0.5)),
+                WidgetStateProperty.all(blueHawai.withValues(alpha: 0.5)),
           ),
           onPressed: () {
             showDialog(
@@ -97,92 +95,6 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
     return '${words.take(2).join(' ')}\n${words.skip(2).join(' ')}';
   }
 
-  Widget _buildOrderItem(
-      String name, String price, String quantity, String imageUrl) {
-    // Format quantity: remove .0 if integer
-    String formattedQuantity;
-    final doubleQty = double.tryParse(quantity);
-    if (doubleQty != null && doubleQty == doubleQty.truncateToDouble()) {
-      formattedQuantity = doubleQty.toInt().toString();
-    } else {
-      formattedQuantity = quantity;
-    }
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Directionality(
-        textDirection: ui.TextDirection.rtl,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                imageUrl ?? '',
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 60,
-                    height: 60,
-                    color: Colors.grey[300],
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: Colors.grey,
-                      size: 32,
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    splitAfterTwoWords(name),
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: baseFont),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    'الكمية : $formattedQuantity',
-                    style: TextStyle(
-                        fontSize: 14.sp,
-                        color: Colors.black,
-                        fontFamily: baseFont),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('سعر الكرتونة',
-                    style: TextStyle(
-                        color: darkOrange,
-                        fontSize: 14.sp,
-                        fontFamily: baseFont,
-                        fontWeight: FontWeight.w500)),
-                const SizedBox(height: 4),
-                Text(price,
-                    style: const TextStyle(
-                      color: darkOrange,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    )),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -542,7 +454,7 @@ class _OrderDetailsPopupState extends State<OrderDetailsPopup> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

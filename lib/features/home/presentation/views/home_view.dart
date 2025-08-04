@@ -5,9 +5,7 @@ import 'package:awlad_khedr/features/home/presentation/views/widgets/carousel_sl
 import 'package:awlad_khedr/features/home/presentation/views/widgets/category_home.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
 import 'package:awlad_khedr/features/most_requested/presentation/views/top_rated.dart';
-import 'package:awlad_khedr/features/search/presentation/widgets/category_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/app_router.dart';
@@ -84,7 +82,7 @@ class _HomeScreenViewState extends State<HomeScreenView> {
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       shape: BoxShape.circle,
                     ),
                     padding: const EdgeInsets.all(4),

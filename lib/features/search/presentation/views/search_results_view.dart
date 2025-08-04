@@ -138,7 +138,7 @@ void _showCustomDialog({
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Stack(
           children: [
-            Positioned(
+            const Positioned(
               right: 20,
               top: 16,
               bottom: 0,
@@ -146,7 +146,7 @@ void _showCustomDialog({
                 alignment: Alignment.centerRight,
                 child: Text(
                   'نتائج البحث',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.black,
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
