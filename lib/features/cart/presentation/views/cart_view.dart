@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/main_layout.dart';
 import 'package:awlad_khedr/features/cart/presentation/views/widgets/custom_button_cart.dart';
@@ -7,9 +8,11 @@ import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.d
     as top_rated;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/core/assets.dart';
+
 import 'package:awlad_khedr/features/drawer_slider/presentation/views/side_slider.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:awlad_khedr/features/cart/services/cart_api_service.dart';
 
 /// Logic class to separate business logic from UI
 class CartViewLogic extends ChangeNotifier {
@@ -21,26 +24,95 @@ class CartViewLogic extends ChangeNotifier {
 
   Future<void> fetchCart() async {
     await controller.fetchCartFromApi();
+
+    // Preload any missing product names
+    await _preloadMissingProducts();
+
+    // CRITICAL FIX: Don't call syncProductQuantitiesWithCart() to avoid overriding local quantities
+    // controller.syncProductQuantitiesWithCart();
+
     loading = false;
     notifyListeners();
   }
 
+  /// Preload any products that don't have proper names
+  Future<void> _preloadMissingProducts() async {
+    try {
+      log('🔍 Checking for products with placeholder names...');
+      final items = controller.fetchedCartItems;
+
+      for (var item in items) {
+        final product = item['product'] as top_rated.Product;
+        final productName = product.productName;
+
+        // Check if this is a placeholder name
+        if (productName != null && productName.startsWith('اسم المنتج')) {
+          log('⚠️ Found product with placeholder name: $productName');
+
+          // Try to fetch the actual product name
+          final actualProduct =
+              await controller.fetchAndCacheProduct(product.productId ?? 0);
+          if (actualProduct != null) {
+            log('✅ Updated product name: ${actualProduct.productName}');
+            // Update the product in the cart item
+            item['product'] = actualProduct;
+          }
+        }
+      }
+
+      // Notify listeners to update the UI
+      controller.safeNotifyListeners();
+    } catch (e) {
+      log('❌ Error preloading missing products: $e');
+    }
+  }
+
   List<Map<String, dynamic>> get cartItems {
+    // CRITICAL FIX: Add validation and deduplication logic
     final Map<int?, List<Map<String, dynamic>>> grouped = {};
+    final Set<int> processedCartIds =
+        {}; // Track processed cart IDs to prevent duplicates
+
     for (var item in controller.fetchedCartItems) {
       final product = item['product'];
       if (product == null) continue;
       final productId = product.productId;
+      final cartId = item['id'] as int?;
+
+      // CRITICAL FIX: Skip if we've already processed this cart ID
+      if (cartId != null && processedCartIds.contains(cartId)) {
+        log('🚫 Skipping duplicate cart ID: $cartId');
+        continue;
+      }
+
+      if (cartId != null) {
+        processedCartIds.add(cartId);
+      }
+
       grouped.putIfAbsent(productId, () => []).add(item);
     }
-    // For display, sum quantities and total_price, but keep a reference to all cart entries
+
+    log('🔍 CartViewLogic: Found ${grouped.length} unique products');
+    for (var entry in grouped.entries) {
+      final productId = entry.key;
+      final items = entry.value;
+      log('   - Product ID $productId: ${items.length} cart entries');
+      for (var item in items) {
+        log('     * Cart ID: ${item['id']}, Quantity: ${item['quantity']}');
+      }
+    }
+
+    // CRITICAL FIX: For display, use aggregated data from controller
     return grouped.entries.map((entry) {
       final items = entry.value;
       final first = items.first;
-      final totalQuantity =
-          items.fold<int>(0, (sum, i) => sum + (i['quantity'] as int));
-      final totalPrice =
-          items.fold<double>(0, (sum, i) => sum + (i['total_price'] as double));
+
+      // CRITICAL FIX: Use the aggregated quantity and price from the controller
+      final totalQuantity = first['quantity'] as int? ?? 0;
+      final totalPrice = first['total_price'] as double? ?? 0.0;
+
+      log('📊 Product ${first['product'].productName}: ${items.length} entries, Total Quantity: $totalQuantity');
+
       return {
         ...first,
         'quantity': totalQuantity,
@@ -50,7 +122,16 @@ class CartViewLogic extends ChangeNotifier {
     }).toList();
   }
 
-  double get total => controller.fetchedCartTotal;
+  double get total {
+    // CRITICAL FIX: Calculate total dynamically based on current quantities
+    double total = 0.0;
+    for (var item in controller.fetchedCartItems) {
+      final quantity = item['quantity'] as int? ?? 0;
+      final price = item['price'] as double? ?? 0.0;
+      total += price * quantity;
+    }
+    return total;
+  }
 
   // Improved debounce logic with better cancellation handling
   final Map<int, bool> _debounceCancelled = {};
@@ -88,18 +169,23 @@ class CartViewLogic extends ChangeNotifier {
 
     // Optimistic update
     cartEntry['quantity'] = newQuantity;
+    // CRITICAL FIX: Update total_price dynamically
+    cartEntry['total_price'] = (product.price ?? 0.0) * newQuantity;
     notifyListeners();
 
     _debounceAction(cartId, () async {
       try {
-        final success = await controller.updateCartItem(
-          cartId: cartId,
-          product: product,
-          quantity: newQuantity,
-        );
-        if (!success) {
+        // Use the new CartApiService for UPDATE endpoint
+        final success = await CartApiService.updateCartItem(
+      cartId: cartId,
+          productId: product.productId ?? 0,
+      quantity: newQuantity,
+          price: product.price ?? 0.0,
+    );
+    if (!success) {
           // Revert on failure
           cartEntry['quantity'] = quantity;
+          cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
           notifyListeners();
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -110,12 +196,13 @@ class CartViewLogic extends ChangeNotifier {
       } catch (e) {
         // Revert on error
         cartEntry['quantity'] = quantity;
-        notifyListeners();
+        cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
+      notifyListeners();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Error updating item quantity.')),
-          );
-        }
+      );
+    }
       }
     });
   }
@@ -140,31 +227,36 @@ class CartViewLogic extends ChangeNotifier {
 
     // Optimistic update
     cartEntry['quantity'] = newQuantity;
+    // CRITICAL FIX: Update total_price dynamically
+    cartEntry['total_price'] = (product.price ?? 0.0) * newQuantity;
     notifyListeners();
 
     _debounceAction(cartId, () async {
       try {
-        bool success = true;
-        if (newQuantity > 0) {
-          success = await controller.updateCartItem(
-            cartId: cartId,
-            product: product,
-            quantity: newQuantity,
-          );
-        } else {
+    bool success = true;
+    if (newQuantity > 0) {
+          // Use the new CartApiService for UPDATE endpoint
+          success = await CartApiService.updateCartItem(
+        cartId: cartId,
+            productId: product.productId ?? 0,
+        quantity: newQuantity,
+            price: product.price ?? 0.0,
+      );
+    } else {
           // Mark as removing to prevent overlapping operations
-          removingItems.add(cartId);
-          notifyListeners();
+      removingItems.add(cartId);
+      notifyListeners();
 
-          success = await controller.deleteCartItem(cartId: cartId);
+          // Use the new CartApiService for DELETE endpoint
+          success = await CartApiService.deleteCartItem(cartId: cartId);
 
-          if (success) {
-            removingItems.remove(cartId);
+      if (success) {
+        removingItems.remove(cartId);
             // Remove from local data immediately to prevent UI issues
             controller.fetchedCartItems
                 .removeWhere((item) => item['id'] == cartId);
-            notifyListeners();
-          } else {
+        notifyListeners();
+      } else {
             removingItems.remove(cartId);
             // Revert on failure
             cartEntry['quantity'] = quantity;
@@ -181,6 +273,7 @@ class CartViewLogic extends ChangeNotifier {
         if (!success && newQuantity > 0) {
           // Revert on failure for quantity updates
           cartEntry['quantity'] = quantity;
+          cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
           notifyListeners();
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -191,13 +284,14 @@ class CartViewLogic extends ChangeNotifier {
       } catch (e) {
         // Revert on error
         cartEntry['quantity'] = quantity;
+        cartEntry['total_price'] = (product.price ?? 0.0) * quantity;
         removingItems.remove(cartId);
         notifyListeners();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Error updating cart.')),
-          );
-        }
+      );
+    }
       }
     });
   }
@@ -233,12 +327,46 @@ class CartProductCard extends StatelessWidget {
     this.onAddToCart,
   }) : super(key: key);
 
+  Widget _buildProductImage(dynamic product) {
+    final imageUrl = product.imageUrl;
+
+    // Check if imageUrl is valid
+    if (imageUrl == null ||
+        imageUrl.isEmpty ||
+        Uri.tryParse(imageUrl)?.hasAbsolutePath != true) {
+      return Container(
+        width: 60.w,
+        height: 60.w,
+        color: Colors.grey[200],
+        child: Icon(Icons.image_not_supported,
+            size: 30.w, color: Colors.grey[400]),
+      );
+    }
+
+    return Image.network(
+      imageUrl,
+      width: 60.w,
+      height: 60.w,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          width: 60.w,
+          height: 60.w,
+          color: Colors.grey[200],
+          child: Icon(Icons.image_not_supported,
+              size: 30.w, color: Colors.grey[400]),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final product = item['product'];
     final quantity = item['quantity'] as int;
     final price = item['price'] as double;
-    final totalPrice = item['total_price'] as double;
+    // CRITICAL FIX: Calculate total price dynamically based on current quantity
+    final totalPrice = price * quantity;
 
     // Show Add to Cart button if quantity is 0, otherwise show quantity controls
     final bool showAddToCart = quantity == 0;
@@ -323,18 +451,7 @@ class CartProductCard extends StatelessWidget {
                 // Product image (right)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10.r),
-                  child: Container(
-                    color: Colors.grey[100],
-                    child: (product.imageUrl != null && product.imageUrl != '')
-                        ? Image.network(
-                            product.imageUrl,
-                            width: 60.w,
-                            height: 60.w,
-                            fit: BoxFit.cover,
-                          )
-                        : Icon(Icons.image,
-                            size: 60.w, color: Colors.grey[300]),
-                  ),
+                  child: _buildProductImage(product),
                 ),
               ],
             ),
@@ -351,7 +468,10 @@ class CartProductCard extends StatelessWidget {
                 child: SizedBox(
                   width: 32,
                   height: 32,
-                  child: CircularProgressIndicator(strokeWidth: 3),
+                  child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
                 ),
               ),
             ),
@@ -391,46 +511,46 @@ class CartProductCard extends StatelessWidget {
 
   Widget _buildQuantityControls() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        GestureDetector(
-          onTap: onIncrease,
-          child: Icon(
-            Icons.add,
-            color: Color(0xffFC6E2A),
-            size: 24.sp,
-          ),
-        ),
-        SizedBox(height: 4.h),
-        Container(
-          width: 36.w,
-          height: 36.w,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: Color(0xffE0E0E0)),
-          ),
-          child: Text(
-            item['quantity'].toString(),
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-              fontFamily: baseFont,
-            ),
-          ),
-        ),
-        SizedBox(height: 4.h),
-        GestureDetector(
-          onTap: onDecrease,
-          child: Icon(
-            Icons.remove,
-            color: Color(0xffC29500),
-            size: 28,
-          ),
-        ),
-      ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: onIncrease,
+                      child: Icon(
+                        Icons.add,
+                        color: Color(0xffFC6E2A),
+                        size: 24.sp,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Container(
+                      width: 36.w,
+                      height: 36.w,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: Border.all(color: Color(0xffE0E0E0)),
+                      ),
+                      child: Text(
+                        item['quantity'].toString(),
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontFamily: baseFont,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    GestureDetector(
+                      onTap: onDecrease,
+                      child: Icon(
+                        Icons.remove,
+                        color: Color(0xffC29500),
+                        size: 28,
+                      ),
+                    ),
+                  ],
     );
   }
 }
@@ -467,7 +587,11 @@ class CartProductList extends StatelessWidget {
           // Show loading indicator at the bottom
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(child: CircularProgressIndicator()),
+                            child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                  ),
+                ),
           );
         }
         final product = products[index];
@@ -501,9 +625,10 @@ class CartProductList extends StatelessWidget {
               onQuantityChanged(product, newQuantity);
               final success = await addProductToCart(product, newQuantity);
               debugPrint('addProductToCart success: $success');
-              if (success && controller != null) {
-                await controller.fetchCartFromApi();
-              }
+              // CRITICAL FIX: Removed unnecessary fetchCartFromApi() call
+              // if (success && controller != null) {
+              //   await controller.fetchCartFromApi();
+              // }
             },
             onDecrease: () async {
               final currentQuantity = productQuantities[quantityKey] ?? 0;
@@ -512,12 +637,17 @@ class CartProductList extends StatelessWidget {
                 onQuantityChanged(product, newQuantity);
                 final success = await addProductToCart(product, newQuantity);
                 debugPrint('addProductToCart success: $success');
-                if (success && controller != null) {
-                  await controller.fetchCartFromApi();
-                }
+                // CRITICAL FIX: Removed unnecessary fetchCartFromApi() call
+                // if (success && controller != null) {
+                //   await controller.fetchCartFromApi();
+                // }
               } else {
+                // CRITICAL FIX: Remove product from cart via API when quantity reaches 0
                 onQuantityChanged(product, 0);
-                // Remove from local cart only - API call removed
+                final controller =
+                    Provider.of<CategoryController>(context, listen: false);
+                final success = await controller.removeProductFromCart(product);
+                debugPrint('removeProductFromCart success: $success');
               }
             },
           ),
@@ -528,11 +658,7 @@ class CartProductList extends StatelessWidget {
 }
 
 class CartViewPage extends StatefulWidget {
-  // No need to pass products/quantities; always use controller
-  const CartViewPage(
-      {super.key,
-      required List<top_rated.Product> products,
-      required List<int> quantities});
+  const CartViewPage({super.key});
 
   @override
   State<CartViewPage> createState() => _CartViewPageState();
@@ -599,7 +725,11 @@ class _CartViewPageState extends State<CartViewPage> {
             ),
             drawer: const CustomDrawer(),
             body: logic.loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              )
                 : Column(
                     children: [
                       Expanded(

@@ -10,6 +10,7 @@ import '../../../../core/app_router.dart';
 import '../../../auth/login/data/provider/login_provider.dart';
 import 'package:awlad_khedr/features/my_information/presentation/views/my_information_logic.dart';
 import '../../../../main.dart';
+import '../../controller/notification_provider.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -93,14 +94,17 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         backgroundColor: mainColor,
                         child: isLoadingInfo
                             ? CircularProgressIndicator(color: Colors.white)
-                            : (customerInfo?.profilePhoto != null && customerInfo!.profilePhoto!.isNotEmpty)
+                            : (customerInfo?.profilePhoto != null &&
+                                    customerInfo!.profilePhoto!.isNotEmpty)
                                 ? ClipOval(
                                     child: Image.network(
                                       customerInfo!.profilePhoto!,
                                       width: 50.w,
                                       height: 50.w,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => Image.asset(
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Image.asset(
                                         AssetsData.profile,
                                         width: 40.w,
                                         height: 40.w,
@@ -120,55 +124,92 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   child: Column(
                     children: [
                       Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: Container(
-                          width: double.infinity,
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
+                          textDirection: TextDirection.rtl,
+                          child: Container(
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              color: Color(0xffFDA479),
                             ),
-                            color: Color(0xffFDA479),
-                          ),
-                          child: ListTile(
-                              leading: Image.asset(
-                                AssetsData.alert,
-                                width: 25.w,
-                                height: 25.w,
-                                color: Colors.black,
-                              ),
-                              title: Text(
-                                'الإشعارات',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16.sp,
-                                ),
-                              ),
-                              trailing: Container(
-                                width: 25.w,
-                                height: 25.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(6),
+                            child: Consumer<NotificationProvider>(
+                              builder: (context, notificationProvider, child) {
+                                final unreadCount = notificationProvider.unreadCount;
+                                return ListTile(
+                                  leading: Stack(
+                                    children: [
+                                      Image.asset(
+                                        AssetsData.alert,
+                                        width: 25.w,
+                                        height: 25.w,
+                                        color: Colors.black,
+                                      ),
+                                      if (unreadCount > 0)
+                                        Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: Container(
+                                            padding: EdgeInsets.all(2.w),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red,
+                                              borderRadius: BorderRadius.circular(10.w),
+                                            ),
+                                            constraints: BoxConstraints(
+                                              minWidth: 16.w,
+                                              minHeight: 16.w,
+                                            ),
+                                            child: Text(
+                                              unreadCount > 99 ? '99+' : unreadCount.toString(),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
-                                  color: Colors.white,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '6',
-                                    textAlign: TextAlign.center,
+                                  title: Text(
+                                    'الإشعارات',
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16.sp,
                                     ),
                                   ),
-                                ),
-                              ),
-                              onTap: () {
-                                GoRouter.of(context).push(AppRouter.kNotificationPage);
-                              }),
-                        )),
+                                  trailing: unreadCount > 0
+                                      ? Container(
+                                          width: 25.w,
+                                          height: 25.w,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(6),
+                                            ),
+                                            color: Colors.white,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              unreadCount > 99 ? '99+' : unreadCount.toString(),
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : null,
+                                  onTap: () {
+                                    GoRouter.of(context).push(AppRouter.kNotificationPage);
+                                  },
+                                );
+                              },
+                            ),
+                          )),
                       Directionality(
                         textDirection: TextDirection.rtl,
                         child: ListTile(
@@ -228,7 +269,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                             ),
                           ),
                           onTap: () {
-                            GoRouter.of(context).push(AppRouter.kOrdersViewPage);
+                            GoRouter.of(context)
+                                .push(AppRouter.kOrdersViewPage);
                           },
                         ),
                       ),
@@ -277,10 +319,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   textDirection: TextDirection.rtl,
                   child: InkWell(
                     onTap: () {
-                      final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+                      final loginProvider =
+                          Provider.of<LoginProvider>(context, listen: false);
                       loginProvider.logout();
 
-                      GoRouter.of(context).pushReplacement(AppRouter.kLoginView);
+                      GoRouter.of(context)
+                          .pushReplacement(AppRouter.kLoginView);
                       log("TOOOOkEEEEEEEN${loginProvider.token.toString()}");
                     },
                     child: Padding(

@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'dart:ui' as UI;
 
 import 'package:awlad_khedr/constant.dart';
-import 'package:awlad_khedr/features/products_screen/presentation/views/widgets/counter_virtecal.dart';
-import 'package:awlad_khedr/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:intl/intl.dart';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
+import 'package:awlad_khedr/main.dart';
 
 import '../../../data/model/product_model.dart';
 
@@ -84,12 +85,20 @@ bool isProductsLoaded = false ;
                                 offset: const Offset(0, 3),
                               ),
                             ]),
-                        child: Image.network(
-                          productsLista!.products![index].imageUrl!,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset('assets/images/logoPng.png', fit: BoxFit.contain);
-                          },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            productsLista!.products![index].imageUrl ?? '',
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.grey[200],
+                                child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+                              );
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -125,7 +134,12 @@ bool isProductsLoaded = false ;
                         ),
                       ),
                        // CounterVertical( index,product: productsLista!.products![index],),
-                      const AddToCartButton(),
+                      ElevatedButton(
+                        onPressed: () {
+                          // TODO: Implement add to cart functionality
+                        },
+                        child: const Text('إضافة'),
+                      ),
                     ],
                   ),
                 ),
@@ -133,7 +147,11 @@ bool isProductsLoaded = false ;
             ],
           );
         })
-          : const Center ( child : CircularProgressIndicator());
+                      : const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              );
   }
 }
 

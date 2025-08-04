@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../drawer_slider/presentation/views/side_slider.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
 
 class SearchResultsPage extends StatefulWidget {
   final String searchQuery;
@@ -29,6 +30,10 @@ class SearchResultsPage extends StatefulWidget {
 class _SearchResultsPageState extends State<SearchResultsPage> {
   late final TextEditingController searchController;
   late final ScrollController _scrollController;
+
+  // Local state management
+  final Map<String, int> _productQuantities = {};
+  final Map<top_rated.Product, int> _cart = {};
 
   @override
   void initState() {
@@ -55,6 +60,74 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     searchController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+void _showCustomDialog({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String message,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Icon(icon, color: iconColor, size: 48),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: baseFont,
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffFC6E2A),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'حسناً',
+                      style: TextStyle(
+                        fontFamily: baseFont,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -131,7 +204,11 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
             //  SizedBox(height: 8.h),
             if (!categoryController.isListLoaded && categoryController.filteredProducts.isEmpty)
               const Expanded(
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                  ),
+                ),
               )
             else if (categoryController.filteredProducts.isEmpty)
               Expanded(
@@ -169,11 +246,16 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                           if (index == categoryController.filteredProducts.length && categoryController.isLoadingProducts && categoryController.hasMoreProducts) {
                             return const Padding(
                               padding: EdgeInsets.all(16.0),
-                              child: Center(child: CircularProgressIndicator()),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                                ),
+                              ),
                             );
                           }
                           final product = categoryController.filteredProducts[index];
                           final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${index}';
+                          final quantity = _productQuantities[quantityKey] ?? 0;
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Column(
@@ -181,38 +263,124 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                                 CartProductCard(
                                   item: {
                                     'product': product,
-                                    'quantity': categoryController.productQuantities[quantityKey] ?? 0,
+                                    'quantity': quantity,
                                     'price': product.price ?? 0.0,
-                                    'total_price': (product.price ?? 0.0) * (categoryController.productQuantities[quantityKey] ?? 0),
+                                    'total_price': (product.price ?? 0.0) * quantity,
                                   },
                                   isRemoving: false,
                                   onIncrease: () async {
-                                    final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
+                                    final currentQuantity = quantity;
                                     final newQuantity = currentQuantity + 1;
-                                    categoryController.onQuantityChanged(quantityKey, newQuantity);
-                                    categoryController.cart[product] = newQuantity;
-                                    categoryController.safeNotifyListeners();
-                                    await categoryController.addProductToCart(product, newQuantity);
+                                    
+                                    // Update local state first
+                                    setState(() {
+                                      _productQuantities[quantityKey] = newQuantity;
+                                      _cart[product] = newQuantity;
+                                    });
+
+                                    final success = await categoryController.addSingleProductToCart(product, newQuantity);
+                                    
+                                    if (!success) {
+                                      // Revert on failure
+                                      setState(() {
+                                        _productQuantities[quantityKey] = currentQuantity;
+                                        if (currentQuantity == 0) {
+                                          _cart.remove(product);
+                                        } else {
+                                          _cart[product] = currentQuantity;
+                                        }
+                                      });
+                                      
+                                      // Refresh cart data if operation failed
+                                      await categoryController.fetchCartFromApi();
+                                    }
                                   },
                                   onDecrease: () async {
-                                    final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
+                                    final currentQuantity = quantity;
                                     final newQuantity = currentQuantity - 1;
+                                    
                                     if (newQuantity > 0) {
-                                      categoryController.onQuantityChanged(quantityKey, newQuantity);
-                                      categoryController.cart[product] = newQuantity;
+                                      // Update local state first
+                                      setState(() {
+                                        _productQuantities[quantityKey] = newQuantity;
+                                        _cart[product] = newQuantity;
+                                      });
+
+                                      final success = await categoryController.addSingleProductToCart(product, newQuantity);
+                                      
+                                      if (!success) {
+                                        // Revert on failure
+                                        setState(() {
+                                          _productQuantities[quantityKey] = currentQuantity;
+                                          _cart[product] = currentQuantity;
+                                        });
+                                        
+                                        // Refresh cart data if operation failed
+                                        await categoryController.fetchCartFromApi();
+                                      }
                                     } else {
-                                      categoryController.onQuantityChanged(quantityKey, 0);
-                                      categoryController.cart.remove(product);
+                                      // Update local state first
+                                      setState(() {
+                                        _productQuantities[quantityKey] = 0;
+                                        _cart.remove(product);
+                                      });
+
+                                      final success = await categoryController.removeProductFromCart(product);
+                                      
+                                      if (!success) {
+                                        // Revert on failure
+                                        setState(() {
+                                          _productQuantities[quantityKey] = currentQuantity;
+                                          _cart[product] = currentQuantity;
+                                        });
+                                        
+                                        // Refresh cart data if operation failed
+                                        await categoryController.fetchCartFromApi();
+                                      }
                                     }
-                                    categoryController.safeNotifyListeners();
                                   },
                                   onAddToCart: () async {
-                                    final currentQuantity = categoryController.productQuantities[quantityKey] ?? 0;
+                                    final currentQuantity = quantity;
                                     final newQuantity = currentQuantity + 1;
-                                    categoryController.onQuantityChanged(quantityKey, newQuantity);
-                                    categoryController.cart[product] = newQuantity;
-                                    categoryController.safeNotifyListeners();
-                                    await categoryController.addProductToCart(product, newQuantity);
+                                    
+                                    // Update local state first
+                                    setState(() {
+                                      _productQuantities[quantityKey] = newQuantity;
+                                      _cart[product] = newQuantity;
+                                    });
+
+                                    // Show success dialog immediately
+                                    _showCustomDialog(
+                                      context: context,
+                                      icon: Icons.check_circle,
+                                      iconColor: const Color(0xffFC6E2A),
+                                      message: 'تمت إضافة المنتج إلى السلة',
+                                    );
+
+                                    final success = await categoryController.addSingleProductToCart(product, newQuantity);
+                                    
+                                    if (!success) {
+                                      // Revert on failure
+                                      setState(() {
+                                        _productQuantities[quantityKey] = currentQuantity;
+                                        if (currentQuantity == 0) {
+                                          _cart.remove(product);
+                                        } else {
+                                          _cart[product] = currentQuantity;
+                                        }
+                                      });
+                                      
+                                      // Show error dialog
+                                      _showCustomDialog(
+                                        context: context,
+                                        icon: Icons.error,
+                                        iconColor: Colors.red,
+                                        message: 'حدث خطأ أثناء إضافة المنتج للسلة',
+                                      );
+                                      
+                                      // Refresh cart data if operation failed
+                                      await categoryController.fetchCartFromApi();
+                                    }
                                   },
                                 ),
                               ],
@@ -222,14 +390,18 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                       ),
                     ),
                     if (categoryController.isLoadingProducts && categoryController.filteredProducts.isEmpty)
-                      const Center(child: CircularProgressIndicator()),
+                      const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              ),
                   ],
                 ),
               ),
           ],
         ),
       ),
-      floatingActionButton: categoryController.cart.isNotEmpty
+              floatingActionButton: _cart.isNotEmpty
           ? FloatingActionButton.extended(
               backgroundColor: const Color(0xffFC6E2A),
               onPressed: () {
@@ -244,11 +416,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                     expand: false,
                     builder: (context, scrollController) {
                       return CartSheet(
-                        cart: categoryController.cart,
-                        total: categoryController.cartTotal,
                         onClose: () => Navigator.pop(context),
                         onPaymentSuccess: () {
-                          categoryController.clearCart();
+                          setState(() {
+                            _cart.clear();
+                            _productQuantities.clear();
+                          });
                         },
                       );
                     },
@@ -256,7 +429,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                 );
               },
               label: Text(
-                'السلة (${categoryController.cart.length})',
+                'السلة (${_cart.length})',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,

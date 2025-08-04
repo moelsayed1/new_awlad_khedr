@@ -121,7 +121,7 @@ class _LoginViewState extends State<LoginView> {
                             GoRouter.of(context).push(AppRouter.kResetPasswordScreen);
                           },
                           child: const Text(
-                            'نسيت كلمة السر',
+                            'نسيت كلمة المرور',
                             textDirection: TextDirection.rtl,
                             textAlign: TextAlign.right,
                             style: TextStyle(
@@ -138,9 +138,11 @@ class _LoginViewState extends State<LoginView> {
                       height: 38,
                     ),
                     loginProvider.isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        :   loginProvider.isLoading
-                        ? const CircularProgressIndicator()
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                            ),
+                          )
                         : CustomButton(
                         onTap: () async {
                           log("Username: ${_userNameController.text}");
@@ -150,7 +152,7 @@ class _LoginViewState extends State<LoginView> {
                               _passwordController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Username and password are required.'),
+                                content: Text('اسم المستخدم وكلمة المرور مطلوبة.'),
                               ),
                             );
                             return;
@@ -165,7 +167,7 @@ class _LoginViewState extends State<LoginView> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Login failed. Please try again.'),
+                                content: Text('فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.'),
                               ),
                             );
                           }

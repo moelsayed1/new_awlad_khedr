@@ -140,7 +140,14 @@ class _ReceiptOrderDetailsState extends State<ReceiptOrderDetails> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: _loading
-                ? const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()))
+                ? const SizedBox(
+                height: 120,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                  ),
+                ),
+              )
                 : _error != null
                     ? SizedBox(height: 120, child: Center(child: Text(_error!, style: TextStyle(color: Colors.red))))
                     : _invoiceData == null

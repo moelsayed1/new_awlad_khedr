@@ -6,8 +6,8 @@ import 'package:awlad_khedr/features/home/presentation/views/widgets/category_vi
 import 'package:awlad_khedr/features/my_information/presentation/views/my_information.dart';
 import 'package:awlad_khedr/features/notification/presentaion/views/notification_page.dart';
 import 'package:awlad_khedr/features/home/presentation/views/home_view.dart';
+import 'package:awlad_khedr/features/products_screen/presentation/views/category_products_view.dart';
 import 'package:awlad_khedr/features/products_screen/presentation/views/products_screen_view.dart';
-import 'package:awlad_khedr/features/products_screen/presentation/views/banner_products_view.dart';
 import 'package:awlad_khedr/features/payment_gateway/presentation/views/payment_view.dart';
 import 'package:awlad_khedr/features/search/presentation/views/search_results_view.dart';
 import 'package:awlad_khedr/main.dart';
@@ -52,7 +52,7 @@ abstract class AppRouter {
   static const kUpdatePasswordScreen = '/updatePasswordScreen';
   static const kConfirmationPage = '/confirmationPage';
   static const kVerificationScreen = '/verificationScreen';
-  static const kBannerProductsPage = '/bannerProductsPage';
+  static const kCategoryProductsPage = '/categoryProductsPage';
   static const kSearchResultsPage = '/searchResultsPage';
 
   static final router = GoRouter(
@@ -119,11 +119,11 @@ abstract class AppRouter {
           builder: (context, state) => const MostRequestedPage(),
         ),
         GoRoute(
-          path: kBannerProductsPage,
+          path: kCategoryProductsPage,
           builder: (context, state) {
             final Map<String, dynamic> args =
                 state.extra as Map<String, dynamic>? ?? {};
-            return BannerProductsPage(
+            return CategoryProductsPage(
               bannerTitle: args['bannerTitle'],
               categoryName: args['categoryName'],
               categoryId: args['categoryId'],
@@ -141,13 +141,7 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: kCartViewPage,
-          builder: (context, state) {
-            final args = state.extra as Map<String, dynamic>?;
-            return CartViewPage(
-              products: args?['products'] ?? [],
-              quantities: args?['quantities'] ?? [],
-            );
-          },
+          builder: (context, state) => const CartViewPage(),
         ),
         GoRoute(
           path: kOrdersViewPage,

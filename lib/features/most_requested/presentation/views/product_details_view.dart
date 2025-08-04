@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
@@ -19,12 +21,15 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   final Map<Product, int> _cart = {};
   int _quantity = 0;
+  
+  // Add local state management like most_requested_views.dart
+  final Map<String, int> _productQuantities = {};
 
   @override
   void initState() {
     super.initState();
-    // You might want to get the initial quantity from a provider
-    // if the product was already in the cart.
+    // Initialize quantity from product name
+    _productQuantities[widget.product.productName!] = 0;
   }
 
   void showCustomDialog({
@@ -121,61 +126,148 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 item: {
                   'product': widget.product,
                   'quantity': _quantity,
-                  'price': widget.product.price ?? 0.0,
-                  'total_price': (_quantity * (widget.product.price ?? 0.0)),
+                  'price': widget.product.price is num
+                      ? (widget.product.price as num).toDouble()
+                      : double.tryParse(widget.product.price.toString()) ?? 0.0,
+                  'total_price': _quantity * (widget.product.price is num
+                      ? (widget.product.price as num).toDouble()
+                      : double.tryParse(widget.product.price.toString()) ?? 0.0),
                 },
                 isRemoving: false,
-                onIncrease: () {
-                  setState(() {
-                    _quantity++;
-                    _cart[widget.product] = _quantity;
-                  });
-                },
-                onDecrease: () {
-                  if (_quantity > 0) {
-                    setState(() {
-                      _quantity--;
-                      if (_quantity == 0) {
-                        _cart.remove(widget.product);
-                      } else {
-                        _cart[widget.product] = _quantity;
-                      }
-                    });
-                  }
-                },
-                onAddToCart: () async {
-                  final controller =
-                      Provider.of<CategoryController>(context, listen: false);
-                  final newQuantity = (_quantity == 0) ? 1 : _quantity;
+                onIncrease: () async {
+                  final currentQuantity = _quantity;
+                  final newQuantity = currentQuantity + 1;
+                  log('onIncrease: product=${widget.product.productName}, newQuantity=$newQuantity');
 
+                  // CRITICAL FIX: Update local state first
                   setState(() {
                     _quantity = newQuantity;
+                    _productQuantities[widget.product.productName!] = newQuantity;
                     _cart[widget.product] = newQuantity;
                   });
 
-                  final success = await controller.addProductToCart(
+                  final controller = Provider.of<CategoryController>(context, listen: false);
+                  final success = await controller.addSingleProductToCart(
                       widget.product, newQuantity);
 
-                  if (success) {
+                  if (!success) {
+                    // Revert on failure
+                    setState(() {
+                      _quantity = currentQuantity;
+                      _productQuantities[widget.product.productName!] = currentQuantity;
+                      if (currentQuantity == 0) {
+                        _cart.remove(widget.product);
+                      } else {
+                        _cart[widget.product] = currentQuantity;
+                      }
+                    });
+
+                    // Refresh cart data if operation failed
+                    await controller.fetchCartFromApi();
+                  } else {
+                    log('✅ Successfully increased product: ${widget.product.productName} - Quantity: $newQuantity');
+                  }
+                },
+                onDecrease: () async {
+                  final currentQuantity = _quantity;
+                  final newQuantity = currentQuantity - 1;
+                  log('onDecrease: product=${widget.product.productName}, newQuantity=$newQuantity');
+
+                  if (newQuantity > 0) {
+                    // CRITICAL FIX: Update local state first
+                    setState(() {
+                      _quantity = newQuantity;
+                      _productQuantities[widget.product.productName!] = newQuantity;
+                      _cart[widget.product] = newQuantity;
+                    });
+
+                    final controller = Provider.of<CategoryController>(context, listen: false);
+                    final success = await controller.addSingleProductToCart(
+                        widget.product, newQuantity);
+
+                    if (!success) {
+                      // Revert on failure
+                      setState(() {
+                        _quantity = currentQuantity;
+                        _productQuantities[widget.product.productName!] = currentQuantity;
+                        _cart[widget.product] = currentQuantity;
+                      });
+
+                      // Refresh cart data if operation failed
+                      await controller.fetchCartFromApi();
+                    }
+                  } else {
+                    // CRITICAL FIX: Update local state first
+                    setState(() {
+                      _quantity = 0;
+                      _productQuantities[widget.product.productName!] = 0;
+                      _cart.remove(widget.product);
+                    });
+
+                    final controller = Provider.of<CategoryController>(context, listen: false);
+                    final success = await controller.removeProductFromCart(widget.product);
+
+                    if (!success) {
+                      // Revert on failure
+                      setState(() {
+                        _quantity = currentQuantity;
+                        _productQuantities[widget.product.productName!] = currentQuantity;
+                        _cart[widget.product] = currentQuantity;
+                      });
+
+                      // Refresh cart data if operation failed
+                      await controller.fetchCartFromApi();
+                    }
+                  }
+                },
+                onAddToCart: () async {
+                  final currentQuantity = _quantity;
+                  final newQuantity = currentQuantity + 1;
+                  log('onAddToCart: product=${widget.product.productName}, newQuantity=$newQuantity');
+
+                  // CRITICAL FIX: Update local state first
+                  setState(() {
+                    _quantity = newQuantity;
+                    _productQuantities[widget.product.productName!] = newQuantity;
+                    _cart[widget.product] = newQuantity;
+                  });
+
+                  // Show success dialog immediately
+                  showCustomDialog(
+                    context: context,
+                    icon: Icons.check_circle,
+                    iconColor: const Color(0xffFC6E2A),
+                    message: 'تمت إضافة المنتج إلى السلة',
+                  );
+
+                  final controller = Provider.of<CategoryController>(context, listen: false);
+                  final success = await controller.addSingleProductToCart(
+                      widget.product, newQuantity);
+
+                  if (!success) {
+                    // Revert on failure
+                    setState(() {
+                      _quantity = currentQuantity;
+                      _productQuantities[widget.product.productName!] = currentQuantity;
+                      if (currentQuantity == 0) {
+                        _cart.remove(widget.product);
+                      } else {
+                        _cart[widget.product] = currentQuantity;
+                      }
+                    });
+
+                    // Show error dialog
                     showCustomDialog(
                       context: context,
-                      icon: Icons.check_circle,
-                      iconColor: const Color(0xffFC6E2A),
-                      message: 'تمت إضافة المنتج إلى السلة',
+                      icon: Icons.error,
+                      iconColor: Colors.red,
+                      message: 'حدث خطأ أثناء إضافة المنتج للسلة',
                     );
+
+                    // Refresh cart data if operation failed
+                    await controller.fetchCartFromApi();
                   } else {
-                    if (mounted) {
-                      setState(() {
-                        _quantity = 0;
-                        _cart.remove(widget.product);
-                      });
-                      showCustomDialog(
-                        context: context,
-                        icon: Icons.error,
-                        iconColor: Colors.red,
-                        message: 'حدث خطأ أثناء إضافة المنتج للسلة',
-                      );
-                    }
+                    log('✅ Successfully added product: ${widget.product.productName} - Quantity: $newQuantity');
                   }
                 },
               ),
@@ -189,6 +281,30 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ? FloatingActionButton.extended(
               backgroundColor: const Color(0xffFC6E2A),
               onPressed: () {
+                // Convert local cart to CartSheet format
+                final cartItems = _cart.entries.map((entry) {
+                  final product = entry.key;
+                  final quantity = entry.value;
+                  final price = product.price is num
+                      ? (product.price as num).toDouble()
+                      : double.tryParse(product.price.toString()) ?? 0.0;
+                  return {
+                    'product': product,
+                    'quantity': quantity,
+                    'price': price,
+                    'total_price': price * quantity,
+                  };
+                }).toList();
+                
+                final cartTotal = _cart.entries.fold<double>(0.0, (sum, entry) {
+                  final product = entry.key;
+                  final quantity = entry.value;
+                  final price = product.price is num
+                      ? (product.price as num).toDouble()
+                      : double.tryParse(product.price.toString()) ?? 0.0;
+                  return sum + (price * quantity);
+                });
+                
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
@@ -200,9 +316,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     expand: false,
                     builder: (context, scrollController) {
                       return CartSheet(
-                        cart: _cart,
-                        total: cartTotal,
                         onClose: () => Navigator.pop(context),
+                        onPaymentSuccess: () {
+                          setState(() {
+                            _cart.clear();
+                            _productQuantities.clear();
+                            _quantity = 0;
+                          });
+                        },
+                        cartItems: cartItems,
+                        total: cartTotal,
                       );
                     },
                   ),

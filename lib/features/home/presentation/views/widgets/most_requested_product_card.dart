@@ -1,7 +1,8 @@
 import 'package:awlad_khedr/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../core/assets.dart';
+import 'package:awlad_khedr/core/assets.dart';
+
 // Explicitly import the Product from top_rated_model.dart and give it an alias
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as TopRatedProductModel; // <--- FIX IS HERE
 
@@ -14,6 +15,35 @@ class MostRequestedProductCard extends StatelessWidget {
     required this.product,
   });
 
+  Widget _buildProductImage(BuildContext context) {
+    final imageUrl = product.imageUrl;
+    
+    // Check if imageUrl is valid
+    if (imageUrl == null || imageUrl.isEmpty || Uri.tryParse(imageUrl)?.hasAbsolutePath != true) {
+      return Container(
+        width: double.infinity,
+        height: MediaQuery.sizeOf(context).height * .15,
+        color: Colors.grey[200],
+        child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+      );
+    }
+    
+    return Image.network(
+      imageUrl,
+      width: double.infinity,
+      height: MediaQuery.sizeOf(context).height * .15,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          width: double.infinity,
+          height: MediaQuery.sizeOf(context).height * .15,
+          color: Colors.grey[200],
+          child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,21 +55,7 @@ class MostRequestedProductCard extends StatelessWidget {
             width: double.infinity,
             height: MediaQuery.sizeOf(context).height * .15,
             color: Colors.transparent,
-            child: (product.imageUrl != null && product.imageUrl!.isNotEmpty)
-                ? Image.network(
-                    product.imageUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
-                        AssetsData.logoPng,
-                        fit: BoxFit.cover,
-                      );
-                    },
-                  )
-                : Image.asset(
-                    AssetsData.logoPng,
-                    fit: BoxFit.cover,
-                  ),
+            child: _buildProductImage(context),
           ),
           Padding(
             padding: EdgeInsets.all(8.w),

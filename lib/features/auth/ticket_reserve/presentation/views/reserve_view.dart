@@ -93,15 +93,15 @@ class _ReservationPageState extends State<ReservationPage> {
                    SizedBox(
                       height: 18.h,
                     ),
-                    const Text(
+                    Text(
                       'رقم التليفون',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                   SizedBox(
+                    SizedBox(
                       height: 8.h,
                     ),
                     CustomTextField(
@@ -109,54 +109,54 @@ class _ReservationPageState extends State<ReservationPage> {
                       hintText: '0102******',
                       inputType: TextInputType.number,
                     ),
-                     SizedBox(
+                    SizedBox(
                       height: 8.h,
                     ),
-                    const Text(
+                    Text(
                       'عنوان الماركت',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                     SizedBox(
+                    SizedBox(
                       height: 8.h,
                     ),
                     CustomTextField(
                       controller: _addressController,
                       hintText: '',
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
-                    const Text(
+                    Text(
                       'اسم الماركت ',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
                     CustomTextField(
                       controller: _marketNameController,
                       hintText: '',
                     ),
-                    const SizedBox(
-                      height: 14,
+                    SizedBox(
+                      height: 14.h,
                     ),
-                    const Text(
+                    Text(
                       'صورة الماركت',
                       style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                   SizedBox(
+                    SizedBox(
                       height: 12.h,
                     ),
                     CustomAddFile(
@@ -164,18 +164,18 @@ class _ReservationPageState extends State<ReservationPage> {
                         registerProvider.saveFiles(marketImage: file);
                       },
                     ),
-                     SizedBox(
+                    SizedBox(
                       height: 12.h,
                     ),
-                    const Text(
+                    Text(
                       'سجل التجاري',
                       style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                   SizedBox(
+                    SizedBox(
                       height: 12.h,
                     ),
                     CustomAddFile(
@@ -183,18 +183,18 @@ class _ReservationPageState extends State<ReservationPage> {
                         registerProvider.saveFiles(commercialRegister: file);
                       },
                     ),
-                   SizedBox(
+                    SizedBox(
                       height: 12.h,
                     ),
-                    const Text(
+                    Text(
                       'بطاقة ضربيبة',
                       style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           color: Colors.black,
                           fontFamily: baseFont),
                     ),
-                   SizedBox(
+                    SizedBox(
                       height: 14.h,
                     ),
                     CustomAddFile(
@@ -206,11 +206,12 @@ class _ReservationPageState extends State<ReservationPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        const Text(
+                         Text(
                           'أوافُق أن البيانات التي تم إدخالها صحيحة',
                           style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w500,
+                              fontFamily: baseFont,
                               color: Colors.black),
                         ),
                         Checkbox(

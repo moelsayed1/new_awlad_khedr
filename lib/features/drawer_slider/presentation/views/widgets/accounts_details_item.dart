@@ -17,14 +17,37 @@ class CustomAccountItem extends StatelessWidget {
     return Consumer<InvoiceProvider>(
       builder: (context, provider, child) {
         if (provider.isLoadingTransactions) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),);
         }
         if (provider.error != null) {
           return Center(child: Text('Error: ${provider.error}'));
         }
         final transactions = provider.transactions;
         if (transactions.isEmpty) {
-          return const Center(child: Text('No transactions found.'));
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.receipt_long_outlined,
+                  color: Colors.grey,
+                  size: 48,
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'لا توجد معاملات. للمزيد من المعاملات, يرجى التوجه إلى المتجر',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: baseFont,
+                  ),
+                ),
+              ],
+            ),
+          );
         }
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),

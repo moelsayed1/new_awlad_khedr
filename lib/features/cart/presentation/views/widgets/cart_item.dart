@@ -2,7 +2,9 @@ import 'package:awlad_khedr/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/assets.dart';
-import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
+
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart'
+    as top_rated;
 
 class CartItem extends StatelessWidget {
   final top_rated.Product product;
@@ -17,6 +19,37 @@ class CartItem extends StatelessWidget {
     required this.index,
     required this.onQuantityChanged,
   });
+
+  Widget _buildProductImage() {
+    final imageUrl = product.imageUrl;
+
+    // Check if imageUrl is valid
+    if (imageUrl == null ||
+        imageUrl.isEmpty ||
+        Uri.tryParse(imageUrl)?.hasAbsolutePath != true) {
+      return Container(
+        width: 60.w,
+        height: 60.h,
+        color: Colors.grey[200],
+        child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+      );
+    }
+
+    return Image.network(
+      imageUrl,
+      width: 60.w,
+      height: 60.h,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          width: 60.w,
+          height: 60.h,
+          color: Colors.grey[200],
+          child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,18 +182,10 @@ class CartItem extends StatelessWidget {
                   ],
                 ),
                 // CONDITIONAL IMAGE DISPLAY
-                child: (product.imageUrl != null && product.imageUrl!.isNotEmpty && product.imageUrl! != 'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
-                    ? Image.network(
-                        product.imageUrl!,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          // Fallback to logoPng if network image fails to load
-                          return Image.asset(AssetsData.logoPng,
-                              fit: BoxFit.contain);
-                        },
-                      )
-                    : Image.asset(AssetsData.logoPng,
-                        fit: BoxFit.contain), // Fallback if imageUrl is null, empty, or matches problematic URL
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: _buildProductImage(),
+                ),
               ),
               // SizedBox(height: 5.h),
               // Text(
@@ -237,10 +262,12 @@ class CartProductItem extends StatelessWidget {
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: Row(
                       children: [
-                        Icon(Icons.confirmation_number, size: 18, color: Colors.orange[700]),
+                        Icon(Icons.confirmation_number,
+                            size: 18, color: Colors.orange[700]),
                         const SizedBox(width: 6),
                         Text(
                           'Qty: $quantity',
@@ -251,7 +278,8 @@ class CartProductItem extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 18),
-                        Icon(Icons.attach_money, size: 18, color: Colors.green[700]),
+                        Icon(Icons.attach_money,
+                            size: 18, color: Colors.green[700]),
                         const SizedBox(width: 6),
                         Text(
                           'Price: ${price.toStringAsFixed(2)} EGP',

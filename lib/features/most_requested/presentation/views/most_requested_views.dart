@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:developer' as developer;
 
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/features/cart/presentation/views/cart_view.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
-import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart'
+    as top_rated;
 import 'package:awlad_khedr/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -23,15 +25,15 @@ class MostRequestedPage extends StatefulWidget {
 }
 
 class _MostRequestedPageState extends State<MostRequestedPage> {
-  TopRatedModel? topRatedItem;
+  top_rated.TopRatedModel? topRatedItem;
   bool isListLoaded = false;
 
   final Map<String, int> _productQuantities =
       {}; // Key: product ID or unique identifier, Value: quantity
-  final Map<Product, int> _cart = {}; // Add cart map
+  final Map<top_rated.Product, int> _cart = {}; // Add cart map
 
   final TextEditingController _searchController = TextEditingController();
-  List<Product> _filteredProducts = [];
+  List<top_rated.Product> _filteredProducts = [];
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
       return;
     }
 
-    List<Product> tempProducts = topRatedItem!.products;
+    List<top_rated.Product> tempProducts = topRatedItem!.products;
 
     if (_searchController.text.isNotEmpty) {
       final query = _searchController.text.toLowerCase();
@@ -77,7 +79,8 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
       final response = await http
           .get(uriToSend, headers: {"Authorization": "Bearer $authToken"});
       if (response.statusCode == 200) {
-        topRatedItem = TopRatedModel.fromJson(jsonDecode(response.body));
+        topRatedItem =
+            top_rated.TopRatedModel.fromJson(jsonDecode(response.body));
         if (topRatedItem != null && topRatedItem!.products.isNotEmpty) {
           for (var product in topRatedItem!.products) {
             _productQuantities[product.productName!] = 0;
@@ -241,60 +244,114 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                               },
                               isRemoving: false,
                               onIncrease: () async {
-                                // Update UI immediately for better responsiveness
+                                final currentQuantity = quantity;
+                                final newQuantity = currentQuantity + 1;
+                                developer.log(
+                                    'onIncrease: product=${product.productName}, newQuantity=$newQuantity');
+
+                                // CRITICAL FIX: Update local state first
                                 setState(() {
                                   _productQuantities[product.productName!] =
-                                      quantity + 1;
-                                  _cart[product] = quantity + 1;
+                                      newQuantity;
+                                  _cart[product] = newQuantity;
                                 });
 
-                                // Make API call in background (no dialog for quantity changes)
                                 final controller =
                                     Provider.of<CategoryController>(context,
                                         listen: false);
-                                final success = await controller
-                                    .addProductToCart(product, quantity + 1);
+                                final success =
+                                    await controller.addSingleProductToCart(
+                                        product, newQuantity);
 
-                                // If API call failed, revert the UI changes
-                                if (!success && mounted) {
+                                if (!success) {
+                                  // Revert on failure
                                   setState(() {
                                     _productQuantities[product.productName!] =
-                                        quantity;
-                                    if (quantity == 0) {
+                                        currentQuantity;
+                                    if (currentQuantity == 0) {
                                       _cart.remove(product);
                                     } else {
-                                      _cart[product] = quantity;
+                                      _cart[product] = currentQuantity;
                                     }
                                   });
 
-                                  // Show error dialog only for API failures
-                                  showCustomDialog(
-                                    context: context,
-                                    icon: Icons.error,
-                                    iconColor: Colors.red,
-                                    message: 'حدث خطأ أثناء إضافة المنتج للسلة',
-                                  );
+                                  // Refresh cart data if operation failed
+                                  await controller.fetchCartFromApi();
+                                } else {
+                                  developer.log(
+                                      '✅ Successfully increased product: ${product.productName} - Quantity: $newQuantity');
                                 }
                               },
-                              onDecrease: () {
-                                if (quantity > 0) {
+                              onDecrease: () async {
+                                final currentQuantity = quantity;
+                                final newQuantity = currentQuantity - 1;
+                                developer.log(
+                                    'onDecrease: product=${product.productName}, newQuantity=$newQuantity');
+
+                                if (newQuantity > 0) {
+                                  // CRITICAL FIX: Update local state first
                                   setState(() {
-                                    final newQuantity = quantity - 1;
                                     _productQuantities[product.productName!] =
                                         newQuantity;
-                                    if (newQuantity == 0) {
-                                      _cart.remove(product);
-                                    } else {
-                                      _cart[product] = newQuantity;
-                                    }
+                                    _cart[product] = newQuantity;
                                   });
+
+                                  final controller =
+                                      Provider.of<CategoryController>(context,
+                                          listen: false);
+                                  final success =
+                                      await controller.addSingleProductToCart(
+                                          product, newQuantity);
+
+                                  if (!success) {
+                                    // Revert on failure
+                                    setState(() {
+                                      _productQuantities[product.productName!] =
+                                          currentQuantity;
+                                      _cart[product] = currentQuantity;
+                                    });
+
+                                    // Refresh cart data if operation failed
+                                    await controller.fetchCartFromApi();
+                                  }
+                                } else {
+                                  // CRITICAL FIX: Update local state first
+                                  setState(() {
+                                    _productQuantities[product.productName!] =
+                                        0;
+                                    _cart.remove(product);
+                                  });
+
+                                  final controller =
+                                      Provider.of<CategoryController>(context,
+                                          listen: false);
+                                  final success = await controller
+                                      .removeProductFromCart(product);
+
+                                  if (!success) {
+                                    // Revert on failure
+                                    setState(() {
+                                      _productQuantities[product.productName!] =
+                                          currentQuantity;
+                                      _cart[product] = currentQuantity;
+                                    });
+
+                                    // Refresh cart data if operation failed
+                                    await controller.fetchCartFromApi();
+                                  }
                                 }
                               },
                               onAddToCart: () async {
-                                // Update UI immediately for better responsiveness
+                                final currentQuantity = quantity;
+                                final newQuantity = currentQuantity + 1;
+                                developer.log(
+                                    'onAddToCart: product=${product.productName}, newQuantity=$newQuantity');
+
+                                // CRITICAL FIX: Update local state first
                                 setState(() {
-                                  _productQuantities[product.productName!] = 1;
-                                  _cart[product] = 1;
+                                  _productQuantities[product.productName!] =
+                                      newQuantity;
+                                  _cart[product] = newQuantity;
                                 });
 
                                 // Show success dialog immediately
@@ -305,19 +362,23 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                                   message: 'تمت إضافة المنتج إلى السلة',
                                 );
 
-                                // Make API call in background
                                 final controller =
                                     Provider.of<CategoryController>(context,
                                         listen: false);
-                                final success = await controller
-                                    .addProductToCart(product, 1);
+                                final success =
+                                    await controller.addSingleProductToCart(
+                                        product, newQuantity);
 
-                                // If API call failed, revert the UI changes
-                                if (!success && mounted) {
+                                if (!success) {
+                                  // Revert on failure
                                   setState(() {
                                     _productQuantities[product.productName!] =
-                                        0;
-                                    _cart.remove(product);
+                                        currentQuantity;
+                                    if (currentQuantity == 0) {
+                                      _cart.remove(product);
+                                    } else {
+                                      _cart[product] = currentQuantity;
+                                    }
                                   });
 
                                   // Show error dialog
@@ -327,6 +388,12 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                                     iconColor: Colors.red,
                                     message: 'حدث خطأ أثناء إضافة المنتج للسلة',
                                   );
+
+                                  // Refresh cart data if operation failed
+                                  await controller.fetchCartFromApi();
+                                } else {
+                                  developer.log(
+                                      '✅ Successfully added product: ${product.productName} - Quantity: $newQuantity');
                                 }
                               },
                             );
@@ -335,7 +402,11 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                       : const Center(
                           child: Text(
                               'No products available for the current filter.')))
-                  : const Center(child: CircularProgressIndicator()),
+                  : const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              ),
             ],
           ),
         ),
@@ -355,8 +426,6 @@ class _MostRequestedPageState extends State<MostRequestedPage> {
                     expand: false,
                     builder: (context, scrollController) {
                       return CartSheet(
-                        cart: _cart,
-                        total: cartTotal,
                         onClose: () => Navigator.pop(context),
                       );
                     },

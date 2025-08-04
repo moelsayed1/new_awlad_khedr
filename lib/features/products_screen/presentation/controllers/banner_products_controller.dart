@@ -189,7 +189,8 @@ class BannerProductsController extends ChangeNotifier {
       final String key = product.productId?.toString() ??
           product.productName ??
           UniqueKey().toString();
-      newProductQuantities[key] = productQuantities[key] ?? 0;
+      // Always start with 0 quantity for new products
+      newProductQuantities[key] = 0;
     }
     productQuantities.clear();
     productQuantities.addAll(newProductQuantities);

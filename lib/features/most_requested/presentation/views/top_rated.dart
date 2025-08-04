@@ -3,7 +3,8 @@ import 'dart:math';
 import 'dart:developer' as dev;
 import 'package:awlad_khedr/core/assets.dart';
 
-import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
+
+import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +27,7 @@ class TopRatedItem extends StatefulWidget {
 }
 
 class _TopRatedItemState extends State<TopRatedItem> {
-  TopRatedModel? topRatedItem;
+  top_rated.TopRatedModel? topRatedItem;
   bool isListLoaded = false;
 
   // Add category list
@@ -51,7 +52,7 @@ class _TopRatedItemState extends State<TopRatedItem> {
           },
         );
         if (response.statusCode == 200) {
-          topRatedItem = TopRatedModel.fromJson(jsonDecode(response.body));
+          topRatedItem = top_rated.TopRatedModel.fromJson(jsonDecode(response.body));
           success = true;
         } else {
           dev.log(
@@ -91,6 +92,31 @@ class _TopRatedItemState extends State<TopRatedItem> {
     } catch (e) {
       // ignore errors for now
     }
+  }
+
+  Widget _buildProductImage(top_rated.Product product) {
+    final imageUrl = product.imageUrl;
+    
+    // Check if imageUrl is valid
+    if (imageUrl == null || imageUrl.isEmpty || Uri.tryParse(imageUrl)?.hasAbsolutePath != true) {
+      return Image.asset(
+        AssetsData.callCenter,
+        fit: BoxFit.cover,
+      );
+    }
+    
+    return Image.network(
+      imageUrl,
+      width: MediaQuery.sizeOf(context).width * 0.4,
+      height: MediaQuery.sizeOf(context).height * .18,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Image.asset(
+          AssetsData.callCenter,
+          fit: BoxFit.cover,
+        );
+      },
+    );
   }
 
   @override
@@ -151,24 +177,7 @@ class _TopRatedItemState extends State<TopRatedItem> {
                             width: MediaQuery.sizeOf(context).width * 0.4,
                             height: MediaQuery.sizeOf(context).height * .18,
                             color: Colors.transparent,
-                            child: (topRatedItem?.products[index].imageUrl !=
-                                        null &&
-                                    topRatedItem!
-                                        .products[index].imageUrl!.isNotEmpty)
-                                ? Image.network(
-                                    topRatedItem!.products[index].imageUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        AssetsData.callCenter,
-                                        fit: BoxFit.cover,
-                                      );
-                                    },
-                                  )
-                                : Image.asset(
-                                    AssetsData.callCenter,
-                                    fit: BoxFit.cover,
-                                  ),
+                            child: _buildProductImage(topRatedItem!.products[index]),
                           ),
                           const Spacer(),
                           SingleChildScrollView(
@@ -199,7 +208,11 @@ class _TopRatedItemState extends State<TopRatedItem> {
                 );
               },
             )
-          : const Center(child: CircularProgressIndicator()),
+                      : const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
+                ),
+              ),
     );
   }
 }
