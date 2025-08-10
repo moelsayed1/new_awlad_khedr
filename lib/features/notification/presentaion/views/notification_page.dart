@@ -424,7 +424,7 @@ class ApiNotificationCard extends StatelessWidget {
                                       Container(
                                         width: 8.w,
                                         height: 8.w,
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           color: Colors.red,
                                           shape: BoxShape.circle,
                                         ),

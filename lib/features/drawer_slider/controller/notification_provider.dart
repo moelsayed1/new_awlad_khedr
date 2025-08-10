@@ -42,7 +42,7 @@ class NotificationProvider with ChangeNotifier {
   bool _hasShownInfoMessage = false;
 
   // Read/unread tracking
-  Set<String> _readNotificationIds = {};
+  final Set<String> _readNotificationIds = {};
 
   NotificationProvider()
       : _notificationService = NotificationService(ApiService());

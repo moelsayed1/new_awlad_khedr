@@ -186,8 +186,8 @@ class _LoginViewState extends State<LoginView> {
                       onTap: () {
                         GoRouter.of(context).push(AppRouter.kRegisterView);
                       },
-                      child:Center(
-                        child: const Text(
+                      child:const Center(
+                        child: Text(
                           'تسجيل حساب جديد',
                           style: TextStyle(
                               fontFamily: baseFont,

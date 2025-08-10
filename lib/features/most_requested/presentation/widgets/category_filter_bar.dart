@@ -35,7 +35,7 @@ class CategoryFilterBar extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 0), // Minimal padding
                   decoration: BoxDecoration(
-                    color: isSelected ? Color(0xffFC6E2A) : Colors.white, // Use your color for selected/unselected
+                    color: isSelected ? const Color(0xffFC6E2A) : Colors.white, // Use your color for selected/unselected
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
                       color: Colors.black.withOpacity(0.08),

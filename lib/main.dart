@@ -87,7 +87,7 @@ class AwladKhedr extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return child!;
                 }
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
                   ),

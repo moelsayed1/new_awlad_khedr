@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as top_rated;
-import 'package:awlad_khedr/core/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
-import 'package:awlad_khedr/features/cart/services/cart_api_service.dart';
 import 'dart:developer';
 
 class CartSheet extends StatelessWidget {
@@ -32,14 +30,12 @@ class CartSheet extends StatelessWidget {
             final cartTotal = total ?? controller.fetchedCartTotal;
         
         // CRITICAL FIX: Add validation logging
-        log('🔍 CartSheet: ${items?.length ?? 0} items, Total: $cartTotal');
-        if (items != null) {
-          for (var item in items) {
-            final product = item['product'] as top_rated.Product;
-            log('   - ${product.productName}: ${item['quantity']} units');
-          }
+        log('🔍 CartSheet: ${items.length} items, Total: $cartTotal');
+        for (var item in items) {
+          final product = item['product'] as top_rated.Product;
+          log('   - ${product.productName}: ${item['quantity']} units');
         }
-        
+              
         return Container(
           color: Colors.white,
           child: SafeArea(
@@ -62,7 +58,7 @@ class CartSheet extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          if (items?.isEmpty ?? true)
+                          if (items.isEmpty)
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 20.h),
                               child: Text(
@@ -74,10 +70,9 @@ class CartSheet extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          ...(items?.map((item) {
+                          ...(items.map((item) {
                             final product = item['product'] as top_rated.Product;
                             final quantity = item['quantity'] as int;
-                            final price = item['price'] as double;
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -112,7 +107,7 @@ class CartSheet extends StatelessWidget {
                                 ],
                               ),
                             );
-                          }).toList() ?? []),
+                          }).toList()),
                         ],
                       ),
                     ),
@@ -124,7 +119,7 @@ class CartSheet extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${(cartTotal ?? 0.0).toStringAsFixed(2)} ج.م',
+                          '${(cartTotal).toStringAsFixed(2)} ج.م',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 16.sp,
@@ -148,7 +143,7 @@ class CartSheet extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: (items?.isNotEmpty ?? false)
+                      onPressed: (items.isNotEmpty)
                           ? () async {
                               // CRITICAL FIX: Navigate directly since products are already added
                               Navigator.push(

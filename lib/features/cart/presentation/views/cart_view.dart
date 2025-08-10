@@ -319,13 +319,13 @@ class CartProductCard extends StatelessWidget {
   final VoidCallback? onAddToCart; // New callback for Add to Cart button
 
   const CartProductCard({
-    Key? key,
+    super.key,
     required this.item,
     required this.isRemoving,
     required this.onIncrease,
     required this.onDecrease,
     this.onAddToCart,
-  }) : super(key: key);
+  });
 
   Widget _buildProductImage(dynamic product) {
     final imageUrl = product.imageUrl;
@@ -385,7 +385,7 @@ class CartProductCard extends StatelessWidget {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.04),
                   blurRadius: 8,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -464,7 +464,7 @@ class CartProductCard extends StatelessWidget {
                 color: Colors.white.withOpacity(0.7),
                 borderRadius: BorderRadius.circular(16.r),
               ),
-              child: Center(
+              child: const Center(
                 child: SizedBox(
                   width: 32,
                   height: 32,
@@ -485,7 +485,7 @@ class CartProductCard extends StatelessWidget {
       width: 80.w,
       height: 36.h,
       decoration: BoxDecoration(
-        color: Color(0xffFC6E2A),
+        color: const Color(0xffFC6E2A),
         borderRadius: BorderRadius.circular(18.r),
       ),
       child: Material(
@@ -517,7 +517,7 @@ class CartProductCard extends StatelessWidget {
                       onTap: onIncrease,
                       child: Icon(
                         Icons.add,
-                        color: Color(0xffFC6E2A),
+                        color: const Color(0xffFC6E2A),
                         size: 24.sp,
                       ),
                     ),
@@ -529,7 +529,7 @@ class CartProductCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(color: Color(0xffE0E0E0)),
+                        border: Border.all(color: const Color(0xffE0E0E0)),
                       ),
                       child: Text(
                         item['quantity'].toString(),
@@ -544,7 +544,7 @@ class CartProductCard extends StatelessWidget {
                     SizedBox(height: 4.h),
                     GestureDetector(
                       onTap: onDecrease,
-                      child: Icon(
+                      child: const Icon(
                         Icons.remove,
                         color: Color(0xffC29500),
                         size: 28,
@@ -564,14 +564,14 @@ class CartProductList extends StatelessWidget {
   final Future<bool> Function(dynamic product, int quantity) addProductToCart;
 
   const CartProductList({
-    Key? key,
+    super.key,
     required this.products,
     required this.productQuantities,
     required this.hasMoreProducts,
     required this.onQuantityChanged,
     required this.addProductToCart,
     this.scrollController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -597,7 +597,7 @@ class CartProductList extends StatelessWidget {
         final product = products[index];
         final String quantityKey = product.productId != null
             ? product.productId.toString()
-            : 'product_${index}';
+            : 'product_$index';
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: CartProductCard(
@@ -841,7 +841,7 @@ class _CartViewPageState extends State<CartViewPage> {
                               count: logic.total,
                               onOrderConfirmed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Order placed!')),
+                                  const SnackBar(content: Text('Order placed!')),
                                 );
                               },
                               products: cartItems

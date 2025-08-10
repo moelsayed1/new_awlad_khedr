@@ -97,7 +97,8 @@ class InvoiceService {
     required double total,
   }) async {
     try {
-      final String? baseUrl = APIConstant.BASE_URL;
+      const String baseUrl = APIConstant.BASE_URL;
+      // ignore: unnecessary_null_comparison
       if (baseUrl == null) {
         return InvoiceServiceResult(success: false, error: 'Base URL not configured.');
       }
@@ -210,7 +211,7 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
           height: 150,
         ),
         content: Text(
-          invoiceNo != null ? "\n${invoiceNo}" : '',
+          invoiceNo != null ? "\n$invoiceNo" : '',
           textAlign: TextAlign.center,
           style: TextStyle(
               fontFamily: baseFont,
@@ -222,6 +223,7 @@ class _CustomButtonCartState extends State<CustomButtonCart> {
     );
 
     // After dialog is dismissed, navigate to OrdersViewPage and highlight the confirmed order
+    // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => OrdersViewPage(highlightInvoiceNo: invoiceNo),

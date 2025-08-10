@@ -25,7 +25,8 @@ class InvoiceService {
     required double total,
   }) async {
     try {
-      final String? baseUrl = APIConstant.BASE_URL;
+      const String baseUrl = APIConstant.BASE_URL;
+      // ignore: unnecessary_null_comparison
       if (baseUrl == null) {
         return InvoiceServiceResult(success: false, error: 'Base URL not configured.');
       }

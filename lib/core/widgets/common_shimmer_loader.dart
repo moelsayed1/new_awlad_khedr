@@ -11,13 +11,13 @@ class CommonShimmerLoader extends StatelessWidget {
   final int itemCount; // For list type
 
   const CommonShimmerLoader({
-    Key? key,
+    super.key,
     this.width,
     this.height,
     this.borderRadius,
     this.type = ShimmerType.button,
     this.itemCount = 3, // Default number of list items
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

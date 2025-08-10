@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:awlad_khedr/features/order/data/model/order_model.dart';
 import 'package:awlad_khedr/constant.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:awlad_khedr/core/network/api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderProvider with ChangeNotifier {
   final List<Order> _orders = [];

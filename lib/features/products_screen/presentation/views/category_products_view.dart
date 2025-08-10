@@ -459,7 +459,7 @@ class _CategoryProductsViewState extends State<_CategoryProductsView> {
       ),
       floatingActionButton: _cart.isNotEmpty
           ? FloatingActionButton.extended(
-              backgroundColor: Color(0xffFC6E2A),
+              backgroundColor: const Color(0xffFC6E2A),
               onPressed: () {
                 // Convert local cart to CartSheet format
                 final cartItems = _cart.entries.map((entry) {

@@ -17,7 +17,7 @@ class HomeViewBody extends StatefulWidget {
 }
 
 class _HomeViewBodyState extends State<HomeViewBody> {
-  List<trm.Product> _mostRequestedProducts = [];
+  final List<trm.Product> _mostRequestedProducts = [];
 
   @override
   void initState() {

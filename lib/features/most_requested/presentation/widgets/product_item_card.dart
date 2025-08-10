@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:awlad_khedr/constant.dart';
-import 'package:awlad_khedr/core/assets.dart';
 
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart';
-import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
-import 'package:provider/provider.dart';
-import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
 
 class ProductItemCard extends StatelessWidget {
   final Product product;
@@ -25,8 +21,9 @@ class ProductItemCard extends StatelessWidget {
   bool _isValidImage(String? url) {
     if (url == null || url.isEmpty) return false;
     if (url ==
-        'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png')
+        'https://erp.khedrsons.com/img/1745829725_%D9%81%D8%B1%D9%8A%D9%85.png') {
       return false;
+    }
     if (url.toLowerCase().endsWith('فريم.png')) return false;
     return true;
   }

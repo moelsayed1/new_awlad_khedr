@@ -7,7 +7,7 @@ import 'dart:convert';
 
 class ProductService {
   final ApiService _apiService;
-  Map<int, Product> _allProductsCache = {};
+  final Map<int, Product> _allProductsCache = {};
 
   static final ProductService _instance = ProductService._internal(ApiService());
   factory ProductService() => _instance;

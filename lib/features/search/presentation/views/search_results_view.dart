@@ -1,7 +1,5 @@
 import 'package:awlad_khedr/constant.dart';
 import 'package:awlad_khedr/core/assets.dart';
-import 'package:awlad_khedr/features/search/presentation/controllers/search_controller.dart';
-import 'package:awlad_khedr/features/home/data/repositories/category_repository.dart';
 import 'package:awlad_khedr/features/home/presentation/views/widgets/search_widget.dart';
 import 'package:awlad_khedr/features/cart/presentation/views/cart_view.dart';
 import 'package:awlad_khedr/features/home/presentation/widgets/cart_sheet.dart';
@@ -211,7 +209,7 @@ void _showCustomDialog({
                 ),
               )
             else if (categoryController.filteredProducts.isEmpty)
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: Text(
                     'لا توجد نتائج للبحث',
@@ -254,7 +252,7 @@ void _showCustomDialog({
                             );
                           }
                           final product = categoryController.filteredProducts[index];
-                          final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_${index}';
+                          final String quantityKey = product.productId?.toString() ?? product.productName ?? 'product_$index';
                           final quantity = _productQuantities[quantityKey] ?? 0;
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),

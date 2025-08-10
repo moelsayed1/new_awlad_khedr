@@ -198,7 +198,7 @@ class _MyInformationState extends State<MyInformation> {
               ),
             ],
           ),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           elevation: 4,
         ),
       );
@@ -324,7 +324,7 @@ class _MyInformationState extends State<MyInformation> {
                                       ? CircleAvatar(
                                           radius: 50.w,
                                           backgroundColor: Colors.grey,
-                                          child: CircularProgressIndicator(
+                                          child: const CircularProgressIndicator(
                   color: Colors.white,
                   valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
                 ),

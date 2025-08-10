@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'invoice_provider.dart';
 
 class InvoiceExampleWidget extends StatefulWidget {
-  const InvoiceExampleWidget({Key? key}) : super(key: key);
+  const InvoiceExampleWidget({super.key});
 
   @override
   State<InvoiceExampleWidget> createState() => _InvoiceExampleWidgetState();

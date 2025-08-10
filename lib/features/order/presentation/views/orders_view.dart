@@ -1,5 +1,4 @@
 import 'package:awlad_khedr/constant.dart';
-import 'package:awlad_khedr/features/order/presentation/views/widgets/custom_rating.dart';
 import 'package:awlad_khedr/features/order/presentation/views/widgets/popup_order_reciept.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,9 +31,9 @@ class _OrdersViewPageState extends State<OrdersViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const OrdersAppBar(),
-      body: const OrdersList(),
+    return const Scaffold(
+      appBar: OrdersAppBar(),
+      body: OrdersList(),
     );
   }
 }
@@ -90,7 +89,7 @@ class OrdersAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class OrdersList extends StatelessWidget {
@@ -169,7 +168,7 @@ class OrderCard extends StatelessWidget {
       ),
       margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 2.w),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -289,7 +288,7 @@ class OrderCardPaymentColumn extends StatelessWidget {
                             Text(
                               'مطلوب دفعة',
                               style: TextStyle(
-            color: Color(0xFFB88A3B),
+            color: const Color(0xFFB88A3B),
                                 fontWeight: FontWeight.w700,
                                 fontSize: 16.sp,
                                 fontFamily: baseFont,
@@ -301,7 +300,7 @@ class OrderCardPaymentColumn extends StatelessWidget {
                               child: Text(
                               '${order.total} ج.م',
                               style: TextStyle(
-                                color: Color(0xFFB88A3B),
+                                color: const Color(0xFFB88A3B),
                                 fontWeight: FontWeight.w700,
                                 fontSize: 20.sp,
                                 fontFamily: baseFont,
@@ -508,7 +507,7 @@ class _OrderProductsDialogState extends State<OrderProductsDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.white,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
@@ -641,7 +640,7 @@ class OrderProductsList extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 0),
                 child: Text(
                   'منتجات الطلب\nرقم #$orderId',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: baseFont,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -777,7 +776,7 @@ class OrderProductRow extends StatelessWidget {
             child: Center(
               child: Text(
                 quantity,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: baseFont,
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
@@ -793,7 +792,7 @@ class OrderProductRow extends StatelessWidget {
             flex: 5,
             child: Text(
               name,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: baseFont,
                 fontWeight: FontWeight.w500,
                 fontSize: 15,
@@ -810,7 +809,7 @@ class OrderProductRow extends StatelessWidget {
             flex: 3,
             child: Text(
               ' $price ج.م',
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: baseFont,
                 fontWeight: FontWeight.w500,
                 fontSize: 15,
@@ -842,7 +841,7 @@ class OrderProductsTotalRow extends StatelessWidget {
         children: [
           Text(
             '${totalPrice.toStringAsFixed(2)} ج.م',
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: baseFont,
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -851,8 +850,8 @@ class OrderProductsTotalRow extends StatelessWidget {
             textAlign: TextAlign.left,
             textDirection: TextDirection.rtl,
           ),
-      Spacer(),
-          Text(
+      const Spacer(),
+          const Text(
             'إجمالي السعر',
             style: TextStyle(
               fontFamily: baseFont,

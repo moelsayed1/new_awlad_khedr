@@ -140,7 +140,7 @@ class ProductSearchController extends ChangeNotifier {
     }
 
     try {
-      log('Fetching initial products - Category: "' + selectedCategory + '", Search: "' + searchQuery + '"');
+      log('Fetching initial products - Category: "$selectedCategory", Search: "$searchQuery"');
       List<Product> firstPage;
       if (searchQuery.isNotEmpty) {
         // If there is a search query, always use the search endpoint
@@ -168,7 +168,7 @@ class ProductSearchController extends ChangeNotifier {
       }
       pagedProducts.addAll(firstPage);
       hasMore = firstPage.length == pageSize;
-      log('Initial products loaded: ' + firstPage.length.toString() + ' products, hasMore: ' + hasMore.toString());
+      log('Initial products loaded: ${firstPage.length} products, hasMore: $hasMore');
     } catch (e) {
       log('Error fetching initial products: $e');
       pagedProducts = [];

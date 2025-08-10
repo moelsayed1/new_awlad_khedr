@@ -9,7 +9,6 @@ import 'package:awlad_khedr/features/order/data/model/order_model.dart';
 import 'package:awlad_khedr/features/order/presentation/controllers/order_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:awlad_khedr/core/app_router.dart';
-import 'package:awlad_khedr/core/assets.dart';
 
 
 class PaymentView extends StatelessWidget {
@@ -163,7 +162,7 @@ class PaymentView extends StatelessWidget {
                   );
                   orderProvider.addOrder(order);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('تم إرسال الطلب بنجاح!'),
                       backgroundColor: Colors.green,
                     ),

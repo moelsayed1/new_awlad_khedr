@@ -149,7 +149,7 @@ class _ReceiptOrderDetailsState extends State<ReceiptOrderDetails> {
                 ),
               )
                 : _error != null
-                    ? SizedBox(height: 120, child: Center(child: Text(_error!, style: TextStyle(color: Colors.red))))
+                    ? SizedBox(height: 120, child: Center(child: Text(_error!, style: const TextStyle(color: Colors.red))))
                     : _invoiceData == null
                         ? const SizedBox(height: 120, child: Center(child: Text('لا توجد بيانات فاتورة')))
                         : Column(
@@ -202,7 +202,7 @@ class _ReceiptOrderDetailsState extends State<ReceiptOrderDetails> {
                               ),
                               _buildOrderItem(
                                 'طريقة الدفع',
-                                '${_invoiceData?['payment_method']?.toString() ?? 'دفع الاجل'}',
+                                _invoiceData?['payment_method']?.toString() ?? 'دفع الاجل',
                                 nameWeight: FontWeight.bold,
                                 nameColor: Colors.black,
                                 priceColor: Colors.blue,

@@ -141,7 +141,7 @@ class ProductItemByBrandState extends State<ProductItemByBrand> {
               if (index == displayedProducts.length) {
                 return Container(
                   padding: const EdgeInsets.all(16.0),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
@@ -152,7 +152,7 @@ class ProductItemByBrandState extends State<ProductItemByBrand> {
                           valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Text(
                         'جاري تحميل المزيد من المنتجات...',
                         style: TextStyle(
@@ -202,7 +202,7 @@ class ProductItemByBrandState extends State<ProductItemByBrand> {
                                 fit: BoxFit.cover,
                                 loadingBuilder: (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
-                                  return Center(
+                                  return const Center(
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.0,
                                       valueColor: AlwaysStoppedAnimation<Color>(darkOrange),

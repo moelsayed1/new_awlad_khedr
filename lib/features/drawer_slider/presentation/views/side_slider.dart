@@ -30,6 +30,43 @@ class _CustomDrawerState extends State<CustomDrawer> {
   void initState() {
     super.initState();
     _fetchUserInfo();
+    _setCurrentPageFromRoute();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _setCurrentPageFromRoute();
+  }
+
+  void _setCurrentPageFromRoute() {
+    final currentRoute = GoRouter.of(context).routeInformationProvider.value.uri.path;
+    
+    switch (currentRoute) {
+      case '/notificationScreen':
+        setState(() {
+          selectedPage = 'notifications';
+        });
+        break;
+      case '/myInformation':
+        setState(() {
+          selectedPage = 'my_info';
+        });
+        break;
+      case '/myAccounts':
+        setState(() {
+          selectedPage = 'accounts';
+        });
+        break;
+      case '/ordersViewPage':
+        setState(() {
+          selectedPage = 'orders';
+        });
+        break;
+      default:
+        // Keep current selection if route doesn't match any drawer item
+        break;
+    }
   }
 
   // Method to refresh user info (can be called from other screens)
@@ -37,6 +74,128 @@ class _CustomDrawerState extends State<CustomDrawer> {
     await _fetchUserInfo();
     // Notify parent widget that user info was updated
     widget.onUserInfoUpdated?.call();
+  }
+
+  // Helper method to build menu items with conditional styling
+  Widget _buildMenuItem({
+    required String title,
+    required String iconPath,
+    required VoidCallback onTap,
+    required String pageKey,
+    Widget? trailing,
+    bool isNotification = false,
+  }) {
+    final bool isSelected = selectedPage == pageKey;
+    
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        decoration: isSelected ? const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(15)),
+          color: Color(0xffFDA479),
+        ) : null,
+        child: isNotification ? 
+          Consumer<NotificationProvider>(
+            builder: (context, notificationProvider, child) {
+              final unreadCount = notificationProvider.unreadCount;
+              return ListTile(
+                leading: Stack(
+                  children: [
+                    Image.asset(
+                      iconPath,
+                      width: 25.w,
+                      height: 25.w,
+                      color: Colors.black,
+                    ),
+                    if (unreadCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(2.w),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10.w),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 16.w,
+                            minHeight: 16.w,
+                          ),
+                          child: Text(
+                            unreadCount > 99 ? '99+' : unreadCount.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                title: Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16.sp,
+                  ),
+                ),
+                trailing: unreadCount > 0
+                    ? Container(
+                        width: 25.w,
+                        height: 25.w,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(6)),
+                          color: Colors.white,
+                        ),
+                        child: Center(
+                          child: Text(
+                            unreadCount > 99 ? '99+' : unreadCount.toString(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      )
+                    : null,
+                onTap: () {
+                  setState(() {
+                    selectedPage = pageKey;
+                  });
+                  onTap();
+                },
+              );
+            },
+          ) :
+          ListTile(
+            leading: Image.asset(
+              iconPath,
+              width: 25.w,
+              height: 25.w,
+            ),
+            title: Text(
+              title,
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w700,
+                fontSize: 16.sp,
+              ),
+            ),
+            trailing: trailing,
+            onTap: () {
+              setState(() {
+                selectedPage = pageKey;
+              });
+              onTap();
+            },
+          ),
+      ),
+    );
   }
 
   Future<void> _fetchUserInfo() async {
@@ -102,7 +261,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: 0.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -113,12 +272,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                             SizedBox(
                               width: 80.w,
                               height: 18.h,
-                              child: LinearProgressIndicator(),
+                              child: const LinearProgressIndicator(),
                             )
                           else ...[
                             Text(
                               customerInfo?.name ?? 'اسم المستخدم',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
                                   fontFamily: 'Poppins',
@@ -126,7 +285,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                             ),
                             Text(
                               customerInfo?.email ?? 'user@email.com',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
                                   fontFamily: 'Poppins',
@@ -142,7 +301,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         radius: 30.w,
                         backgroundColor: mainColor,
                         child: isLoadingInfo
-                            ? CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(color: Colors.white)
                             : (customerInfo?.profilePhoto != null &&
                                     customerInfo!.profilePhoto!.isNotEmpty)
                                 ? ClipOval(
@@ -172,174 +331,48 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Expanded(
                   child: Column(
                     children: [
-                      Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: Container(
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(15),
-                              ),
-                              color: Color(0xffFDA479),
-                            ),
-                            child: Consumer<NotificationProvider>(
-                              builder: (context, notificationProvider, child) {
-                                final unreadCount = notificationProvider.unreadCount;
-                                return ListTile(
-                                  leading: Stack(
-                                    children: [
-                                      Image.asset(
-                                        AssetsData.alert,
-                                        width: 25.w,
-                                        height: 25.w,
-                                        color: Colors.black,
-                                      ),
-                                      if (unreadCount > 0)
-                                        Positioned(
-                                          right: 0,
-                                          top: 0,
-                                          child: Container(
-                                            padding: EdgeInsets.all(2.w),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red,
-                                              borderRadius: BorderRadius.circular(10.w),
-                                            ),
-                                            constraints: BoxConstraints(
-                                              minWidth: 16.w,
-                                              minHeight: 16.w,
-                                            ),
-                                            child: Text(
-                                              unreadCount > 99 ? '99+' : unreadCount.toString(),
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10.sp,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  title: Text(
-                                    'الإشعارات',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16.sp,
-                                    ),
-                                  ),
-                                  trailing: unreadCount > 0
-                                      ? Container(
-                                          width: 25.w,
-                                          height: 25.w,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(6),
-                                            ),
-                                            color: Colors.white,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              unreadCount > 99 ? '99+' : unreadCount.toString(),
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 12.sp,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : null,
-                                  onTap: () {
-                                    GoRouter.of(context).push(AppRouter.kNotificationPage);
-                                  },
-                                );
-                              },
-                            ),
-                          )),
-                      Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: ListTile(
-                          leading: Image.asset(
-                            AssetsData.data,
-                            width: 25.w,
-                            height: 25.w,
-                          ),
-                          title: Text(
-                            'بياناتي ',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                          onTap: () {
-                            GoRouter.of(context).push(AppRouter.kMyInformation);
-                          },
-                        ),
+                      _buildMenuItem(
+                        title: 'الإشعارات',
+                        iconPath: AssetsData.alert,
+                        pageKey: 'notifications',
+                        isNotification: true,
+                        onTap: () {
+                          GoRouter.of(context).push(AppRouter.kNotificationPage);
+                        },
                       ),
-                      Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: ListTile(
-                          leading: Image.asset(
-                            AssetsData.account,
-                            width: 25.w,
-                            height: 25.w,
-                          ),
-                          title: Text(
-                            'حساباتي ',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                          onTap: () {
-                            GoRouter.of(context).push(AppRouter.kMyAccounts);
-                          },
-                        ),
+                      _buildMenuItem(
+                        title: 'بياناتي',
+                        iconPath: AssetsData.data,
+                        pageKey: 'my_info',
+                        onTap: () {
+                          GoRouter.of(context).push(AppRouter.kMyInformation);
+                        },
                       ),
-                      Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: ListTile(
-                          leading: Image.asset(
-                            AssetsData.returnPng,
-                            width: 25.w,
-                            height: 25.w,
-                          ),
-                          title: Text(
-                            'الطلبات ',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                          onTap: () {
-                            GoRouter.of(context)
-                                .push(AppRouter.kOrdersViewPage);
-                          },
-                        ),
+                      _buildMenuItem(
+                        title: 'حساباتي',
+                        iconPath: AssetsData.account,
+                        pageKey: 'accounts',
+                        onTap: () {
+                          GoRouter.of(context).push(AppRouter.kMyAccounts);
+                        },
                       ),
-                      Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: ListTile(
-                          leading: Image.asset(
-                            AssetsData.call,
-                            width: 25.w,
-                            height: 25.w,
-                          ),
-                          title: Text(
-                            'اتصل بنا',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                          onTap: () => showDialog<String>(
+                      _buildMenuItem(
+                        title: 'الطلبات',
+                        iconPath: AssetsData.returnPng,
+                        pageKey: 'orders',
+                        onTap: () {
+                          GoRouter.of(context).push(AppRouter.kOrdersViewPage);
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: 'اتصل بنا',
+                        iconPath: AssetsData.call,
+                        pageKey: 'contact',
+                        onTap: () {
+                          // Close drawer first
+                          Navigator.of(context).pop();
+                          // Then show dialog
+                          showDialog<String>(
                             context: context,
                             builder: (BuildContext context) => AlertDialog(
                               backgroundColor: Colors.white,
@@ -358,8 +391,13 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                     fontWeight: FontWeight.w700),
                               ),
                             ),
-                          ),
-                        ),
+                          ).then((_) {
+                            // Clear selection after dialog is closed since we're not navigating to a page
+                            setState(() {
+                              selectedPage = '';
+                            });
+                          });
+                        },
                       ),
                     ],
                   ),

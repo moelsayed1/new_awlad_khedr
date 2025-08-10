@@ -1,7 +1,6 @@
 import 'package:awlad_khedr/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:awlad_khedr/core/assets.dart';
 
 // Explicitly import the Product from top_rated_model.dart and give it an alias
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart' as TopRatedProductModel; // <--- FIX IS HERE

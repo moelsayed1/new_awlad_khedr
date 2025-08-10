@@ -7,12 +7,10 @@ import '../../../../../constant.dart';
 import '../../../../../main.dart';
 
 import 'package:awlad_khedr/features/cart/presentation/views/cart_view.dart';
-import 'package:awlad_khedr/features/cart/services/cart_api_service.dart';
 import 'package:awlad_khedr/features/home/presentation/controllers/category_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:awlad_khedr/features/most_requested/data/model/top_rated_model.dart'
     as top_rated;
-import 'dart:developer';
 
 class ProductItemByCategory extends StatefulWidget {
   final int selectedCategoryId; // Receive selectedCategoryId
@@ -195,19 +193,19 @@ class ProductItemByCategoryState extends State<ProductItemByCategory> {
                           if (index == displayedProducts.length) {
                             return Container(
                               padding: const EdgeInsets.all(16.0),
-                              child: Row(
+                              child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   SizedBox(
                                     width: 20,
                                     height: 20,
-                                                                        child: const CircularProgressIndicator(
+                                                                        child: CircularProgressIndicator(
                                         strokeWidth: 2.0,
                                         valueColor: AlwaysStoppedAnimation<Color>(
                                             darkOrange),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Text(
                                     'جاري تحميل المزيد من المنتجات...',
                                     style: TextStyle(
@@ -227,7 +225,7 @@ class ProductItemByCategoryState extends State<ProductItemByCategory> {
                           final String quantityKey =
                               product.productId?.toString() ??
                                   product.productName ??
-                                  'product_${index}';
+                                  'product_$index';
 
                           return Padding(
                             padding:

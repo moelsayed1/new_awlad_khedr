@@ -201,7 +201,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                             ? const SizedBox(
                                 width: 24,
                                 height: 24,
-                                                                                child: const CircularProgressIndicator(
+                                                                                child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(darkOrange),
                   strokeWidth: 2,
                                 ),
